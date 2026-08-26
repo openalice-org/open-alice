@@ -119,6 +119,7 @@ In **GitHub → repository → Settings → Environments → `deployment`**, add
 | Variable | `AWS_REGION` | The bucket region, for example `eu-west-1` |
 | Variable | `S3_BUCKET` | The bucket name only, without `s3://` |
 | Variable | `CLOUDFRONT_DISTRIBUTION_ID` | The ID copied from the CloudFront distribution |
+| Variable | `CLOUDFRONT_DOMAIN` | The CloudFront domain, without `https://` |
 | Secret | `AWS_ACCESS_KEY_ID` | Access key ID of the deploy-only IAM user |
 | Secret | `AWS_SECRET_ACCESS_KEY` | Secret access key of the deploy-only IAM user |
 
@@ -131,10 +132,13 @@ The non-secret repository variables currently configured for this deployment are
 | `AWS_REGION` | `eu-central-1` |
 | `S3_BUCKET` | `open-alice-shards` |
 | `CLOUDFRONT_DISTRIBUTION_ID` | `E1834M3BDG8A2Z` |
+| `CLOUDFRONT_DOMAIN` | `d385pc8be2cjhs.cloudfront.net` |
 
 The two AWS access-key values intentionally remain GitHub Secrets only and must never be committed to this repository.
 
 The workflow explicitly targets the `deployment` GitHub Environment, so its environment-scoped secrets and variables are available to both publishing and branch-cleanup jobs.
+
+Each deployment publishes its URL in the GitHub Actions job summary and as the GitHub Environment deployment URL.
 
 Push to `main`, any branch, or any tag to deploy. The workflow invalidates only the deployed CloudFront path, so changed files are available immediately. Open branch and tag previews with a trailing slash—for example `https://YOUR_DISTRIBUTION.cloudfront.net/branches/feature/map/`—so the relative application data files resolve inside that preview.
 
