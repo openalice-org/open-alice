@@ -3,7 +3,8 @@ name: Deploy static site to S3
 on:
   push:
     branches:
-      - "**"
+      - main
+      - "publish/**"
     tags:
       - "**"
   delete:
@@ -102,7 +103,7 @@ jobs:
             --paths "$INVALIDATION_PATH"
 
   remove-branch-preview:
-    if: github.event_name == 'delete' && github.event.ref_type == 'branch'
+    if: github.event_name == 'delete' && github.event.ref_type == 'branch' && startsWith(github.event.ref, 'publish/')
     runs-on: ubuntu-latest
     environment: deployment
     env:
