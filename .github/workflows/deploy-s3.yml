@@ -20,11 +20,16 @@ jobs:
   deploy:
     if: github.event_name != 'delete'
     runs-on: ubuntu-latest
-    environment: deployment
+    outputs:
+      site_url: ${{ steps.location.outputs.site_url }}
+    environment:
+      name: deployment
+      url: ${{ steps.location.outputs.site_url }}
     env:
       AWS_REGION: ${{ vars.AWS_REGION }}
       S3_BUCKET: ${{ vars.S3_BUCKET }}
       CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}
+      CLOUDFRONT_DOMAIN: ${{ vars.CLOUDFRONT_DOMAIN }}
     steps:
       - uses: actions/checkout@v5
 
@@ -47,14 +52,17 @@ jobs:
             echo "prefix=" >> "$GITHUB_OUTPUT"
             echo "base_path=/" >> "$GITHUB_OUTPUT"
             echo "invalidation_path=/*" >> "$GITHUB_OUTPUT"
+            echo "site_url=https://${CLOUDFRONT_DOMAIN}/index.html" >> "$GITHUB_OUTPUT"
           elif [[ "${GITHUB_REF_TYPE}" == "branch" ]]; then
             echo "prefix=branches/${GITHUB_REF_NAME}/" >> "$GITHUB_OUTPUT"
             echo "base_path=/branches/${GITHUB_REF_NAME}/" >> "$GITHUB_OUTPUT"
             echo "invalidation_path=/branches/${GITHUB_REF_NAME}/*" >> "$GITHUB_OUTPUT"
+            echo "site_url=https://${CLOUDFRONT_DOMAIN}/branches/${GITHUB_REF_NAME}/index.html" >> "$GITHUB_OUTPUT"
           else
             echo "prefix=tags/${GITHUB_REF_NAME}/" >> "$GITHUB_OUTPUT"
             echo "base_path=/tags/${GITHUB_REF_NAME}/" >> "$GITHUB_OUTPUT"
             echo "invalidation_path=/tags/${GITHUB_REF_NAME}/*" >> "$GITHUB_OUTPUT"
+            echo "site_url=https://${CLOUDFRONT_DOMAIN}/tags/${GITHUB_REF_NAME}/index.html" >> "$GITHUB_OUTPUT"
           fi
 
       - run: npm ci
@@ -76,6 +84,13 @@ jobs:
           else
             aws s3 sync dist/ "s3://${S3_BUCKET}/${PREFIX}" --delete
           fi
+
+      - name: Publish deployment URL
+        env:
+          SITE_URL: ${{ steps.location.outputs.site_url }}
+        run: |
+          echo "## Deployment" >> "$GITHUB_STEP_SUMMARY"
+          echo "[Open deployed site]($SITE_URL)" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Invalidate the deployed CloudFront paths
         if: vars.CLOUDFRONT_DISTRIBUTION_ID != ''
