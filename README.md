@@ -20,10 +20,17 @@ The workflow in [`.github/workflows/deploy-s3.yml`](.github/workflows/deploy-s3.
 | Git ref | S3 location | Website path |
 | --- | --- | --- |
 | `main` | bucket root | `/` |
-| branch `feature/map` | `branches/feature/map/` | `/branches/feature/map/` |
+| branch `publish/feature-map` | `branches/publish/feature-map/` | `/branches/publish/feature-map/` |
 | tag `v1.0.0` | `tags/v1.0.0/` | `/tags/v1.0.0/` |
 
-When a branch is deleted, its `branches/<branch-name>/` prefix is deleted too. Tags are kept deliberately, even if a tag is removed.
+Only `main`, tags, and branches named `publish/*` deploy. When a `publish/*` branch is deleted, its `branches/<branch-name>/` prefix is deleted too. Tags are kept deliberately, even if a tag is removed.
+
+To create a preview intentionally:
+
+```bash
+git switch -c publish/my-preview
+git push -u origin publish/my-preview
+```
 
 ### 1. Prepare the private bucket
 
@@ -140,7 +147,7 @@ The workflow explicitly targets the `deployment` GitHub Environment, so its envi
 
 Each deployment publishes its URL in the GitHub Actions job summary and as the GitHub Environment deployment URL.
 
-Push to `main`, any branch, or any tag to deploy. The workflow invalidates only the deployed CloudFront path, so changed files are available immediately. Open branch and tag previews with a trailing slash—for example `https://YOUR_DISTRIBUTION.cloudfront.net/branches/feature/map/`—so the relative application data files resolve inside that preview.
+Push to `main`, any `publish/*` branch, or any tag to deploy. The workflow invalidates only the deployed CloudFront path, so changed files are available immediately. Open branch and tag previews with a trailing slash—for example `https://YOUR_DISTRIBUTION.cloudfront.net/branches/publish/feature-map/`—so the relative application data files resolve inside that preview.
 
 ### Production build
 
