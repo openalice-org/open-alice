@@ -1,0 +1,113 @@
+name: Deploy static site to S3
+
+on:
+  push:
+    branches:
+      - "**"
+    tags:
+      - "**"
+  delete:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: s3-static-${{ github.event.ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    if: github.event_name != 'delete'
+    runs-on: ubuntu-latest
+    environment: deployment
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      S3_BUCKET: ${{ vars.S3_BUCKET }}
+      CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+
+      - uses: aws-actions/configure-aws-credentials@v5
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Select the S3 location for this ref
+        id: location
+        shell: bash
+        run: |
+          if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
+            echo "prefix=" >> "$GITHUB_OUTPUT"
+            echo "base_path=/" >> "$GITHUB_OUTPUT"
+            echo "invalidation_path=/*" >> "$GITHUB_OUTPUT"
+          elif [[ "${GITHUB_REF_TYPE}" == "branch" ]]; then
+            echo "prefix=branches/${GITHUB_REF_NAME}/" >> "$GITHUB_OUTPUT"
+            echo "base_path=/branches/${GITHUB_REF_NAME}/" >> "$GITHUB_OUTPUT"
+            echo "invalidation_path=/branches/${GITHUB_REF_NAME}/*" >> "$GITHUB_OUTPUT"
+          else
+            echo "prefix=tags/${GITHUB_REF_NAME}/" >> "$GITHUB_OUTPUT"
+            echo "base_path=/tags/${GITHUB_REF_NAME}/" >> "$GITHUB_OUTPUT"
+            echo "invalidation_path=/tags/${GITHUB_REF_NAME}/*" >> "$GITHUB_OUTPUT"
+          fi
+
+      - run: npm ci
+
+      - name: Build static site
+        env:
+          VITE_BASE_PATH: ${{ steps.location.outputs.base_path }}
+        run: npm run build
+
+      - name: Publish and remove stale files for this ref
+        env:
+          PREFIX: ${{ steps.location.outputs.prefix }}
+        run: |
+          if [[ -z "$PREFIX" ]]; then
+            # Preserve previews while syncing and pruning the main site at the bucket root.
+            aws s3 sync dist/ "s3://${S3_BUCKET}/" --delete \
+              --exclude "branches/*" \
+              --exclude "tags/*"
+          else
+            aws s3 sync dist/ "s3://${S3_BUCKET}/${PREFIX}" --delete
+          fi
+
+      - name: Invalidate the deployed CloudFront paths
+        if: vars.CLOUDFRONT_DISTRIBUTION_ID != ''
+        env:
+          INVALIDATION_PATH: ${{ steps.location.outputs.invalidation_path }}
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" \
+            --paths "$INVALIDATION_PATH"
+
+  remove-branch-preview:
+    if: github.event_name == 'delete' && github.event.ref_type == 'branch'
+    runs-on: ubuntu-latest
+    environment: deployment
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      S3_BUCKET: ${{ vars.S3_BUCKET }}
+      BRANCH_NAME: ${{ github.event.ref }}
+      CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v5
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Remove the deleted branch preview
+        run: aws s3 rm "s3://${S3_BUCKET}/branches/${BRANCH_NAME}/" --recursive
+
+      - name: Invalidate the deleted branch preview
+        if: vars.CLOUDFRONT_DISTRIBUTION_ID != ''
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" \
+            --paths "/branches/${BRANCH_NAME}/*"
