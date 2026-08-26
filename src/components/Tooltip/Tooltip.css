@@ -1,0 +1,88 @@
+.tooltip {
+  position: fixed;
+  z-index: 60;
+  padding: 14px 16px;
+  border-radius: 10px;
+  font-family: var(--sans);
+  pointer-events: none;
+}
+
+.tooltip.pinned {
+  pointer-events: auto;
+}
+
+.tip-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.tooltip h3 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.tooltip .inst {
+  font-size: 12px;
+  color: var(--ink-dim);
+  margin-top: 2px;
+}
+
+.tip-close {
+  font-size: 18px;
+  line-height: 1;
+  color: var(--ink-dim);
+  padding: 2px 4px;
+  flex-shrink: 0;
+}
+
+.tip-close:hover {
+  color: var(--ink);
+}
+
+.tooltip .row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12.5px;
+  padding: 3px 0;
+  border-top: 1px solid var(--line-soft);
+}
+
+.tooltip .row:first-of-type {
+  border-top: none;
+}
+
+.tooltip .row span {
+  color: var(--ink-dim);
+}
+
+.tooltip .row b {
+  font-weight: 600;
+  text-align: right;
+}
+
+.tooltip .pill {
+  margin-top: 8px;
+  font-size: 11.5px;
+  color: var(--ink-dim);
+  font-style: italic;
+  font-family: var(--serif);
+}
+
+.tooltip .tip-link {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--thinker);
+  text-decoration: none;
+}
+
+.tooltip .tip-link:hover {
+  text-decoration: underline;
+}

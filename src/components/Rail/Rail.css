@@ -1,0 +1,247 @@
+.panel-rail {
+  position: fixed;
+  top: 24px;
+  z-index: 40;
+  border-radius: 999px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px;
+}
+
+.panel-rail.rail-right {
+  right: 24px;
+}
+
+.panel-rail.rail-left {
+  left: 24px;
+}
+
+.rail-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  transition: opacity 0.2s ease;
+}
+
+/* the left rail's rows anchor their button to the left instead, so its
+   popout menus (opening rightward, positioned in Rail.tsx's Popout) don't
+   have to reach back across the row. */
+.rail-left .rail-row {
+  justify-content: flex-start;
+}
+
+/* the scatter tools act on the scatter/taxonomy views — inert while the geo
+   map is on screen (see Rail.tsx's onGeoView/mapLocked). */
+.rail-row.locked {
+  opacity: 0.38;
+  pointer-events: none;
+}
+
+/* Stacks the View/Emphasis pill and the History bubble as two separate
+   floating panels, one under the other, instead of the fixed positioning
+   living on .panel-rail itself (see the override below). */
+.rail-left-stack {
+  position: fixed;
+  top: 24px;
+  left: 24px;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.rail-left-stack .panel-rail {
+  position: static;
+}
+
+/* History back button: its own small floating bubble, separate from the
+   View/Emphasis panel — pops one entry off the app's undo stack
+   (region/lens/emphasis/config, see AppState's history). */
+.rail-history {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  color: var(--ink-dim);
+  cursor: pointer;
+  transition: color 0.15s, opacity 0.15s;
+}
+
+.rail-history:hover {
+  color: var(--ink);
+}
+
+.rail-history.disabled {
+  display: none;
+}
+
+.rail-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: var(--ink-dim);
+  transition: color 0.15s, background 0.15s;
+}
+
+.rail-btn:hover {
+  color: var(--ink);
+  background: var(--line-soft);
+}
+
+/* icon-only rail, like the original: the active selection is written into
+   this span for state/debugging purposes but is never shown — the icon
+   alone (plus its native title tooltip) is the affordance. Showing it (even
+   just on hover) collided with the dropdown menu below it in the stacked
+   rail (see .menu below). */
+.rail-row .mode {
+  display: none;
+}
+
+/* Position (fixed, left/top or right/top) comes from Rail.tsx's Popout —
+   computed from the anchor row's own measured rect, not CSS. Portaled to
+   document.body rather than rendered as a plain in-place dropdown: both
+   rail panels have their own backdrop-filter (the frosted capsule), and a
+   nested descendant with its own backdrop-filter ends up sampling that
+   ancestor's blurred backdrop root instead of the real page behind it — a
+   flat translucent tint with crisp, unblurred content showing through
+   rather than an actual blur. Portaling out from under it is what makes
+   this element's own blur render correctly. */
+.menu {
+  min-width: 190px;
+  /* higher opacity than the shared --glass (0.62) — this rail's dropdowns
+     sit over the busiest part of the view (scatter points/hex cells), so
+     they need more contrast than the shared glass-panel default gives. */
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(9px) saturate(1.4);
+  -webkit-backdrop-filter: blur(9px) saturate(1.4);
+  border: 1px solid var(--line-soft);
+  border-radius: 10px;
+  box-shadow: 0 8px 30px rgba(24, 24, 22, 0.12);
+  padding: 6px;
+  z-index: 45;
+}
+
+.menu-head {
+  padding: 6px 12px 4px;
+  font-family: var(--sans);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.menu-opt {
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: var(--serif);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.menu-opt:hover {
+  background: var(--line-soft);
+}
+
+.menu-opt.active {
+  color: var(--thinker);
+  font-weight: 600;
+}
+
+.menu-opt.disabled {
+  color: var(--ink-faint);
+  cursor: default;
+}
+
+.menu-opt.disabled:hover {
+  background: transparent;
+}
+
+.menu-sep {
+  height: 0;
+  margin: 5px 6px;
+  border-top: 1px dashed var(--line);
+}
+
+.opt-badge {
+  margin-left: auto;
+  padding-left: 10px;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 10.5px;
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+
+/* the per-view Config lens (e.g. Domains' Density/Domain mix/Primary domain,
+   or Axes' People/Boxes and, once Boxes is active, its X/Y bin-axis toggle).
+   Position comes from Rail.tsx's Popout, same portaled-out-of-the-frosted-
+   rail reasoning as .menu above (see its comment) — otherwise this pill's
+   own backdrop-filter can't find the real page behind it to blur. */
+.config-buttons {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(9px) saturate(1.4);
+  -webkit-backdrop-filter: blur(9px) saturate(1.4);
+  box-shadow: inset 0 0 0 1px var(--line-soft);
+  white-space: nowrap;
+  z-index: 45;
+}
+
+.config-sep {
+  padding: 0 2px;
+  color: var(--ink-faint);
+  font-size: 12px;
+}
+
+.config-btn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 7px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  color: var(--ink-dim);
+  font-family: var(--serif);
+  font-size: 12.5px;
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.config-btn:hover {
+  color: var(--ink);
+}
+
+.config-btn.active {
+  background: var(--paper);
+  color: var(--thinker);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(24, 24, 22, 0.18);
+}
+
+.config-btn.disabled {
+  color: var(--ink-faint);
+  cursor: default;
+}
+
+.config-btn.disabled:hover {
+  color: var(--ink-faint);
+}

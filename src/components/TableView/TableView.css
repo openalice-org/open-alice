@@ -1,0 +1,278 @@
+/* List is a first-class view now (picked from the Rail's Lens menu, not a
+   modal popped over another view) — it sits BELOW the Rail/Colophon overlay
+   controls (z-index 40) rather than above them, so Lens stays reachable to
+   navigate away. */
+/* Padding clears the Rail's corner pills (top-left/top-right, ~24px inset)
+   and the Colophon caption (bottom-left, ~24-28px inset) so the panel never
+   sits under those fixed z-index:40 controls — asymmetric because the
+   Colophon's institution picker can grow wider/taller than the Rail's icon
+   pills. */
+.table-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  background: var(--paper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 100px 72px 112px 108px;
+}
+
+.table-panel {
+  width: 100%;
+  height: 100%;
+  max-width: 1360px;
+  max-height: 860px;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--paper);
+}
+
+.table-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+}
+
+.table-toolbar input {
+  flex: 1;
+  max-width: 340px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--paper-deep);
+  font-size: 13px;
+  outline: none;
+}
+
+.table-count {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-dim);
+  white-space: nowrap;
+}
+
+.table-pager {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-dim);
+}
+
+.table-pager button {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  font-size: 15px;
+}
+
+.table-pager button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.table-pager button:not(:disabled):hover {
+  background: var(--line-soft);
+}
+
+.table-scroll {
+  flex: 1;
+  overflow: auto;
+}
+
+.people-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+
+.people-table thead {
+  position: sticky;
+  top: 0;
+  background: var(--paper);
+  z-index: 1;
+}
+
+.people-table th {
+  text-align: left;
+  padding: 10px 14px;
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.people-table th:hover {
+  color: var(--ink);
+}
+
+.sort-arrow {
+  color: var(--thinker);
+}
+
+.people-table td {
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--line-soft);
+  white-space: nowrap;
+}
+
+.people-table .topic-cell {
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.people-table tbody tr {
+  cursor: pointer;
+}
+
+.people-table tbody tr:hover {
+  background: var(--line-soft);
+}
+
+.people-table tbody tr.pinned-row {
+  background: rgba(65, 97, 142, 0.1);
+}
+
+.detail-row td {
+  padding: 0;
+  cursor: default;
+}
+
+.detail-row:hover {
+  background: transparent;
+}
+
+/* grid-template-rows 0fr→1fr animates height without a fixed/measured target
+   — the usual max-height trick either clips tall content or leaves dead
+   transition time on short content. */
+.detail-collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.28s ease;
+}
+
+.detail-collapse.expanded {
+  grid-template-rows: 1fr;
+}
+
+.detail-collapse-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.detail-panel {
+  display: flex;
+  gap: 32px;
+  padding: 18px 24px 22px;
+  background: rgba(65, 97, 142, 0.04);
+  border-top: 1px solid var(--line);
+}
+
+.detail-col {
+  flex: 1;
+  min-width: 0;
+}
+
+.detail-col + .detail-col {
+  flex: 1.2;
+}
+
+.detail-section-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--sans);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 8px;
+}
+
+.detail-section-label:not(:first-child) {
+  margin-top: 16px;
+}
+
+.detail-ext-link {
+  color: var(--thinker);
+  text-decoration: none;
+  font-size: 11px;
+}
+
+.detail-ext-link:hover {
+  text-decoration: underline;
+}
+
+.detail-topic {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+
+.detail-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12.5px;
+  padding: 3px 0;
+}
+
+.detail-line span {
+  color: var(--ink-dim);
+}
+
+.detail-line b {
+  font-weight: 600;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.detail-works-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-family: var(--serif);
+  font-size: 12.5px;
+  color: var(--ink-dim);
+}
+
+.detail-works-list li {
+  padding-left: 14px;
+  position: relative;
+}
+
+.detail-works-list li::before {
+  content: "›";
+  position: absolute;
+  left: 0;
+  color: var(--ink-faint);
+}
+
+.detail-empty {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 12px;
+  color: var(--ink-faint);
+}

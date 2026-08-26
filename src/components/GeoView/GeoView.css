@@ -1,0 +1,304 @@
+.geo-view {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.geo-svg {
+  width: min(100%, 1100px);
+  height: min(100%, 780px);
+}
+
+.geo-node {
+  cursor: pointer;
+}
+
+.geo-outline {
+  fill: var(--paper-deep);
+  stroke: var(--line);
+  stroke-width: 1;
+  pointer-events: none;
+}
+
+/* Zero-data fallback circle (see PieGlyph) — a plain grey circle never gets
+   a CSS transform for its hover state (a transform would scale from the
+   *whole SVG's* origin unless transform-box is pinned to the element's own
+   box, and even pinned, the growing radius shifts the mouse off the shape
+   mid-hover — flicker/drift either way), so this is stroke-only. */
+.geo-pie-fallback {
+  fill: #9a9a93;
+  stroke: rgba(255, 255, 255, 0.7);
+  stroke-width: 1;
+  transition: stroke 0.15s ease;
+}
+
+.geo-node:hover .geo-pie-fallback {
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+
+/* Aid-panel pie only (see PieGlyph's `highlight` mode) — its fill crossfades
+   between grey/vivid/faded as the hovered domain section changes. */
+.pie-slice-transition {
+  transition: fill 0.3s ease;
+}
+
+.country-label {
+  text-anchor: middle;
+  font-family: var(--serif);
+  font-size: 15px;
+  letter-spacing: 0.06em;
+  fill: var(--ink-dim);
+  pointer-events: none;
+}
+
+.inst-label {
+  text-anchor: middle;
+  font-family: var(--sans);
+  font-size: 10px;
+  fill: var(--ink-dim);
+  pointer-events: none;
+}
+
+/* ---------- city cluster : every member university's pie sits permanently
+   at its own fanned-out spot (see cityNodes/CityNode in GeoView.tsx) — no
+   hover-triggered reveal, so multi-uni cities never overlap. ---------- */
+.geo-city {
+  cursor: pointer;
+}
+
+.geo-core {
+  fill: #c7c7c1;
+  pointer-events: none;
+}
+
+.geo-leader {
+  stroke: var(--ink-faint);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+}
+
+.geo-uni {
+  cursor: pointer;
+}
+
+/* A university's resting glyph — plain grey circle by default, recolours
+   and resizes when a domain section is hovered in the aid panel (see
+   CityNode), and fades out (opacity) when its own pie fades in on direct
+   hover — both glyphs stay mounted at once and only crossfade. */
+.geo-domain-circle {
+  stroke: rgba(255, 255, 255, 0.7);
+  stroke-width: 1;
+  transition: r 0.3s ease, fill 0.3s ease, opacity 0.25s ease, stroke 0.15s ease;
+}
+
+/* The domain-mix pie underneath — hidden (opacity 0) until this exact
+   university is directly hovered, matching .geo-domain-circle's fade. */
+.geo-uni-pie-fade {
+  transition: opacity 0.25s ease;
+}
+
+.geo-uni:hover .geo-domain-circle {
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+
+/* ---------- Aid panel (drilled-into-a-country only) ---------- */
+.geo-aid-panel {
+  position: fixed;
+  right: 56px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+  width: 360px;
+  padding: 20px 22px;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.aid-head {
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.aid-sub {
+  margin-top: -10px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--ink-faint);
+}
+
+.aid-overview {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.aid-pie-svg {
+  flex: none;
+}
+
+.aid-caption {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 11px;
+  line-height: 1.55;
+  color: var(--ink-faint);
+}
+
+/* No gap between sections — .geo-aid-panel's own flex `gap` would leave a
+   dead strip between them where the mouse is over neither, dropping
+   `hoveredPanelDomain` back to null for a moment and snapping the map's
+   circles back to grey mid-transition. Touching sections keep hover
+   continuous as the mouse travels straight down the list. */
+.aid-domains {
+  display: flex;
+  flex-direction: column;
+}
+
+.aid-domain {
+  padding: 10px 10px 8px;
+  margin: 0 -10px;
+  border-radius: 8px;
+  border-top: 1px solid var(--line-soft);
+  transition: background-color 0.15s ease;
+}
+
+.aid-domain-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  font-family: var(--sans);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+.aid-domain-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.aid-domain-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.aid-domain-count {
+  font-family: var(--mono);
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+
+.aid-domain-list {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.aid-domain-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 1px 0;
+  font-family: var(--serif);
+  font-size: 12.5px;
+  color: var(--ink-dim);
+  cursor: default;
+}
+
+.aid-domain-row .rank {
+  flex: none;
+  width: 12px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-faint);
+}
+
+.aid-domain-row .name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aid-domain-row .value {
+  flex: none;
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-faint);
+}
+
+.geo-hover-card {
+  position: fixed;
+  z-index: 60;
+  padding: 10px 14px;
+  border-radius: 8px;
+  pointer-events: none;
+  min-width: 160px;
+}
+
+.geo-hover-card .title {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.geo-hover-card .row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+  padding: 2px 0;
+}
+
+.geo-hover-card .row span {
+  color: var(--ink-dim);
+}
+
+.geo-hover-card .row b {
+  font-weight: 600;
+}
+
+.geo-hover-card .row span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.domain-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.geo-caveat {
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid var(--line-soft);
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 10.5px;
+  line-height: 1.4;
+  color: var(--ink-faint);
+}

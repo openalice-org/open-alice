@@ -1,0 +1,67 @@
+:root {
+  --paper: #fbfbf9;
+  --paper-deep: #f3f3ef;
+  --ink: #181816;
+  --ink-dim: #5d5d58;
+  --ink-faint: #9a9a93;
+  --line: rgba(24, 24, 22, 0.14);
+  --line-soft: rgba(24, 24, 22, 0.07);
+  --glass: rgba(255, 255, 255, 0.62);
+  --thinker: #41618e;
+  --builder: #b65c34;
+  --point: #5d5d58;
+  --serif: "EB Garamond", Georgia, "Times New Roman", serif;
+  --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  overflow: hidden;
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+  min-width: 640px;
+  min-height: 480px;
+}
+
+button,
+input {
+  font-family: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+
+a {
+  color: var(--thinker);
+}
+
+.glass-panel {
+  background: var(--glass);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  border: 1px solid var(--line-soft);
+  box-shadow: 0 8px 30px rgba(24, 24, 22, 0.08);
+}
+
+::selection {
+  background: var(--thinker);
+  color: var(--paper);
+}
