@@ -1,0 +1,31 @@
+.app-root {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  min-width: 640px;
+  overflow: hidden;
+  background: var(--paper);
+}
+
+.boot-screen {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--paper);
+}
+
+.boot-message {
+  font-family: var(--serif);
+  font-size: 15px;
+  color: var(--ink-dim);
+}
+
+.boot-message.error {
+  color: var(--builder);
+}
+
+.panel {
+  position: fixed;
+}

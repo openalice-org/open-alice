@@ -1,0 +1,135 @@
+/* Deliberately bare — no background/border/shadow. The colophon is a quiet
+   caption melting into the page, not a card; only the institution picker's
+   own dropdown (.inst-menu, styled as a glass-panel below) gets a surface. */
+.colophon {
+  position: fixed;
+  left: 28px;
+  bottom: 24px;
+  z-index: 40;
+  padding: 10px 16px;
+  max-width: calc(100vw - 184px);
+}
+
+.brand {
+  position: relative;
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.01em;
+}
+
+.inst-pick {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  border-bottom: 1px dashed var(--line);
+  color: var(--ink-dim);
+  transition: color 0.15s;
+}
+
+.inst-pick:hover,
+.inst-pick.open {
+  color: var(--ink);
+  border-bottom-color: var(--ink-faint);
+}
+
+.inst-pick i {
+  font-size: 12px;
+  transition: transform 0.15s;
+}
+
+.inst-pick.open i {
+  transform: rotate(180deg);
+}
+
+/* surface (background/blur/border/shadow) comes from .glass-panel, applied
+   alongside this class in Colophon.tsx — this just carries layout. */
+.inst-menu {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  margin-bottom: 10px;
+  min-width: 260px;
+  max-height: 55vh;
+  overflow-y: auto;
+  border-radius: 10px;
+  padding: 6px;
+}
+
+/* a country row at the root level: name left, drill-in chevron right. */
+.inst-drill {
+  justify-content: space-between;
+}
+
+.inst-drill i {
+  font-size: 12px;
+  color: var(--ink-faint);
+}
+
+/* breadcrumb back to the root level, shown at the top of a country's list. */
+.inst-crumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  margin-bottom: 4px;
+  border-bottom: 1px dashed var(--line);
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  cursor: pointer;
+}
+
+.inst-crumb:hover {
+  color: var(--ink);
+}
+
+.inst-crumb i {
+  font-size: 12px;
+}
+
+.inst-opt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.inst-opt:hover {
+  background: var(--line-soft);
+}
+
+.inst-opt.active {
+  color: var(--thinker);
+  font-weight: 600;
+}
+
+.inst-opt.inst-all {
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--ink-dim);
+  border-top: 1px dashed var(--line);
+  margin-top: 4px;
+  padding-top: 9px;
+}
+
+.inst-check {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.nums {
+  margin-top: 2px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-faint);
+}

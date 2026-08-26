@@ -1,0 +1,195 @@
+.scatter-view {
+  position: absolute;
+  inset: 0;
+}
+
+.scatter-view svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+}
+
+.scatter-view svg:active {
+  cursor: grabbing;
+}
+
+.point {
+  cursor: pointer;
+  transition:
+    opacity 0.18s ease,
+    cx 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+    cy 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+    fill 0.45s ease,
+    fill-opacity 0.45s ease;
+}
+
+.point.pinned {
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+
+/* Clusters aggregation: the d3-force sim writes cx/cy every tick, so the
+   position transition above must be dropped here — a CSS transition
+   racing a ~60fps imperative writer just judders. Opacity/fill stay
+   transitioned since those are still React-driven, not sim-driven. */
+.point.no-flight {
+  transition:
+    opacity 0.18s ease,
+    fill 0.45s ease,
+    fill-opacity 0.45s ease;
+}
+
+.chrome .axis-cross {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+
+.chrome .tri-edge {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 1;
+}
+
+.pole-labels {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.pole {
+  position: absolute;
+  font-family: var(--serif);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: var(--ink-faint);
+}
+
+.pole-top {
+  top: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.pole-bottom {
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.pole-left {
+  top: 50%;
+  left: 24px;
+  transform: translateY(-50%);
+}
+
+.pole-right {
+  top: 50%;
+  right: 24px;
+  transform: translateY(-50%);
+}
+
+/* Domains-mode corner labels: positioned in JS from the actual triangle
+   vertex (see ScatterView.tsx's domainLabelPos), not a fixed CSS anchor —
+   `left`/`top` are set inline per-label, this just centers the text on
+   that point. */
+.pole-tri {
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+}
+
+/* ---------- Boxplot aggregation (Cartesian) ---------- */
+/* box anatomy: Q1-Q3 rect, median line, 1.5xIQR whiskers + caps, outlier
+   dots. Colors only — stroke-width is set per-render so it can be
+   counter-scaled against zoom (see ScatterView.tsx). */
+.box-rect {
+  fill: var(--glass);
+  stroke: var(--line);
+}
+
+.box-median {
+  stroke: var(--ink);
+}
+
+.box-whisker {
+  stroke: var(--ink-dim);
+  fill: none;
+}
+
+.box-outlier {
+  fill: var(--ink-faint);
+}
+
+/* ---------- Primary domain (clusters) legend ---------- */
+/* Deliberately bare, same quiet-caption treatment as the Colophon in the
+   bottom-left corner — no background/border/shadow, just text on the page. */
+.domain-legend {
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  z-index: 20;
+  max-width: 460px;
+  padding: 10px 16px;
+  text-align: right;
+}
+
+.legend-head {
+  font-family: var(--sans);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+.legend-caption {
+  margin-top: 3px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: var(--ink-faint);
+}
+
+.legend-swatches {
+  margin-top: 6px;
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  column-gap: 14px;
+  row-gap: 3px;
+}
+
+.legend-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--ink-dim);
+}
+
+.legend-swatch {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.legend-swatch-zebra {
+  border-radius: 50%;
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--ink-dim) 0,
+    var(--ink-dim) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+}
+
+/* ---------- Hex density aggregation (Cartesian + Domains) ---------- */
+/* one hexagon per occupied cell; fill is set per-render (monochrome in
+   Cartesian, mean member color in Domains) so it isn't declared here. */
+.hex {
+  stroke: var(--paper);
+  pointer-events: none;
+}
