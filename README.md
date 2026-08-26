@@ -2,6 +2,17 @@
 
 This Vite/React application is deployed automatically to a private Amazon S3 bucket and served publicly through CloudFront.
 
+## Run locally
+
+Use Node.js 24 or later, then start the Vite development server:
+
+```bash
+npm ci
+npm run dev
+```
+
+Open the local URL printed by Vite, normally [http://localhost:5173](http://localhost:5173). Stop the server with `Ctrl+C`.
+
 ## Deploy to S3
 
 The workflow in [`.github/workflows/deploy-s3.yml`](.github/workflows/deploy-s3.yml) builds `dist/` and publishes it on every branch and tag push. It **overwrites the current files for that ref** and removes obsolete files; it does not retain a commit history.
@@ -127,7 +138,7 @@ The workflow explicitly targets the `deployment` GitHub Environment, so its envi
 
 Push to `main`, any branch, or any tag to deploy. The workflow invalidates only the deployed CloudFront path, so changed files are available immediately. Open branch and tag previews with a trailing slash—for example `https://YOUR_DISTRIBUTION.cloudfront.net/branches/feature/map/`—so the relative application data files resolve inside that preview.
 
-### Local build
+### Production build
 
 ```bash
 npm ci
