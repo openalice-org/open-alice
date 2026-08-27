@@ -4,7 +4,43 @@ This Vite/React application is deployed automatically to a private Amazon S3 buc
 
 ## Run locally
 
-Use Node.js 24 or later, then start the Vite development server:
+Use Node.js 24 or later, then start the Vite development server.
+
+### Install Node.js
+
+#### Linux / macOS (nvm)
+
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.7/install.sh | bash
+nvm install 24
+```
+
+#### macOS (Homebrew)
+
+```bash
+brew install node@24
+```
+
+More macOS install options (installer, MacPorts, fnm, etc.): [nodejs.org/en/download/package-manager](https://nodejs.org/en/download/package-manager#macos)
+
+#### Windows (winget)
+
+```powershell
+winget install OpenJS.NodeJS.LTS
+```
+
+#### Windows (nvm-windows)
+
+Install [nvm-windows](https://github.com/coreybutler/nvm-windows), then:
+
+```powershell
+nvm install 24
+nvm use 24
+```
+
+You can also download the official installer for any platform from [nodejs.org/en/download](https://nodejs.org/en/download).
+
+### Start the dev server
 
 ```bash
 npm ci
