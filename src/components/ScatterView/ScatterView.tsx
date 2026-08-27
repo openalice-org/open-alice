@@ -15,6 +15,7 @@ import {
 } from "d3-force";
 import { useAppState } from "../../state/AppState";
 import { isGeoScope } from "../../lib/institutions";
+import { matchesPersonSearch } from "../../lib/people";
 import type { Dataset, Person } from "../../types";
 import {
   hasShares,
@@ -75,15 +76,6 @@ const BOUNDARY_PAIRS: [DomainKey, DomainKey][] = [
   ["sensing", "computing"],
   ["communication", "computing"],
 ];
-
-function matchesSearch(p: Person, q: string): boolean {
-  const needle = q.toLowerCase();
-  return (
-    p.name.toLowerCase().includes(needle) ||
-    p.institution.toLowerCase().includes(needle) ||
-    (p.topic ?? "").toLowerCase().includes(needle)
-  );
-}
 
 export default function ScatterView({ dataset, people }: ScatterViewProps) {
   const { state, dispatch } = useAppState();
@@ -494,7 +486,7 @@ export default function ScatterView({ dataset, people }: ScatterViewProps) {
               // flight + fade rather than points vanishing/appearing outright.
               const hiddenInDomains = state.mapMode === "domains" && !hasShares(p);
               const hoverDim = hoveredId != null && hoveredId !== p.id;
-              const searchDim = state.search.trim() !== "" && !matchesSearch(p, state.search);
+              const searchDim = state.search.trim() !== "" && !matchesPersonSearch(p, state.search);
               let opacity = 0.88;
               if (hiddenInDomains) opacity = 0;
               else if (hoverDim) opacity *= 0.12;
@@ -548,7 +540,7 @@ export default function ScatterView({ dataset, people }: ScatterViewProps) {
                     : "var(--point)";
                 const r = radiusScale(p) * CLUSTER_R_BOOST;
                 const hoverDim = hoveredId != null && hoveredId !== p.id;
-                const searchDim = state.search.trim() !== "" && !matchesSearch(p, state.search);
+                const searchDim = state.search.trim() !== "" && !matchesPersonSearch(p, state.search);
                 let opacity = 0.88;
                 if (hoverDim) opacity *= 0.12;
                 else if (searchDim) opacity *= 0.22;
