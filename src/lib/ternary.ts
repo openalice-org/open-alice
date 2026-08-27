@@ -26,6 +26,14 @@ export const DOMAIN_COLORS_VIVID = {
   sensing: "#3b82f6",
 };
 
+// Primary-domain glyphs intentionally sit one step quieter than the blended
+// Domain Mix points, so the two modes stay distinct without competing.
+export const DOMAIN_COLORS_PRIMARY = {
+  computing: "#e85b5b",
+  communication: "#34b96c",
+  sensing: "#538bdc",
+};
+
 export type DomainKey = keyof typeof DOMAIN_COLORS;
 
 // Canonical ordering, used to build a stable pair id (e.g. "sensing-communication")
@@ -90,6 +98,12 @@ function hexToRgb(hex: string): [number, number, number] {
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 }
 
+function boostSaturation(r: number, g: number, b: number, factor: number): [number, number, number] {
+  const midpoint = (Math.max(r, g, b) + Math.min(r, g, b)) / 2;
+  const boost = (channel: number) => Math.max(0, Math.min(255, midpoint + (channel - midpoint) * factor));
+  return [boost(r), boost(g), boost(b)];
+}
+
 /**
  * Weighted RGB blend of the three vivid domain colours by a person's shares.
  * A plain linear blend of these three hues goes muddy/grey right at the
@@ -115,11 +129,13 @@ export function domainColorOf(p: Person): string {
   let r = cs[0] * s + cc[0] * c + cm[0] * m;
   let g = cs[1] * s + cc[1] * c + cm[1] * m;
   let b = cs[2] * s + cc[2] * c + cm[2] * m;
-  // 0 at any pure corner (one share is 0), 1 dead-centre (all three at 1/3).
-  // Eased with a power curve (not linear) so colour stays saturated further
-  // out from the centroid, only whitening sharply once truly close to it.
+  [r, g, b] = boostSaturation(r, g, b, 1.3);
+  // Keep every corner and most of each edge fully saturated. Whitening begins
+  // only in the centre core, where all three domains have meaningful weight.
+  // It reaches its maximum only at the equal-share centroid.
   const evenness = Math.min(s, c, m) * 3;
-  const whiteBoost = Math.pow(evenness, 2.4) * 0.55;
+  const centerCore = Math.max(0, (evenness - 0.7) / 0.3);
+  const whiteBoost = Math.pow(centerCore, 2.4) * 0.55;
   r += (255 - r) * whiteBoost;
   g += (255 - g) * whiteBoost;
   b += (255 - b) * whiteBoost;
