@@ -23,7 +23,7 @@ import {
   domainColorOf,
   dominantDomainOf,
   boundaryPairOf,
-  DOMAIN_COLORS_VIVID,
+  DOMAIN_COLORS_PRIMARY,
   TRI,
   type DomainKey,
 } from "../../lib/ternary";
@@ -440,8 +440,8 @@ export default function ScatterView({ dataset, people }: ScatterViewProps) {
                 patternUnits="userSpaceOnUse"
                 patternTransform="rotate(45)"
               >
-                <rect width="12" height="12" fill={DOMAIN_COLORS_VIVID[a]} />
-                <rect width="6" height="12" fill={DOMAIN_COLORS_VIVID[b]} />
+                <rect width="12" height="12" fill={DOMAIN_COLORS_PRIMARY[a]} />
+                <rect width="6" height="12" fill={DOMAIN_COLORS_PRIMARY[b]} />
               </pattern>
             ))}
           </defs>
@@ -536,7 +536,7 @@ export default function ScatterView({ dataset, people }: ScatterViewProps) {
                 const fill = boundary
                   ? `url(#zebra-${boundary[0]}-${boundary[1]})`
                   : dom
-                    ? DOMAIN_COLORS_VIVID[dom]
+                    ? DOMAIN_COLORS_PRIMARY[dom]
                     : "var(--point)";
                 const r = radiusScale(p) * CLUSTER_R_BOOST;
                 const hoverDim = hoveredId != null && hoveredId !== p.id;
@@ -700,15 +700,15 @@ export default function ScatterView({ dataset, people }: ScatterViewProps) {
           </div>
           <div className="legend-swatches">
             <span className="legend-row">
-              <i className="legend-swatch" style={{ background: DOMAIN_COLORS_VIVID.sensing }} />
+              <i className="legend-swatch" style={{ background: DOMAIN_COLORS_PRIMARY.sensing }} />
               Sensing
             </span>
             <span className="legend-row">
-              <i className="legend-swatch" style={{ background: DOMAIN_COLORS_VIVID.communication }} />
+              <i className="legend-swatch" style={{ background: DOMAIN_COLORS_PRIMARY.communication }} />
               Communication
             </span>
             <span className="legend-row">
-              <i className="legend-swatch" style={{ background: DOMAIN_COLORS_VIVID.computing }} />
+              <i className="legend-swatch" style={{ background: DOMAIN_COLORS_PRIMARY.computing }} />
               Computing
             </span>
             <span className="legend-row">
