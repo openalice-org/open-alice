@@ -8,6 +8,7 @@ import {
   institutionsByCountry,
   isGeoScope,
   labelForScope,
+  peopleForScope,
   universityCountryMap,
 } from "../../lib/institutions";
 import { fmtInt } from "../../lib/format";
@@ -59,12 +60,7 @@ export default function Colophon({ people, paperCounts }: ColophonProps) {
   }
 
   const scopedPeople = useMemo(() => {
-    if (state.scope === NORDICS_SCOPE) return people;
-    if (state.scope.startsWith("country:")) {
-      const cc = state.scope.slice("country:".length);
-      return people.filter((p) => uniCountry.get(p.university) === cc);
-    }
-    return people.filter((p) => p.university === state.scope);
+    return peopleForScope(people, state.scope, uniCountry);
   }, [people, state.scope, uniCountry]);
 
   const paperCount = useMemo(() => {
@@ -164,4 +160,3 @@ export default function Colophon({ people, paperCounts }: ColophonProps) {
     </div>
   );
 }
-

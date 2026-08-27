@@ -1,10 +1,6 @@
 .app-root {
   position: relative;
-  width: 100vw;
-  height: 100vh;
-  min-width: 640px;
   overflow: hidden;
-  background: var(--paper);
 }
 
 .boot-screen {

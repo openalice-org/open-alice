@@ -30,11 +30,31 @@ body {
   overflow: hidden;
 }
 
-#root {
+#root,
+.app-root {
   width: 100vw;
   height: 100vh;
   min-width: 640px;
   min-height: 480px;
+}
+
+.scatter-view,
+.tax-view {
+  position: absolute;
+  inset: 0;
+}
+
+.scatter-view svg,
+.tax-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+}
+
+.scatter-view svg:active,
+.tax-svg:active {
+  cursor: grabbing;
 }
 
 button,

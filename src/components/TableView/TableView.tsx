@@ -2,6 +2,7 @@ import { Fragment, useMemo, useState } from "react";
 import { useAppState } from "../../state/AppState";
 import type { Person } from "../../types";
 import { DOMAIN_LABELS } from "../../lib/geoAggregate";
+import { matchesPersonSearch } from "../../lib/people";
 import { dominantDomainOf, type DomainKey } from "../../lib/ternary";
 import "./TableView.css";
 
@@ -132,14 +133,7 @@ export default function TableView({ people }: TableViewProps) {
 
   const filtered = useMemo(() => {
     const needle = search.trim().toLowerCase();
-    const rows = needle
-      ? people.filter(
-          (p) =>
-            p.name.toLowerCase().includes(needle) ||
-            p.institution.toLowerCase().includes(needle) ||
-            (p.topic ?? "").toLowerCase().includes(needle),
-        )
-      : people;
+    const rows = needle ? people.filter((person) => matchesPersonSearch(person, needle)) : people;
     const sorted = [...rows].sort((a, b) => {
       const va = valueOf(a, sortKey);
       const vb = valueOf(b, sortKey);

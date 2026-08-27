@@ -22,6 +22,16 @@ export function countryOfScope(scope: string): string | null {
   return scope.startsWith("country:") ? scope.slice("country:".length) : null;
 }
 
+/** Filter people by the same Nordics, country, or university scope used by the picker. */
+export function peopleForScope(people: Person[], scope: string, universityCountries: Map<string, string>): Person[] {
+  if (scope === NORDICS_SCOPE) return people;
+  if (scope.startsWith("country:")) {
+    const country = countryOfScope(scope);
+    return people.filter((person) => universityCountries.get(person.university) === country);
+  }
+  return people.filter((person) => person.university === scope);
+}
+
 /**
  * `people[].institution` is the person's own OpenAlex-listed affiliation —
  * noisy (a Nordic university's roster includes foreign co-authors under

@@ -273,16 +273,13 @@
 
 .geo-hover-card .row span {
   color: var(--ink-dim);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .geo-hover-card .row b {
   font-weight: 600;
-}
-
-.geo-hover-card .row span {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
 }
 
 .domain-dot {
