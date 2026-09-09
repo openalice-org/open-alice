@@ -25,14 +25,8 @@ type SortKey =
 const COLUMNS: { key: SortKey; label: string }[] = [
   { key: "name", label: "Name" },
   { key: "institution", label: "Institution" },
-  { key: "country", label: "Country" },
-  { key: "topic", label: "Topic" },
-  { key: "quantum_h_index", label: "Quantum h-index" },
-  { key: "global_h_index", label: "Global h-index" },
-  { key: "quantum_papers", label: "Quantum papers" },
-  { key: "total_papers", label: "Total papers" },
-  { key: "first_year", label: "First year" },
-  { key: "last_year", label: "Last year" },
+  { key: "quantum_h_index", label: "Corpus h-index" },
+  { key: "quantum_papers", label: "Papers in corpus" },
 ];
 
 const PAGE_SIZE = 100;
@@ -213,14 +207,8 @@ export default function TableView({ people }: TableViewProps) {
                     >
                       <td>{p.name}</td>
                       <td>{p.institution}</td>
-                      <td>{p.country}</td>
-                      <td className="topic-cell">{p.topic}</td>
                       <td>{p.quantum_h_index ?? p.h_index ?? "—"}</td>
-                      <td>{p.global_h_index ?? "—"}</td>
                       <td>{p.quantum_papers}</td>
-                      <td>{p.total_papers}</td>
-                      <td>{p.first_year ?? "—"}</td>
-                      <td>{p.last_year ?? "—"}</td>
                     </tr>
                     <tr className="detail-row">
                       <td colSpan={COLUMNS.length}>
