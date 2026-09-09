@@ -185,6 +185,15 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Stronger blur than the shared .glass-panel default — the wheel behind these
+   hover cards is busy enough (arcs, mosaic, labels) that the default 14px
+   blur/0.62 opacity leaves text hard to read. Scoped to this view only. */
+.tax-view .tooltip {
+  background: rgba(246, 244, 238, 0.88);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+}
+
 .tax-roster-empty {
   padding: 10px 8px;
   font-family: var(--serif);

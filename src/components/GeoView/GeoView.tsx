@@ -4,7 +4,7 @@ import { scaleSqrt } from "d3-scale";
 import { mean, sum } from "d3-array";
 import { pie as d3Pie, arc as d3Arc } from "d3-shape";
 import { useAppState } from "../../state/AppState";
-import type { DomainShares, Person, PaperCounts } from "../../types";
+import type { DomainShares, GeoSizeMetric, Person, PaperCounts } from "../../types";
 import { COUNTRY_LABELS, COUNTRY_ORDER, labelForScope, universityCountryMap } from "../../lib/institutions";
 import { UNI_GEO } from "../../lib/uniGeo";
 import { CITY_COUNTRY, CITY_FAN, CITY_UNIS } from "../../lib/cityGeo";
@@ -73,6 +73,21 @@ const PANEL_DIM_FILL = "#f2f1ea";
 // PieGlyph's own zero-data fallback (.geo-pie-fallback) — until a domain
 // section is hovered in the aid panel, when it takes that domain's colour.
 const GEO_UNI_GRAY = "#9a9a93";
+
+/** Reads whichever magnitude the Geo config's "size by" option currently
+ * picks (Papers/Authors/Citations) off a node's aggregate — the single
+ * accessor every radius scale below sizes its nodes from, so switching the
+ * config restyles the whole map instead of one level of it. */
+function sizeMetricValue(agg: GeoAggregate, metric: GeoSizeMetric): number {
+  switch (metric) {
+    case "people":
+      return agg.people;
+    case "citations":
+      return agg.citations;
+    default:
+      return agg.papers;
+  }
+}
 
 /** One node's glyph: a domain-share pie (computing/communication/sensing),
  * or a flat grey circle when none of its members have domain shares yet.
@@ -267,13 +282,16 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
       cc,
       agg: aggregateGeo(byCountry.get(cc) ?? [], paperCounts?.by_country?.[cc], paperCounts?.domain_by_country?.[cc]),
     }));
-    const maxPapers = Math.max(1, ...withAgg.map((c) => c.agg.papers));
-    const r = scaleSqrt().domain([0, maxPapers]).range([11, 30]);
+    const maxVal = Math.max(1, ...withAgg.map((c) => sizeMetricValue(c.agg, state.geoSizeMetric)));
+    // Widened output range (was [11, 30]) so the gap between small and large
+    // values reads more clearly — area still scales linearly with the value
+    // (scaleSqrt), just over a bigger spread.
+    const r = scaleSqrt().domain([0, maxVal]).range([8, 38]);
     return withAgg.map((c) => {
       const [x, y] = projection(geoCentroid(NORDICS_GEO[c.cc] as never)) ?? [0, 0];
-      return { ...c, r: Math.max(8, r(c.agg.papers)), x, y };
+      return { ...c, r: Math.max(6, r(sizeMetricValue(c.agg, state.geoSizeMetric))), x, y };
     });
-  }, [people, paperCounts, uniCountry, projection]);
+  }, [people, paperCounts, uniCountry, projection, state.geoSizeMetric]);
 
   // Universities present in the drilled-into country, rolled up by city
   // (CITY_UNIS) so a multi-university city can collapse to one node and
@@ -293,8 +311,10 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
     });
     if (!uniAgg.size) return [];
 
-    const maxUniPapers = Math.max(1, ...[...uniAgg.values()].map((a) => a.papers));
-    const rUni = scaleSqrt().domain([0, maxUniPapers]).range([6, 20]);
+    const maxUniVal = Math.max(1, ...[...uniAgg.values()].map((a) => sizeMetricValue(a, state.geoSizeMetric)));
+    // Widened (was [6, 20]) for the same increased-contrast reason as
+    // countryNodes' scale above.
+    const rUni = scaleSqrt().domain([0, maxUniVal]).range([4, 26]);
 
     const raw = Object.entries(CITY_UNIS)
       .filter(([city]) => CITY_COUNTRY[city] === countryScope)
@@ -304,18 +324,19 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
         const pts = unis.map((u) => projection(UNI_GEO[u]) ?? [0, 0]);
         const x = mean(pts, (p) => p[0]) ?? 0;
         const y = mean(pts, (p) => p[1]) ?? 0;
-        const cityPapers = sum(members, (u) => uniAgg.get(u)!.papers);
-        return { city, x, y, members, cityPapers };
+        const cityVal = sum(members, (u) => sizeMetricValue(uniAgg.get(u)!, state.geoSizeMetric));
+        return { city, x, y, members, cityVal };
       })
       .filter((g): g is NonNullable<typeof g> => g !== null);
 
-    const maxCityPapers = Math.max(1, ...raw.map((g) => g.cityPapers));
-    const rCity = scaleSqrt().domain([0, maxCityPapers]).range([10, 26]);
+    const maxCityVal = Math.max(1, ...raw.map((g) => g.cityVal));
+    // Widened (was [10, 26]) for the same increased-contrast reason above.
+    const rCity = scaleSqrt().domain([0, maxCityVal]).range([8, 32]);
 
     return raw.map((g): CityGroup => {
       const n = g.members.length;
-      const cr = Math.max(8, rCity(g.cityPapers));
-      const memberR = g.members.map((u) => Math.max(5, rUni(uniAgg.get(u)!.papers)));
+      const cr = Math.max(6, rCity(g.cityVal));
+      const memberR = g.members.map((u) => Math.max(3, rUni(sizeMetricValue(uniAgg.get(u)!, state.geoSizeMetric))));
       const maxMR = Math.max(...memberR);
       const expandR = n > 1 ? cr + 40 + maxMR : 0;
       const fan = CITY_FAN[g.city] ?? { center: 0, spread: 2.0 };
@@ -332,7 +353,7 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
       });
       return { city: g.city, x: g.x, y: g.y, r: cr, members };
     });
-  }, [people, countryScope, uniCountry, paperCounts, projection]);
+  }, [people, countryScope, uniCountry, paperCounts, projection, state.geoSizeMetric]);
 
   // While a domain section is hovered in the aid panel, every map node's
   // circle resizes off ITS OWN magnitude in just that domain (not its usual
@@ -364,6 +385,7 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
       people: sum(countryNodes, (c) => c.agg.people),
       papers: paperCounts?.total ?? sum(countryNodes, (c) => c.agg.papers),
       papersDistinct: paperCounts != null,
+      citations: sum(countryNodes, (c) => c.agg.citations),
       slices: {
         computing: sum(countryNodes, (c) => c.agg.slices.computing),
         communication: sum(countryNodes, (c) => c.agg.slices.communication),

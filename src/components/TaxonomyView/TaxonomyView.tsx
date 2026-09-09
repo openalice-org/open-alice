@@ -124,6 +124,9 @@ export default function TaxonomyView() {
   // (used for cross-arc dim/outline highlighting) isn't enough to know which
   // specific arc's numbers the hover card should show.
   const [hoveredOwner, setHoveredOwner] = useState<MosaicOwner | null>(null);
+  // Roster row elements keyed by row id, so a mosaic hover can scroll the
+  // matching row into view without re-querying the DOM by id/class.
+  const rowRefs = useRef(new Map<string, HTMLDivElement>());
 
   // ---- measure the container, mirroring ScatterView's approach but via
   // ResizeObserver so the wheel also reacts to the roster/rail panels
@@ -279,6 +282,15 @@ export default function TaxonomyView() {
     return mosaic.islands.filter((isl) => isl.ownerId === highlightedId);
   }, [highlightedId, mosaic.islands]);
 
+  // Hovering a person's mosaic tile scrolls their roster entry into view —
+  // hoveredMosaicId only fires from mosaic hover (never roster hover/lock,
+  // see its state doc above), so this never fights the user's own scrolling
+  // of the roster.
+  useEffect(() => {
+    if (!hoveredMosaicId) return;
+    rowRefs.current.get(hoveredMosaicId)?.scrollIntoView({ block: "nearest" });
+  }, [hoveredMosaicId]);
+
   function unpin() {
     dispatch({ type: "SET_PINNED", id: null });
     if (svgRef.current && zoomRef.current) {
@@ -416,7 +428,7 @@ export default function TaxonomyView() {
 
               <circle className="tax-center-hole" r={rings.ringIn[1]} />
               <text className="tax-center-caption" textAnchor="middle" dominantBaseline="middle">
-                Quantum
+                Disciplines
               </text>
             </g>
           )}
@@ -447,10 +459,14 @@ export default function TaxonomyView() {
           />
           <div className="tax-roster-list">
             {filteredRows.map((row) => {
-              const active = !row.isUniversity && highlightedId === row.id;
+              const active = row.isUniversity ? highlightedId === "uni::" + row.id : highlightedId === row.id;
               return (
                 <div
                   key={row.id}
+                  ref={(el) => {
+                    if (el) rowRefs.current.set(row.id, el);
+                    else rowRefs.current.delete(row.id);
+                  }}
                   className={"tax-roster-row" + (active ? " active" : "")}
                   onMouseEnter={(e) => {
                     if (row.isUniversity) return;
