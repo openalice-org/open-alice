@@ -65,6 +65,8 @@ export type AggMode = "none" | "boxplot" | "hexdensity" | "clusters";
 export type BoxOrient = "h" | "v";
 // Geo's own config: which magnitude drives a node's resting circle size.
 export type GeoSizeMetric = "papers" | "people" | "citations";
+// Global time-window filter: narrows people by first_year/last_year across every view.
+export type TimeWindow = "all" | "last5" | "last10";
 
 // ---- Disciplines (taxonomy sunburst) view ---------------------------------
 // Mirrors the shape of public/data/people_taxonomy.json.

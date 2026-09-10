@@ -8,6 +8,7 @@ import { useAppState } from "../../state/AppState";
 import { useTaxonomyDataset } from "../../hooks/useTaxonomyDataset";
 import type { TaxPerson } from "../../types";
 import { fmtInt } from "../../lib/format";
+import { filterByTimeWindow } from "../../lib/people";
 import {
   TAX_UNIS,
   computeRings,
@@ -180,9 +181,9 @@ export default function TaxonomyView() {
 
   const scopedPeople = useMemo<TaxPerson[]>(() => {
     if (!data) return [];
-    if (isCountryWheel) return data.people.filter((p) => TAX_UNIS.has(p.university));
-    return data.people.filter((p) => p.university === state.scope);
-  }, [data, isCountryWheel, state.scope]);
+    const base = isCountryWheel ? data.people.filter((p) => TAX_UNIS.has(p.university)) : data.people.filter((p) => p.university === state.scope);
+    return filterByTimeWindow(base, state.timeWindow) as TaxPerson[];
+  }, [data, isCountryWheel, state.scope, state.timeWindow]);
 
   const rings = useMemo(() => computeRings(size.width, size.height), [size.width, size.height]);
 
