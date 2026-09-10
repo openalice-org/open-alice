@@ -357,24 +357,30 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
 
   // While a domain section is hovered in the aid panel, every map node's
   // circle resizes off ITS OWN magnitude in just that domain (not its usual
-  // overall size) — scaled against the biggest such value among whichever
+  // overall size) — scaled against the biggest domain value among whichever
   // level is actually plotted (universities when drilled into a country,
-  // countries at the Nordics-wide view), so the hovered domain's spread
-  // reads clearly regardless of which domain or level it is.
+  // countries at the Nordics-wide view). The domain max is taken across ALL
+  // THREE domains, not just the hovered one: whichever unit is biggest
+  // overall (e.g. Sweden) would otherwise get renormalized to the range
+  // ceiling on every hover, pinning it to the same visual size no matter
+  // which domain is picked and hiding that its computing/communication/
+  // sensing totals actually differ.
+  const hoverDomainMax = useMemo(() => {
+    const nodeAggs = countryScope ? cityNodes.flatMap((c) => c.members.map((m) => m.agg)) : countryNodes.map((c) => c.agg);
+    const values = nodeAggs.flatMap((agg) => DOMAIN_ORDER.map((k) => agg.slices[k]));
+    return Math.max(1, ...values);
+  }, [cityNodes, countryNodes, countryScope]);
+
   const hoverDomainScale = useMemo(() => {
     if (!hoveredPanelDomain) return null;
-    const values = countryScope
-      ? cityNodes.flatMap((c) => c.members.map((m) => m.agg.slices[hoveredPanelDomain]))
-      : countryNodes.map((c) => c.agg.slices[hoveredPanelDomain]);
-    const max = Math.max(1, ...values);
-    // Match whichever level is actually plotted, widened further than the
-    // resting size ranges (country/uni [8,38]/[4,26]) since this is a
-    // deliberate hover emphasis, not the resting layout. Exponent 0.3 (below
-    // scaleSqrt's 0.5) also exaggerates the small/large gap beyond true
-    // area-proportionality — less "honest" but reads as a punchier swap.
+    // Widened further than the resting size ranges (country/uni [8,38]/
+    // [4,26]) since this is a deliberate hover emphasis, not the resting
+    // layout. Exponent 0.3 (below scaleSqrt's 0.5) also exaggerates the
+    // small/large gap beyond true area-proportionality — less "honest" but
+    // reads as a punchier swap.
     const range: [number, number] = countryScope ? [3, 30] : [6, 44];
-    return scalePow().exponent(0.3).domain([0, max]).range(range);
-  }, [hoveredPanelDomain, cityNodes, countryNodes, countryScope]);
+    return scalePow().exponent(0.3).domain([0, hoverDomainMax]).range(range);
+  }, [hoveredPanelDomain, hoverDomainMax, countryScope]);
 
   // Aid panel data — same shape at both levels: an overview aggregate, a
   // {name, agg} row per unit for the top-3-by-domain lists, and each
