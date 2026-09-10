@@ -375,11 +375,11 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
     if (!hoveredPanelDomain) return null;
     // Widened further than the resting size ranges (country/uni [8,38]/
     // [4,26]) since this is a deliberate hover emphasis, not the resting
-    // layout. Exponent 0.3 (below scaleSqrt's 0.5) also exaggerates the
-    // small/large gap beyond true area-proportionality — less "honest" but
-    // reads as a punchier swap.
-    const range: [number, number] = countryScope ? [3, 30] : [6, 44];
-    return scalePow().exponent(0.3).domain([0, hoverDomainMax]).range(range);
+    // layout. Exponent 0.18 (well below scaleSqrt's 0.5) heavily exaggerates
+    // the small/large gap beyond true area-proportionality — deliberately
+    // "unfair" so the swap reads as an obvious size jump, not a subtle one.
+    const range: [number, number] = countryScope ? [2, 34] : [4, 50];
+    return scalePow().exponent(0.18).domain([0, hoverDomainMax]).range(range);
   }, [hoveredPanelDomain, hoverDomainMax, countryScope]);
 
   // Aid panel data — same shape at both levels: an overview aggregate, a
