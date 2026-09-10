@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { geoMercator, geoPath as d3GeoPath, geoCentroid } from "d3-geo";
-import { scaleSqrt } from "d3-scale";
+import { scaleSqrt, scalePow } from "d3-scale";
 import { mean, sum } from "d3-array";
 import { pie as d3Pie, arc as d3Arc } from "d3-shape";
 import { useAppState } from "../../state/AppState";
@@ -367,7 +367,13 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
       ? cityNodes.flatMap((c) => c.members.map((m) => m.agg.slices[hoveredPanelDomain]))
       : countryNodes.map((c) => c.agg.slices[hoveredPanelDomain]);
     const max = Math.max(1, ...values);
-    return scaleSqrt().domain([0, max]).range([5, 28]);
+    // Match whichever level is actually plotted, widened further than the
+    // resting size ranges (country/uni [8,38]/[4,26]) since this is a
+    // deliberate hover emphasis, not the resting layout. Exponent 0.3 (below
+    // scaleSqrt's 0.5) also exaggerates the small/large gap beyond true
+    // area-proportionality — less "honest" but reads as a punchier swap.
+    const range: [number, number] = countryScope ? [3, 30] : [6, 44];
+    return scalePow().exponent(0.3).domain([0, max]).range(range);
   }, [hoveredPanelDomain, cityNodes, countryNodes, countryScope]);
 
   // Aid panel data — same shape at both levels: an overview aggregate, a

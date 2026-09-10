@@ -50,7 +50,7 @@ function AppInner() {
       {state.mapMode === "taxonomy" ? (
         <TaxonomyView />
       ) : state.mapMode === "geo" ? (
-        <GeoView people={timeFilteredPeople} paperCounts={paperCounts} />
+        <GeoView people={timeFilteredPeople} paperCounts={state.timeWindow === "all" ? paperCounts : null} />
       ) : state.mapMode === "list" ? (
         <TableView people={visiblePeople} />
       ) : (
