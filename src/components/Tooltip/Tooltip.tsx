@@ -1,4 +1,6 @@
+import { useState } from "react";
 import type { Person } from "../../types";
+import PatentsDialog from "../PatentsDialog/PatentsDialog";
 import "./Tooltip.css";
 
 interface TooltipProps {
@@ -14,6 +16,7 @@ function clamp(v: number, min: number, max: number): number {
 }
 
 export default function Tooltip({ person, x, y, pinned, onClose }: TooltipProps) {
+  const [patentsOpen, setPatentsOpen] = useState(false);
   const width = 280;
   const left = clamp(x + 16, 8, window.innerWidth - width - 8);
   const top = clamp(y + 16, 8, window.innerHeight - 260);
@@ -69,11 +72,17 @@ export default function Tooltip({ person, x, y, pinned, onClose }: TooltipProps)
         </b>
       </div>
       {person.topic && <div className="pill">{person.topic}</div>}
+      {person.total_patents > 0 && (
+        <button className="tip-link tip-link-btn" type="button" onClick={() => setPatentsOpen(true)}>
+          Author patents ↗
+        </button>
+      )}
       {person.id && (
         <a className="tip-link" href={person.id} target="_blank" rel="noopener noreferrer">
           OpenAlex ↗
         </a>
       )}
+      {patentsOpen && <PatentsDialog person={person} onClose={() => setPatentsOpen(false)} />}
     </div>
   );
 }

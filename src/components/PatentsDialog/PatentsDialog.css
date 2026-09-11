@@ -1,0 +1,78 @@
+.patents-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: rgba(24, 24, 22, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.patents-dialog {
+  width: 420px;
+  max-width: calc(100vw - 40px);
+  max-height: min(560px, calc(100vh - 40px));
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 18px;
+  padding: 16px 18px;
+  font-family: var(--sans);
+}
+
+.patents-dialog-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.patents-dialog-head h3 {
+  margin: 0;
+  font-size: 17px;
+  font-family: var(--serif);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.patents-dialog-list {
+  overflow-y: auto;
+  margin-top: 8px;
+}
+
+.patent-row {
+  padding: 9px 0;
+  border-top: 1px solid var(--line-soft);
+}
+
+.patent-row:first-child {
+  border-top: 0;
+}
+
+.patent-row a {
+  color: var(--ink);
+  text-decoration: none;
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.patent-row a:hover {
+  text-decoration: underline;
+}
+
+.patent-row .patent-meta {
+  font-size: 11px;
+  color: var(--ink-dim);
+  font-family: var(--mono);
+  margin-top: 2px;
+}
+
+.patents-dialog-list .patent-empty {
+  font-size: 12.5px;
+  color: var(--ink-dim);
+  font-family: var(--serif);
+  font-style: italic;
+  padding: 8px 0;
+}

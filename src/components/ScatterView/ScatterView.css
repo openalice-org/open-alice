@@ -170,6 +170,19 @@
   );
 }
 
+/* ---------- Patents aggregation (Cartesian) ---------- */
+.pat-link {
+  stroke: rgba(24, 24, 22, 0.18);
+  fill: none;
+  pointer-events: none;
+}
+
+.pat {
+  fill: var(--builder);
+  fill-opacity: 0.85;
+  stroke: rgba(255, 255, 255, 0.85);
+}
+
 /* ---------- Hex density aggregation (Cartesian + Domains) ---------- */
 /* one hexagon per occupied cell; fill is set per-render (monochrome in
    Cartesian, mean member color in Domains) so it isn't declared here. */
