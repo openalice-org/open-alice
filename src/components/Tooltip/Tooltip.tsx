@@ -54,6 +54,14 @@ export default function Tooltip({ person, x, y, pinned, onClose }: TooltipProps)
           {person.total_papers} / {person.quantum_papers} quantum
         </b>
       </div>
+      {person.total_patents > 0 && (
+        <div className="row">
+          <span>Patents</span>
+          <b>
+            {person.total_patents} / {person.quantum_patents} quantum
+          </b>
+        </div>
+      )}
       <div className="row">
         <span>Active years</span>
         <b>

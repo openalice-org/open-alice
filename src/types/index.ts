@@ -16,6 +16,7 @@ export interface Person {
   total_papers: number;
   quantum_papers: number;
   total_patents: number;
+  quantum_patents: number;
   first_year: number | null;
   last_year: number | null;
   sensing_share?: number | null;
@@ -82,7 +83,7 @@ export interface PaperCounts {
   last10?: PaperCountsWindow;
 }
 
-export type GlassesMode = "constant" | "quantum_h_index" | "global_h_index";
+export type GlassesMode = "constant" | "quantum_h_index" | "global_h_index" | "quantum_patents";
 export type MapMode = "cartesian" | "domains" | "taxonomy" | "geo" | "list";
 export type AggMode = "none" | "boxplot" | "hexdensity" | "clusters";
 export type BoxOrient = "h" | "v";

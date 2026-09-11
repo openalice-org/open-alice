@@ -22,10 +22,10 @@ function viewAllowed(key: MapMode, scope: string): boolean {
 
 // Emphasis: how a point's radius is weighted. Meaningless once Boxplot is
 // on screen (aggregate box glyphs, no individual points to size), so it
-// locks alongside that. Patent activity has no data behind it yet — shown,
-// disabled, as a preview of what's coming rather than left out entirely.
-const EMPHASIS: { key: "quantum_h_index" | "constant"; label: string }[] = [
+// locks alongside that.
+const EMPHASIS: { key: "quantum_h_index" | "quantum_patents" | "constant"; label: string }[] = [
   { key: "quantum_h_index", label: "Corpus influence" },
+  { key: "quantum_patents", label: "Patent activity" },
   { key: "constant", label: "Equal weight" },
 ];
 
@@ -215,10 +215,6 @@ export default function Rail({ people }: RailProps) {
                   {l.label}
                 </div>
               ))}
-              <div className="menu-opt disabled">
-                Patent activity
-                <span className="opt-badge">Coming soon</span>
-              </div>
             </Popout>
           )}
         </div>
