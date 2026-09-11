@@ -1,14 +1,14 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import { useAppState } from "../../state/AppState";
-import type { AggMode, MapMode, Person } from "../../types";
+import type { AggMode, GeoSizeMetric, MapMode, Person } from "../../types";
 import { isGeoScope, universityCountryMap } from "../../lib/institutions";
 import { taxScopeAllowed } from "../../lib/taxonomy";
 import "./Rail.css";
 
 // The unified view picker — every way of looking at the data, in one menu.
 const VIEWS: { key: MapMode; label: string; icon: string; badge: string }[] = [
-  { key: "taxonomy", label: "Disciplines", icon: "ph-tree-structure", badge: "Sweden (9 unis) only" },
+  { key: "taxonomy", label: "Disciplines", icon: "ph-tree-structure", badge: "36 unis" },
   { key: "domains", label: "Domains", icon: "ph-triangle", badge: "" },
   { key: "cartesian", label: "Axes", icon: "ph-crosshair", badge: "" },
   { key: "geo", label: "Geo", icon: "ph-map-trifold", badge: "" },
@@ -58,6 +58,16 @@ function cartesianConfigAllowed(key: AggMode, scope: string): boolean {
   if (key === "none") return !isGeoScope(scope);
   return true;
 }
+
+// Geo's own config: which magnitude sizes a node's resting circle. All three
+// are always available — unlike Domains/Axes, Geo's node set (countries or
+// universities) doesn't change shape with scope, so there's no equivalent
+// "pick a university first" restriction.
+const GEO_CONFIG: { key: GeoSizeMetric; label: string }[] = [
+  { key: "papers", label: "Papers" },
+  { key: "people", label: "Authors" },
+  { key: "citations", label: "Citations" },
+];
 
 interface PopoutProps {
   anchorRef: RefObject<HTMLElement | null>;
@@ -128,12 +138,14 @@ export default function Rail({ people }: RailProps) {
     return () => document.removeEventListener("click", onDocClick);
   }, []);
 
-  // Emphasis/Config act on the scatter (Axes/Domains) views only — there's
-  // nothing to weight or configure on the geo map, the Disciplines wheel, or
-  // the List table.
+  // Emphasis acts on the scatter (Axes/Domains) views only — there's
+  // nothing to weight on the geo map, the Disciplines wheel, or the List
+  // table. Config also covers Geo now (its own size-by metric), so it has a
+  // wider unlock than Emphasis.
   const onScatterView = state.mapMode === "cartesian" || state.mapMode === "domains";
   const scatterLocked = !onScatterView;
   const emphasisLocked = scatterLocked || state.aggMode === "boxplot";
+  const configLocked = !onScatterView && state.mapMode !== "geo";
 
   const viewLabel = VIEWS.find((v) => v.key === state.mapMode)?.label ?? "";
   const emphasisLabel = EMPHASIS.find((l) => l.key === state.glassesMode)?.label ?? "";
@@ -230,7 +242,7 @@ export default function Rail({ people }: RailProps) {
       </div>
 
       <div className="panel panel-rail rail-right glass-panel">
-        <div className={"rail-row config" + (scatterLocked ? " locked" : "")} title="Config" ref={configRowRef}>
+        <div className={"rail-row config" + (configLocked ? " locked" : "")} title="Config" ref={configRowRef}>
           {openMenu === "config" && state.mapMode === "domains" && (
             <Popout anchorRef={configRowRef} side="left" align="center" className="config-buttons">
               {DOMAIN_CONFIG.map((o) => {
@@ -288,6 +300,21 @@ export default function Rail({ people }: RailProps) {
                   </button>
                 </>
               )}
+            </Popout>
+          )}
+          {openMenu === "config" && state.mapMode === "geo" && (
+            <Popout anchorRef={configRowRef} side="left" align="center" className="config-buttons">
+              <span className="config-label">Size by</span>
+              {GEO_CONFIG.map((o) => (
+                <button
+                  key={o.key}
+                  type="button"
+                  className={"config-btn" + (o.key === state.geoSizeMetric ? " active" : "")}
+                  onClick={() => dispatch({ type: "SET_GEO_SIZE_METRIC", metric: o.key })}
+                >
+                  {o.label}
+                </button>
+              ))}
             </Popout>
           )}
           <div

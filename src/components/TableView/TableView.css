@@ -246,6 +246,14 @@
   font-variant-numeric: tabular-nums;
 }
 
+.detail-sparkline-row {
+  align-items: center;
+}
+
+.yearly-sparkline {
+  flex: none;
+}
+
 .detail-works-list {
   margin: 0;
   padding: 0;

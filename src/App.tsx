@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { AppStateProvider, useAppState } from "./state/AppState";
 import { useDataset } from "./hooks/useDataset";
 import { peopleForScope, universityCountryMap } from "./lib/institutions";
+import { filterByTimeWindow, paperCountsForWindow } from "./lib/people";
 import Rail from "./components/Rail/Rail";
 import Colophon from "./components/Colophon/Colophon";
 import ScatterView from "./components/ScatterView/ScatterView";
@@ -20,6 +21,18 @@ function AppInner() {
     if (!dataset) return [];
     return peopleForScope(dataset.people, state.scope, universityCountries);
   }, [dataset, state.scope, universityCountries]);
+
+  const visiblePeople = useMemo(() => filterByTimeWindow(scopedPeople, state.timeWindow), [scopedPeople, state.timeWindow]);
+
+  const timeFilteredPeople = useMemo(
+    () => (dataset ? filterByTimeWindow(dataset.people, state.timeWindow) : []),
+    [dataset, state.timeWindow],
+  );
+
+  const windowedPaperCounts = useMemo(
+    () => paperCountsForWindow(paperCounts, state.timeWindow),
+    [paperCounts, state.timeWindow],
+  );
 
   if (loading) {
     return (
@@ -42,11 +55,11 @@ function AppInner() {
       {state.mapMode === "taxonomy" ? (
         <TaxonomyView />
       ) : state.mapMode === "geo" ? (
-        <GeoView people={dataset.people} paperCounts={paperCounts} />
+        <GeoView people={timeFilteredPeople} paperCounts={windowedPaperCounts} />
       ) : state.mapMode === "list" ? (
-        <TableView people={scopedPeople} />
+        <TableView people={visiblePeople} />
       ) : (
-        <ScatterView dataset={dataset} people={scopedPeople} />
+        <ScatterView dataset={dataset} people={visiblePeople} />
       )}
 
       <Rail people={dataset.people} />

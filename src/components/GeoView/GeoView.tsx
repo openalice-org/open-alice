@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { geoMercator, geoPath as d3GeoPath, geoCentroid } from "d3-geo";
-import { scaleSqrt } from "d3-scale";
+import { scaleSqrt, scalePow } from "d3-scale";
 import { mean, sum } from "d3-array";
 import { pie as d3Pie, arc as d3Arc } from "d3-shape";
 import { useAppState } from "../../state/AppState";
-import type { DomainShares, Person, PaperCounts } from "../../types";
+import type { DomainShares, GeoSizeMetric, Person, PaperCounts } from "../../types";
 import { COUNTRY_LABELS, COUNTRY_ORDER, labelForScope, universityCountryMap } from "../../lib/institutions";
 import { UNI_GEO } from "../../lib/uniGeo";
 import { CITY_COUNTRY, CITY_FAN, CITY_UNIS } from "../../lib/cityGeo";
@@ -74,6 +74,21 @@ const PANEL_DIM_FILL = "#f2f1ea";
 // section is hovered in the aid panel, when it takes that domain's colour.
 const GEO_UNI_GRAY = "#9a9a93";
 
+/** Reads whichever magnitude the Geo config's "size by" option currently
+ * picks (Papers/Authors/Citations) off a node's aggregate — the single
+ * accessor every radius scale below sizes its nodes from, so switching the
+ * config restyles the whole map instead of one level of it. */
+function sizeMetricValue(agg: GeoAggregate, metric: GeoSizeMetric): number {
+  switch (metric) {
+    case "people":
+      return agg.people;
+    case "citations":
+      return agg.citations;
+    default:
+      return agg.papers;
+  }
+}
+
 /** One node's glyph: a domain-share pie (computing/communication/sensing),
  * or a flat grey circle when none of its members have domain shares yet.
  * Two distinct modes, switched on whether `highlight` is passed at all:
@@ -91,16 +106,22 @@ function PieGlyph({
   agg,
   highlight,
   colors = DOMAIN_SHADES,
+  slicesKey = "slices",
 }: {
   r: number;
   agg: GeoAggregate;
   highlight?: keyof DomainShares | null;
   colors?: Record<keyof DomainShares, string>;
+  /** Which per-domain breakdown to draw from — `slices` (papers, the map's
+   * own default) or `citationSlices` (aid-panel overview when Geo is sized
+   * by citations). */
+  slicesKey?: "slices" | "citationSlices";
 }) {
-  const total = DOMAIN_ORDER.reduce((s, k) => s + agg.slices[k], 0);
+  const slices = agg[slicesKey];
+  const total = DOMAIN_ORDER.reduce((s, k) => s + slices[k], 0);
   if (total <= 0) return <circle r={r} className="geo-pie-fallback" />;
   const arcGen = d3Arc<{ value: number }>().innerRadius(0).outerRadius(r);
-  const arcs = pie(DOMAIN_ORDER.map((k) => agg.slices[k]));
+  const arcs = pie(DOMAIN_ORDER.map((k) => slices[k]));
   return (
     <>
       {arcs.map((a, i) => {
@@ -265,15 +286,23 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
     });
     const withAgg = COUNTRY_ORDER.map((cc) => ({
       cc,
-      agg: aggregateGeo(byCountry.get(cc) ?? [], paperCounts?.by_country?.[cc], paperCounts?.domain_by_country?.[cc]),
+      agg: aggregateGeo(
+        byCountry.get(cc) ?? [],
+        paperCounts?.by_country?.[cc],
+        paperCounts?.domain_by_country?.[cc],
+        state.timeWindow,
+      ),
     }));
-    const maxPapers = Math.max(1, ...withAgg.map((c) => c.agg.papers));
-    const r = scaleSqrt().domain([0, maxPapers]).range([11, 30]);
+    const maxVal = Math.max(1, ...withAgg.map((c) => sizeMetricValue(c.agg, state.geoSizeMetric)));
+    // Widened output range (was [11, 30]) so the gap between small and large
+    // values reads more clearly — area still scales linearly with the value
+    // (scaleSqrt), just over a bigger spread.
+    const r = scaleSqrt().domain([0, maxVal]).range([8, 38]);
     return withAgg.map((c) => {
       const [x, y] = projection(geoCentroid(NORDICS_GEO[c.cc] as never)) ?? [0, 0];
-      return { ...c, r: Math.max(8, r(c.agg.papers)), x, y };
+      return { ...c, r: Math.max(6, r(sizeMetricValue(c.agg, state.geoSizeMetric))), x, y };
     });
-  }, [people, paperCounts, uniCountry, projection]);
+  }, [people, paperCounts, uniCountry, projection, state.geoSizeMetric, state.timeWindow]);
 
   // Universities present in the drilled-into country, rolled up by city
   // (CITY_UNIS) so a multi-university city can collapse to one node and
@@ -289,12 +318,17 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
     });
     const uniAgg = new Map<string, GeoAggregate>();
     byUni.forEach((members, name) => {
-      uniAgg.set(name, aggregateGeo(members, paperCounts?.by_institution?.[name], paperCounts?.domain_by_institution?.[name]));
+      uniAgg.set(
+        name,
+        aggregateGeo(members, paperCounts?.by_institution?.[name], paperCounts?.domain_by_institution?.[name], state.timeWindow),
+      );
     });
     if (!uniAgg.size) return [];
 
-    const maxUniPapers = Math.max(1, ...[...uniAgg.values()].map((a) => a.papers));
-    const rUni = scaleSqrt().domain([0, maxUniPapers]).range([6, 20]);
+    const maxUniVal = Math.max(1, ...[...uniAgg.values()].map((a) => sizeMetricValue(a, state.geoSizeMetric)));
+    // Widened (was [6, 20]) for the same increased-contrast reason as
+    // countryNodes' scale above.
+    const rUni = scaleSqrt().domain([0, maxUniVal]).range([4, 26]);
 
     const raw = Object.entries(CITY_UNIS)
       .filter(([city]) => CITY_COUNTRY[city] === countryScope)
@@ -304,18 +338,19 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
         const pts = unis.map((u) => projection(UNI_GEO[u]) ?? [0, 0]);
         const x = mean(pts, (p) => p[0]) ?? 0;
         const y = mean(pts, (p) => p[1]) ?? 0;
-        const cityPapers = sum(members, (u) => uniAgg.get(u)!.papers);
-        return { city, x, y, members, cityPapers };
+        const cityVal = sum(members, (u) => sizeMetricValue(uniAgg.get(u)!, state.geoSizeMetric));
+        return { city, x, y, members, cityVal };
       })
       .filter((g): g is NonNullable<typeof g> => g !== null);
 
-    const maxCityPapers = Math.max(1, ...raw.map((g) => g.cityPapers));
-    const rCity = scaleSqrt().domain([0, maxCityPapers]).range([10, 26]);
+    const maxCityVal = Math.max(1, ...raw.map((g) => g.cityVal));
+    // Widened (was [10, 26]) for the same increased-contrast reason above.
+    const rCity = scaleSqrt().domain([0, maxCityVal]).range([8, 32]);
 
     return raw.map((g): CityGroup => {
       const n = g.members.length;
-      const cr = Math.max(8, rCity(g.cityPapers));
-      const memberR = g.members.map((u) => Math.max(5, rUni(uniAgg.get(u)!.papers)));
+      const cr = Math.max(6, rCity(g.cityVal));
+      const memberR = g.members.map((u) => Math.max(3, rUni(sizeMetricValue(uniAgg.get(u)!, state.geoSizeMetric))));
       const maxMR = Math.max(...memberR);
       const expandR = n > 1 ? cr + 40 + maxMR : 0;
       const fan = CITY_FAN[g.city] ?? { center: 0, spread: 2.0 };
@@ -332,22 +367,34 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
       });
       return { city: g.city, x: g.x, y: g.y, r: cr, members };
     });
-  }, [people, countryScope, uniCountry, paperCounts, projection]);
+  }, [people, countryScope, uniCountry, paperCounts, projection, state.geoSizeMetric, state.timeWindow]);
 
   // While a domain section is hovered in the aid panel, every map node's
   // circle resizes off ITS OWN magnitude in just that domain (not its usual
-  // overall size) — scaled against the biggest such value among whichever
+  // overall size) — scaled against the biggest domain value among whichever
   // level is actually plotted (universities when drilled into a country,
-  // countries at the Nordics-wide view), so the hovered domain's spread
-  // reads clearly regardless of which domain or level it is.
+  // countries at the Nordics-wide view). The domain max is taken across ALL
+  // THREE domains, not just the hovered one: whichever unit is biggest
+  // overall (e.g. Sweden) would otherwise get renormalized to the range
+  // ceiling on every hover, pinning it to the same visual size no matter
+  // which domain is picked and hiding that its computing/communication/
+  // sensing totals actually differ.
+  const hoverDomainMax = useMemo(() => {
+    const nodeAggs = countryScope ? cityNodes.flatMap((c) => c.members.map((m) => m.agg)) : countryNodes.map((c) => c.agg);
+    const values = nodeAggs.flatMap((agg) => DOMAIN_ORDER.map((k) => agg.slices[k]));
+    return Math.max(1, ...values);
+  }, [cityNodes, countryNodes, countryScope]);
+
   const hoverDomainScale = useMemo(() => {
     if (!hoveredPanelDomain) return null;
-    const values = countryScope
-      ? cityNodes.flatMap((c) => c.members.map((m) => m.agg.slices[hoveredPanelDomain]))
-      : countryNodes.map((c) => c.agg.slices[hoveredPanelDomain]);
-    const max = Math.max(1, ...values);
-    return scaleSqrt().domain([0, max]).range([5, 28]);
-  }, [hoveredPanelDomain, cityNodes, countryNodes, countryScope]);
+    // Close to the resting size ranges (country/uni [8,38]/[4,26]) so the
+    // hover swap doesn't blow past the map's own scale, but exponent 0.18
+    // (well below scaleSqrt's 0.5) still heavily exaggerates the small/large
+    // gap beyond true area-proportionality — deliberately "unfair" so the
+    // swap reads as an obvious size change without ballooning past the map.
+    const range: [number, number] = countryScope ? [2, 26] : [4, 36];
+    return scalePow().exponent(0.18).domain([0, hoverDomainMax]).range(range);
+  }, [hoveredPanelDomain, hoverDomainMax, countryScope]);
 
   // Aid panel data — same shape at both levels: an overview aggregate, a
   // {name, agg} row per unit for the top-3-by-domain lists, and each
@@ -364,10 +411,17 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
       people: sum(countryNodes, (c) => c.agg.people),
       papers: paperCounts?.total ?? sum(countryNodes, (c) => c.agg.papers),
       papersDistinct: paperCounts != null,
+      citations: sum(countryNodes, (c) => c.agg.citations),
+      citationsWindowed: countryNodes.some((c) => c.agg.citationsWindowed),
       slices: {
         computing: sum(countryNodes, (c) => c.agg.slices.computing),
         communication: sum(countryNodes, (c) => c.agg.slices.communication),
         sensing: sum(countryNodes, (c) => c.agg.slices.sensing),
+      },
+      citationSlices: {
+        computing: sum(countryNodes, (c) => c.agg.citationSlices.computing),
+        communication: sum(countryNodes, (c) => c.agg.citationSlices.communication),
+        sensing: sum(countryNodes, (c) => c.agg.citationSlices.sensing),
       },
     }),
     [countryNodes, paperCounts],
@@ -385,26 +439,32 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
     });
     return [...byUni.entries()].map(([name, members]) => ({
       name,
-      agg: aggregateGeo(members, paperCounts?.by_institution?.[name], paperCounts?.domain_by_institution?.[name]),
+      agg: aggregateGeo(members, paperCounts?.by_institution?.[name], paperCounts?.domain_by_institution?.[name], state.timeWindow),
     }));
-  }, [people, countryScope, uniCountry, paperCounts]);
+  }, [people, countryScope, uniCountry, paperCounts, state.timeWindow]);
 
   const panelRows = useMemo(() => {
     if (countryScope) return countryUniAgg;
     return countryNodes.map((c) => ({ name: COUNTRY_LABELS[c.cc] ?? c.cc, agg: c.agg }));
   }, [countryScope, countryUniAgg, countryNodes]);
 
+  // Whichever count reads as the map's own headline number right now — when
+  // Geo is sized by citations, the aid panel/hover card switch to citations
+  // too (both the head total and the per-domain breakdown below) so the
+  // displayed figures match what's actually driving node size.
+  const sizeByCitations = state.geoSizeMetric === "citations";
+
   const panelDomainTop3 = useMemo(() => {
     const result = {} as Record<keyof DomainShares, { name: string; value: number }[]>;
     PANEL_DOMAIN_ORDER.forEach((k) => {
       result[k] = panelRows
-        .map((u) => ({ name: u.name, value: u.agg.slices[k] }))
+        .map((u) => ({ name: u.name, value: sizeByCitations ? u.agg.citationSlices[k] : u.agg.slices[k] }))
         .filter((row) => row.value > 0)
         .sort((a, b) => b.value - a.value)
         .slice(0, 3);
     });
     return result;
-  }, [panelRows]);
+  }, [panelRows, sizeByCitations]);
 
   const panelDomainPeople = useMemo(() => {
     const counts = { computing: 0, communication: 0, sensing: 0 } as Record<keyof DomainShares, number>;
@@ -475,17 +535,24 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
         <div className="geo-aid-panel glass-panel">
           <div className="aid-head">{labelForScope(state.scope)}</div>
           <div className="aid-sub">
-            {fmtInt(panelAgg.people)} people · {fmtInt(panelAgg.papers)} papers
+            {fmtInt(panelAgg.people)} people ·{" "}
+            {sizeByCitations ? `${fmtInt(panelAgg.citations)} citations` : `${fmtInt(panelAgg.papers)} papers`}
           </div>
 
           <div className="aid-overview">
             <svg width={panelR * 2 + 4} height={panelR * 2 + 4} className="aid-pie-svg">
               <g transform={`translate(${panelR + 2},${panelR + 2})`}>
-                <PieGlyph r={panelR} agg={panelAgg} highlight={hoveredPanelDomain} colors={DOMAIN_SHADES} />
+                <PieGlyph
+                  r={panelR}
+                  agg={panelAgg}
+                  highlight={hoveredPanelDomain}
+                  colors={DOMAIN_SHADES}
+                  slicesKey={sizeByCitations ? "citationSlices" : "slices"}
+                />
               </g>
             </svg>
             <div className="aid-caption">
-              <div>Grey wedges show each domain's share of the papers here</div>
+              <div>Grey wedges show each domain's share of the {sizeByCitations ? "citations" : "papers"} here</div>
               <div>Hover a domain below to pick it out in colour</div>
             </div>
           </div>
@@ -505,7 +572,10 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
                     {DOMAIN_LABELS[k]}
                   </span>
                   <span className="aid-domain-count">
-                    {fmtInt(panelDomainPeople[k])} people · {fmtInt(panelAgg.slices[k])} papers
+                    {fmtInt(panelDomainPeople[k])} people ·{" "}
+                    {sizeByCitations
+                      ? `${fmtInt(panelAgg.citationSlices[k])} citations`
+                      : `${fmtInt(panelAgg.slices[k])} papers`}
                   </span>
                 </div>
                 <div className="aid-domain-list">
@@ -531,8 +601,8 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
             <b>{fmtInt(hover.agg.people)}</b>
           </div>
           <div className="row">
-            <span>Quantum papers</span>
-            <b>{fmtInt(hover.agg.papers)}</b>
+            <span>{sizeByCitations ? "Citations" : "Quantum papers"}</span>
+            <b>{fmtInt(sizeByCitations ? hover.agg.citations : hover.agg.papers)}</b>
           </div>
           {DOMAIN_ORDER.map((k) => {
             const total = DOMAIN_ORDER.reduce((s, kk) => s + hover.agg.slices[kk], 0) || 1;
@@ -547,9 +617,13 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
             );
           })}
           <div className="geo-caveat">
-            {hover.agg.papersDistinct
-              ? "Distinct papers — a co-authored work is counted once here."
-              : "Papers per person — co-authored work may count more than once."}
+            {sizeByCitations
+              ? hover.agg.citationsWindowed
+                ? "Citations from papers published in the selected window, summed per author — co-authored work may count more than once."
+                : "Summed corpus h-index across authors — an influence proxy, not a raw citation count."
+              : hover.agg.papersDistinct
+                ? "Distinct papers — a co-authored work is counted once here."
+                : "Papers per person — co-authored work may count more than once."}
           </div>
         </div>
       )}

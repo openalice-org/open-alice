@@ -22,6 +22,11 @@ export interface Person {
   communication_share?: number | null;
   computing_share?: number | null;
   example_titles?: string[];
+  /** Per-year {papers, citations} over quantum-corpus papers only, keyed by
+   * year as a string (e.g. "2021"). Optional and possibly absent/empty —
+   * added after the initial schema, so data built before this field existed
+   * won't have it. */
+  yearly?: Record<string, { papers: number; citations: number }>;
 }
 
 export interface AxisMeta {
@@ -51,7 +56,11 @@ export interface DomainShares {
   sensing: number;
 }
 
-export interface PaperCounts {
+/** Distinct-paper shape shared by the top-level ("all") counts and each
+ * windowed slice below — a paper co-authored across institutions/countries
+ * is counted once per institution/country it touches, never once per
+ * author (see SPRINT 13's build_paper_counts.py). */
+export interface PaperCountsWindow {
   by_country: Record<string, number>;
   by_institution: Record<string, number>;
   domain_by_country: Record<string, DomainShares>;
@@ -59,10 +68,28 @@ export interface PaperCounts {
   total: number;
 }
 
+export interface PaperCounts {
+  by_country: Record<string, number>;
+  by_institution: Record<string, number>;
+  domain_by_country: Record<string, DomainShares>;
+  domain_by_institution: Record<string, DomainShares>;
+  total: number;
+  /** Same distinct-paper counts narrowed to papers published in the last
+   * 5/10 years — added after the initial schema, so older data files won't
+   * have these. Filtered by each PAPER's own publication_year (not a
+   * person's activity span), matching TimeWindow's "last5"/"last10". */
+  last5?: PaperCountsWindow;
+  last10?: PaperCountsWindow;
+}
+
 export type GlassesMode = "constant" | "quantum_h_index" | "global_h_index";
 export type MapMode = "cartesian" | "domains" | "taxonomy" | "geo" | "list";
 export type AggMode = "none" | "boxplot" | "hexdensity" | "clusters";
 export type BoxOrient = "h" | "v";
+// Geo's own config: which magnitude drives a node's resting circle size.
+export type GeoSizeMetric = "papers" | "people" | "citations";
+// Global time-window filter: narrows people by first_year/last_year across every view.
+export type TimeWindow = "all" | "last5" | "last10";
 
 // ---- Disciplines (taxonomy sunburst) view ---------------------------------
 // Mirrors the shape of public/data/people_taxonomy.json.

@@ -1,5 +1,5 @@
 import { createContext, useContext, useReducer, type ReactNode } from "react";
-import type { AggMode, BoxOrient, GlassesMode, MapMode } from "../types";
+import type { AggMode, BoxOrient, GeoSizeMetric, GlassesMode, MapMode, TimeWindow } from "../types";
 import { NORDICS_SCOPE, isGeoScope } from "../lib/institutions";
 import { taxScopeAllowed } from "../lib/taxonomy";
 import { aggModeAllowed } from "../lib/aggMode";
@@ -16,6 +16,8 @@ interface ViewSnapshot {
   glassesMode: GlassesMode;
   aggMode: AggMode;
   boxOrient: BoxOrient;
+  geoSizeMetric: GeoSizeMetric;
+  timeWindow: TimeWindow;
 }
 
 export interface AppState {
@@ -24,6 +26,8 @@ export interface AppState {
   mapMode: MapMode;
   aggMode: AggMode; // positional overlay shared by the Glasses (boxplot/hexdensity) and Aggregations (clusters) lenses
   boxOrient: BoxOrient;
+  geoSizeMetric: GeoSizeMetric; // Geo's own config: which magnitude sizes a node's resting circle
+  timeWindow: TimeWindow; // global time-window filter: narrows people by first_year/last_year across every view
   search: string;
   searchOpen: boolean;
   pinnedPersonId: string | null;
@@ -36,6 +40,8 @@ const initialState: AppState = {
   mapMode: "geo",
   aggMode: "none",
   boxOrient: "h",
+  geoSizeMetric: "papers",
+  timeWindow: "all",
   search: "",
   searchOpen: false,
   pinnedPersonId: null,
@@ -48,6 +54,8 @@ type Action =
   | { type: "SET_MAP"; mode: MapMode; scope?: string }
   | { type: "SET_AGG"; mode: AggMode }
   | { type: "SET_BOX_ORIENT"; orient: BoxOrient }
+  | { type: "SET_GEO_SIZE_METRIC"; metric: GeoSizeMetric }
+  | { type: "SET_TIME_WINDOW"; window: TimeWindow }
   | { type: "SET_SEARCH"; query: string }
   | { type: "SET_SEARCH_OPEN"; open: boolean }
   | { type: "SET_PINNED"; id: string | null }
@@ -86,6 +94,8 @@ function snapshotOf(state: AppState): ViewSnapshot {
     glassesMode: state.glassesMode,
     aggMode: state.aggMode,
     boxOrient: state.boxOrient,
+    geoSizeMetric: state.geoSizeMetric,
+    timeWindow: state.timeWindow,
   };
 }
 
@@ -148,6 +158,14 @@ function reducer(state: AppState, action: Action): AppState {
       if (action.orient === state.boxOrient) return state;
       return { ...state, boxOrient: action.orient, history: pushHistory(state) };
     }
+    case "SET_GEO_SIZE_METRIC": {
+      if (action.metric === state.geoSizeMetric) return state;
+      return { ...state, geoSizeMetric: action.metric, history: pushHistory(state) };
+    }
+    case "SET_TIME_WINDOW": {
+      if (action.window === state.timeWindow) return state;
+      return { ...state, timeWindow: action.window, history: pushHistory(state) };
+    }
     case "SET_SEARCH":
       return { ...state, search: action.query };
     case "SET_SEARCH_OPEN":
@@ -164,6 +182,8 @@ function reducer(state: AppState, action: Action): AppState {
         glassesMode: last.glassesMode,
         aggMode: last.aggMode,
         boxOrient: last.boxOrient,
+        geoSizeMetric: last.geoSizeMetric,
+        timeWindow: last.timeWindow,
         pinnedPersonId: null,
         history: state.history.slice(0, -1),
       };
