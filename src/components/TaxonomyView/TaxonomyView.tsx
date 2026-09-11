@@ -441,9 +441,6 @@ export default function TaxonomyView() {
               </g>
 
               <circle className="tax-center-hole" r={rings.ringIn[1]} />
-              <text className="tax-center-caption" textAnchor="middle" dominantBaseline="middle">
-                Disciplines
-              </text>
             </g>
           )}
         </g>

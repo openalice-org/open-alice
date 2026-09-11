@@ -67,23 +67,12 @@
   fill: var(--ink-faint);
 }
 
-/* ---- centre hole + caption ----------------------------------------------- */
+/* ---- centre hole ----------------------------------------------------- */
 
 .tax-center-hole {
   fill: rgba(246, 244, 238, 0.985);
   stroke: var(--line-soft);
   stroke-width: 0.8;
-  pointer-events: none;
-}
-
-.tax-center-caption {
-  font-family: var(--sans);
-  font-weight: 600;
-  font-size: 13px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  fill: var(--ink);
-  opacity: 0.26;
   pointer-events: none;
 }
 
