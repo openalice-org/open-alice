@@ -22,6 +22,11 @@ export interface Person {
   communication_share?: number | null;
   computing_share?: number | null;
   example_titles?: string[];
+  /** Per-year {papers, citations} over quantum-corpus papers only, keyed by
+   * year as a string (e.g. "2021"). Optional and possibly absent/empty —
+   * added after the initial schema, so data built before this field existed
+   * won't have it. */
+  yearly?: Record<string, { papers: number; citations: number }>;
 }
 
 export interface AxisMeta {
