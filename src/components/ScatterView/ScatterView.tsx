@@ -16,7 +16,7 @@ import {
 import { useAppState } from "../../state/AppState";
 import { isGeoScope } from "../../lib/institutions";
 import { matchesPersonSearch } from "../../lib/people";
-import type { Dataset, Person } from "../../types";
+import type { Dataset, GlassesMode, Person } from "../../types";
 import {
   hasShares,
   ternaryUnit,
@@ -65,8 +65,18 @@ const CLUSTER_COLLIDE_BOOST = 2.1;
 // only ever needs to echo the current one back as plain text.
 const EMPHASIS_LABEL: Record<string, string> = {
   quantum_h_index: "Corpus influence",
+  quantum_patents: "Patent activity",
   constant: "Equal weight",
 };
+
+/** Shared by radiusScale/intensityScale below — the value each glasses mode
+ * weights a point by. "constant" is handled separately by each scale's own
+ * early return, so it never reaches here. */
+function emphasisMetricOf(mode: GlassesMode, p: Person): number {
+  if (mode === "quantum_patents") return p.quantum_patents ?? 0;
+  if (mode === "global_h_index") return p.global_h_index ?? 0;
+  return p.quantum_h_index ?? p.h_index ?? 0;
+}
 
 // The three unordered domain pairs, each already in the same canonical
 // DOMAIN_ORDER boundaryPairOf returns — so `${a}-${b}` is a stable id both
@@ -136,10 +146,7 @@ export default function ScatterView({ dataset, people }: ScatterViewProps) {
 
   const radiusScale = useMemo(() => {
     if (state.glassesMode === "constant") return () => 4;
-    const metricOf = (p: Person) =>
-      state.glassesMode === "quantum_h_index"
-        ? p.quantum_h_index ?? p.h_index ?? 0
-        : p.global_h_index ?? 0;
+    const metricOf = (p: Person) => emphasisMetricOf(state.glassesMode, p);
     const domainMax = max(people, metricOf) ?? 1;
     const scale = scaleSqrt().domain([0, domainMax || 1]).range([3, 15]);
     return (p: Person) => scale(metricOf(p));
@@ -147,10 +154,7 @@ export default function ScatterView({ dataset, people }: ScatterViewProps) {
 
   const intensityScale = useMemo(() => {
     if (state.glassesMode === "constant") return () => 1;
-    const metricOf = (p: Person) =>
-      state.glassesMode === "quantum_h_index"
-        ? p.quantum_h_index ?? p.h_index ?? 0
-        : p.global_h_index ?? 0;
+    const metricOf = (p: Person) => emphasisMetricOf(state.glassesMode, p);
     const domainMax = max(people, metricOf) ?? 1;
     const scale = scaleLinear().domain([0, domainMax || 1]).range([0.35, 1]);
     return (p: Person) => scale(metricOf(p));
