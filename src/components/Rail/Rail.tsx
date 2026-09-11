@@ -304,6 +304,7 @@ export default function Rail({ people }: RailProps) {
           )}
           {openMenu === "config" && state.mapMode === "geo" && (
             <Popout anchorRef={configRowRef} side="left" align="center" className="config-buttons">
+              <span className="config-label">Size by</span>
               {GEO_CONFIG.map((o) => (
                 <button
                   key={o.key}

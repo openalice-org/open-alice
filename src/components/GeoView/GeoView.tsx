@@ -280,7 +280,12 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
     });
     const withAgg = COUNTRY_ORDER.map((cc) => ({
       cc,
-      agg: aggregateGeo(byCountry.get(cc) ?? [], paperCounts?.by_country?.[cc], paperCounts?.domain_by_country?.[cc]),
+      agg: aggregateGeo(
+        byCountry.get(cc) ?? [],
+        paperCounts?.by_country?.[cc],
+        paperCounts?.domain_by_country?.[cc],
+        state.timeWindow,
+      ),
     }));
     const maxVal = Math.max(1, ...withAgg.map((c) => sizeMetricValue(c.agg, state.geoSizeMetric)));
     // Widened output range (was [11, 30]) so the gap between small and large
@@ -291,7 +296,7 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
       const [x, y] = projection(geoCentroid(NORDICS_GEO[c.cc] as never)) ?? [0, 0];
       return { ...c, r: Math.max(6, r(sizeMetricValue(c.agg, state.geoSizeMetric))), x, y };
     });
-  }, [people, paperCounts, uniCountry, projection, state.geoSizeMetric]);
+  }, [people, paperCounts, uniCountry, projection, state.geoSizeMetric, state.timeWindow]);
 
   // Universities present in the drilled-into country, rolled up by city
   // (CITY_UNIS) so a multi-university city can collapse to one node and
@@ -307,7 +312,10 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
     });
     const uniAgg = new Map<string, GeoAggregate>();
     byUni.forEach((members, name) => {
-      uniAgg.set(name, aggregateGeo(members, paperCounts?.by_institution?.[name], paperCounts?.domain_by_institution?.[name]));
+      uniAgg.set(
+        name,
+        aggregateGeo(members, paperCounts?.by_institution?.[name], paperCounts?.domain_by_institution?.[name], state.timeWindow),
+      );
     });
     if (!uniAgg.size) return [];
 
@@ -353,7 +361,7 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
       });
       return { city: g.city, x: g.x, y: g.y, r: cr, members };
     });
-  }, [people, countryScope, uniCountry, paperCounts, projection, state.geoSizeMetric]);
+  }, [people, countryScope, uniCountry, paperCounts, projection, state.geoSizeMetric, state.timeWindow]);
 
   // While a domain section is hovered in the aid panel, every map node's
   // circle resizes off ITS OWN magnitude in just that domain (not its usual
@@ -398,6 +406,7 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
       papers: paperCounts?.total ?? sum(countryNodes, (c) => c.agg.papers),
       papersDistinct: paperCounts != null,
       citations: sum(countryNodes, (c) => c.agg.citations),
+      citationsWindowed: countryNodes.some((c) => c.agg.citationsWindowed),
       slices: {
         computing: sum(countryNodes, (c) => c.agg.slices.computing),
         communication: sum(countryNodes, (c) => c.agg.slices.communication),
@@ -419,9 +428,9 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
     });
     return [...byUni.entries()].map(([name, members]) => ({
       name,
-      agg: aggregateGeo(members, paperCounts?.by_institution?.[name], paperCounts?.domain_by_institution?.[name]),
+      agg: aggregateGeo(members, paperCounts?.by_institution?.[name], paperCounts?.domain_by_institution?.[name], state.timeWindow),
     }));
-  }, [people, countryScope, uniCountry, paperCounts]);
+  }, [people, countryScope, uniCountry, paperCounts, state.timeWindow]);
 
   const panelRows = useMemo(() => {
     if (countryScope) return countryUniAgg;
@@ -453,6 +462,14 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
   // Overview pie is always fixed-size — it never resizes or swaps to a
   // single unit's own mix on hover, in the panel or on the map.
   const panelR = 44;
+
+  // Whichever count reads as the map's own headline number right now — when
+  // Geo is sized by citations, the aid panel/hover card summaries switch to
+  // citations too so the displayed figure matches what's actually driving
+  // node size. Only the top-level totals switch: the domain breakdown stays
+  // paper-based (see the aid-caption note below), since there's no
+  // per-domain citation split to show instead.
+  const sizeByCitations = state.geoSizeMetric === "citations";
 
   return (
     <div className="geo-view">
@@ -509,7 +526,8 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
         <div className="geo-aid-panel glass-panel">
           <div className="aid-head">{labelForScope(state.scope)}</div>
           <div className="aid-sub">
-            {fmtInt(panelAgg.people)} people · {fmtInt(panelAgg.papers)} papers
+            {fmtInt(panelAgg.people)} people ·{" "}
+            {sizeByCitations ? `${fmtInt(panelAgg.citations)} citation impact` : `${fmtInt(panelAgg.papers)} papers`}
           </div>
 
           <div className="aid-overview">
@@ -521,6 +539,7 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
             <div className="aid-caption">
               <div>Grey wedges show each domain's share of the papers here</div>
               <div>Hover a domain below to pick it out in colour</div>
+              {sizeByCitations && <div>(Domain breakdown stays paper-based — no per-domain citation split yet)</div>}
             </div>
           </div>
 
@@ -565,8 +584,8 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
             <b>{fmtInt(hover.agg.people)}</b>
           </div>
           <div className="row">
-            <span>Quantum papers</span>
-            <b>{fmtInt(hover.agg.papers)}</b>
+            <span>{sizeByCitations ? "Citation impact" : "Quantum papers"}</span>
+            <b>{fmtInt(sizeByCitations ? hover.agg.citations : hover.agg.papers)}</b>
           </div>
           {DOMAIN_ORDER.map((k) => {
             const total = DOMAIN_ORDER.reduce((s, kk) => s + hover.agg.slices[kk], 0) || 1;
@@ -581,9 +600,13 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
             );
           })}
           <div className="geo-caveat">
-            {hover.agg.papersDistinct
-              ? "Distinct papers — a co-authored work is counted once here."
-              : "Papers per person — co-authored work may count more than once."}
+            {sizeByCitations
+              ? hover.agg.citationsWindowed
+                ? "Citations from papers published in the selected window, summed per author — co-authored work may count more than once."
+                : "Summed corpus h-index across authors — an influence proxy, not a raw citation count."
+              : hover.agg.papersDistinct
+                ? "Distinct papers — a co-authored work is counted once here."
+                : "Papers per person — co-authored work may count more than once."}
           </div>
         </div>
       )}

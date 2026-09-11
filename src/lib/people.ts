@@ -19,11 +19,18 @@ export function matchesPersonSearch(person: Person, query: string): boolean {
  * only people whose last_year falls within the last N years counting the
  * current year (currentYear computed at call time, not module load time).
  */
+/** The first year counted by a "last5"/"last10" window, counting the current
+ * year itself (computed at call time, not module load time). Shared by
+ * filterByTimeWindow and aggregateGeo's windowed citation sum so the two
+ * never drift apart. */
+export function timeWindowCutoff(window: Exclude<TimeWindow, "all">): number {
+  const years = window === "last5" ? 5 : 10;
+  return new Date().getFullYear() - years + 1;
+}
+
 export function filterByTimeWindow(people: Person[], window: TimeWindow): Person[] {
   if (window === "all") return people;
-  const years = window === "last5" ? 5 : 10;
-  const currentYear = new Date().getFullYear();
-  const cutoff = currentYear - years + 1;
+  const cutoff = timeWindowCutoff(window);
   return people.filter((person) => person.last_year != null && person.last_year >= cutoff);
 }
 

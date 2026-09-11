@@ -212,6 +212,20 @@
   font-size: 12px;
 }
 
+/* Non-interactive lead-in label inside a config-buttons pill row (e.g. Geo's
+ * "Size by" before its Papers/Authors/Citations buttons) — smaller and
+ * dimmer than the buttons so it reads as a caption, not another option. */
+.config-label {
+  padding: 0 4px 0 10px;
+  color: var(--ink-faint);
+  font-family: var(--sans);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
 .config-btn {
   appearance: none;
   border: 0;
