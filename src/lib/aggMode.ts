@@ -10,6 +10,7 @@ import type { AggMode, MapMode } from "../types";
 export function aggModeAllowed(agg: AggMode, mapMode: MapMode): boolean {
   switch (agg) {
     case "boxplot":
+    case "patents":
       return mapMode === "cartesian";
     case "hexdensity":
       return mapMode === "domains";

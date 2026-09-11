@@ -28,6 +28,24 @@ export interface Person {
    * added after the initial schema, so data built before this field existed
    * won't have it. */
   yearly?: Record<string, { papers: number; citations: number }>;
+  /** This person's own SE-inventor/uni-applicant filtered patents (the same
+   * set `total_patents` counts) — from SPRINT 13's build_author_patents.py.
+   * Absent (not just empty) for datasets built before this field existed;
+   * possibly empty even when `total_patents` > 0 (a handful of counted
+   * patents have no matched per-record detail). */
+  patents?: PatentRecord[];
+}
+
+export interface PatentRecord {
+  epo_id: string;
+  jurisdiction: string;
+  doc_number: string;
+  kind: string;
+  /** 0 when the publication year couldn't be resolved. */
+  year: number;
+  title: string;
+  /** Espacenet search-by-publication-number link. */
+  link: string;
 }
 
 export interface AxisMeta {
@@ -85,7 +103,7 @@ export interface PaperCounts {
 
 export type GlassesMode = "constant" | "quantum_h_index" | "global_h_index" | "quantum_patents";
 export type MapMode = "cartesian" | "domains" | "taxonomy" | "geo" | "list";
-export type AggMode = "none" | "boxplot" | "hexdensity" | "clusters";
+export type AggMode = "none" | "boxplot" | "hexdensity" | "clusters" | "patents";
 export type BoxOrient = "h" | "v";
 // Geo's own config: which magnitude drives a node's resting circle size.
 export type GeoSizeMetric = "papers" | "people" | "citations";

@@ -10,8 +10,10 @@ import {
   forceY,
   forceManyBody,
   forceCollide,
+  forceLink,
   type Simulation,
   type SimulationNodeDatum,
+  type SimulationLinkDatum,
 } from "d3-force";
 import { useAppState } from "../../state/AppState";
 import { isGeoScope } from "../../lib/institutions";
@@ -351,6 +353,129 @@ export default function ScatterView({ dataset, people }: ScatterViewProps) {
     // triangle geometry until people/clustersActive happen to change too.
   }, [clustersActive, people, size.width, size.height]);
 
+  // ---- Patents aggregation: Cartesian-only (see aggModeAllowed). A d3-force
+  // overlay on top of the plain scatter, ported from SPRINT 13's vanilla-D3
+  // enterPatents/exitPatents. People with >=1 patent are PINNED (fx/fy) at
+  // their current projected coords; each real patent is a free node, keyed
+  // by its EPO id (person.patents, from build_author_patents.py) so a patent
+  // shared by two on-screen holders (real co-inventorship) collapses to one
+  // node instead of two. A holder whose `patents` array is empty despite a
+  // nonzero total_patents (a handful of counted patents have no matched
+  // per-record detail — see the Person.patents doc) falls back to that many
+  // solo, unlinked synthetic nodes rather than inventing fake coauthors.
+  const patentsActive = state.aggMode === "patents" && state.mapMode === "cartesian";
+  const holders = useMemo(
+    () => (patentsActive ? people.filter((p) => (p.total_patents || 0) > 0) : []),
+    [patentsActive, people],
+  );
+  // Holders' own pinned positions, for the patent-link lines' person endpoint
+  // — kept separate from the sim's internal copy (built fresh at sim setup,
+  // not re-rendered) since this one needs to track live pan/zoom.
+  const holderPositions = useMemo(
+    () => new Map(holders.map((p) => [p.id, projectOf(p)])),
+    [holders, projectOf],
+  );
+
+  interface PatentSimNode extends SimulationNodeDatum {
+    id: string;
+    kind: "person" | "patent";
+    epoId?: string;
+    title?: string;
+  }
+  interface PatentGraphMeta {
+    patents: { id: string; title?: string }[];
+    links: { source: string; target: string }[];
+  }
+
+  const patentSeedRef = useRef({ holders, projectOf });
+  useEffect(() => {
+    patentSeedRef.current = { holders, projectOf };
+  });
+
+  const [patentPositions, setPatentPositions] = useState<Map<string, { x: number; y: number }> | null>(null);
+  const [patentGraph, setPatentGraph] = useState<PatentGraphMeta | null>(null);
+  const patentSimRef = useRef<Simulation<PatentSimNode, SimulationLinkDatum<PatentSimNode>> | null>(null);
+
+  useEffect(() => {
+    if (!patentsActive) {
+      patentSimRef.current?.stop();
+      patentSimRef.current = null;
+      setPatentPositions(null);
+      setPatentGraph(null);
+      return;
+    }
+
+    const seed = patentSeedRef.current;
+    const peopleNodes: PatentSimNode[] = seed.holders.map((p) => {
+      const { cx, cy } = seed.projectOf(p);
+      return { id: p.id, kind: "person", fx: cx, fy: cy, x: cx, y: cy };
+    });
+    const peoplePos = new Map(peopleNodes.map((n) => [n.id, { x: n.x ?? 0, y: n.y ?? 0 }]));
+
+    const patentById = new Map<string, PatentSimNode>();
+    const links: { source: string; target: string }[] = [];
+    seed.holders.forEach((p) => {
+      const anchor = peoplePos.get(p.id) ?? { x: 0, y: 0 };
+      const patents = p.patents ?? [];
+      if (patents.length) {
+        patents.forEach((pt) => {
+          const nodeId = `pat-${pt.epo_id}`;
+          if (!patentById.has(nodeId)) {
+            patentById.set(nodeId, {
+              id: nodeId,
+              kind: "patent",
+              epoId: pt.epo_id,
+              title: pt.title,
+              x: anchor.x,
+              y: anchor.y,
+            });
+          }
+          links.push({ source: nodeId, target: p.id });
+        });
+      } else {
+        // no matched per-patent record for this holder -> fall back to solo
+        // unlinked nodes, no fake coauthors.
+        const count = p.total_patents || 0;
+        for (let i = 0; i < count; i++) {
+          const nodeId = `pat-${p.id}-${i}`;
+          patentById.set(nodeId, { id: nodeId, kind: "patent", x: anchor.x, y: anchor.y });
+          links.push({ source: nodeId, target: p.id });
+        }
+      }
+    });
+    const patentNodes = Array.from(patentById.values());
+    const allNodes = peopleNodes.concat(patentNodes);
+
+    const publish = () => {
+      setPatentPositions(new Map(patentNodes.map((n) => [n.id, { x: n.x ?? 0, y: n.y ?? 0 }])));
+    };
+    setPatentGraph({ patents: patentNodes.map((n) => ({ id: n.id, title: n.title })), links });
+
+    const sim = forceSimulation<PatentSimNode>(allNodes)
+      .force(
+        "link",
+        forceLink<PatentSimNode, SimulationLinkDatum<PatentSimNode>>(links)
+          .id((n) => n.id)
+          .distance(24)
+          .strength(0.6),
+      )
+      .force("charge", forceManyBody<PatentSimNode>().strength(-16))
+      .force("collide", forceCollide<PatentSimNode>((n) => (n.kind === "patent" ? 5 : 2)).strength(0.9))
+      .stop();
+
+    for (let i = 0; i < 12; i++) sim.tick();
+    publish();
+    sim.on("tick", publish);
+    sim.restart();
+    patentSimRef.current = sim;
+
+    return () => {
+      sim.stop();
+    };
+    // size.width/height: holders' pinned fx/fy come from projectOf, baked in
+    // at sim creation — same resize-tracking reasoning as the cluster sim.
+  }, [patentsActive, holders, size.width, size.height]);
+
   // Cluster mode owns cx/cy directly via the ticking sim; everywhere else
   // (pin/zoom target) should read from it too while active so interaction
   // targets match what's on screen.
@@ -374,6 +499,10 @@ export default function ScatterView({ dataset, people }: ScatterViewProps) {
   // hexFade=1 (hex fully opaque, points fully hidden — see the opacity math
   // below, NOT 0, which would make the hex layer itself invisible instead).
   const showPoints = !boxplotActive && !clustersActive;
+  // Patents keeps the point layer (unlike Boxplot/Clusters, which replace it
+  // outright) but narrows it to holders — everyone else fades out, same as
+  // the vanilla app's non-holder fade.
+  const pointPeople = patentsActive ? holders : people;
   const hexRevealsPoints = !isGeoScope(state.scope);
   const hexFade = !hexActive ? 0 : hexRevealsPoints ? hexFadeOpacity(transform.k) : 1;
 
@@ -481,7 +610,7 @@ export default function ScatterView({ dataset, people }: ScatterViewProps) {
           )}
 
           {showPoints &&
-            people.map((p) => {
+            pointPeople.map((p) => {
               const { cx, cy } = projectOf(p);
               const r = radiusScale(p);
               // in domains mode, a person without domain shares has nowhere
@@ -529,6 +658,40 @@ export default function ScatterView({ dataset, people }: ScatterViewProps) {
                 />
               );
             })}
+
+          {patentsActive && patentGraph && patentPositions && (
+            <g className="agg-patents">
+              <g className="patent-links">
+                {patentGraph.links.map((l, i) => {
+                  const source = patentPositions.get(l.source);
+                  const target = holderPositions.get(l.target);
+                  if (!source || !target) return null;
+                  return (
+                    <line
+                      key={i}
+                      className="pat-link"
+                      x1={source.x}
+                      y1={source.y}
+                      x2={target.cx}
+                      y2={target.cy}
+                      strokeWidth={1 / transform.k}
+                    />
+                  );
+                })}
+              </g>
+              <g className="patent-nodes">
+                {patentGraph.patents.map((pn) => {
+                  const pos = patentPositions.get(pn.id);
+                  if (!pos) return null;
+                  return (
+                    <circle key={pn.id} className="pat" cx={pos.x} cy={pos.y} r={3.5 / transform.k} strokeWidth={1 / transform.k}>
+                      {pn.title && <title>{pn.title}</title>}
+                    </circle>
+                  );
+                })}
+              </g>
+            </g>
+          )}
 
           {clustersActive && clusterPositions && (
             <g className="agg-clusters">
@@ -719,6 +882,16 @@ export default function ScatterView({ dataset, people }: ScatterViewProps) {
               <i className="legend-swatch legend-swatch-zebra" />
               Boundary
             </span>
+          </div>
+        </div>
+      )}
+
+      {patentsActive && patentGraph && (
+        <div className="domain-legend">
+          <div className="legend-head">Patents</div>
+          <div className="legend-caption">
+            {holders.length} holder{holders.length === 1 ? "" : "s"} · {patentGraph.patents.length} patent
+            {patentGraph.patents.length === 1 ? "" : "s"}
           </div>
         </div>
       )}
