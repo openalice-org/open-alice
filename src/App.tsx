@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { AppStateProvider, useAppState } from "./state/AppState";
 import { useDataset } from "./hooks/useDataset";
 import { peopleForScope, universityCountryMap } from "./lib/institutions";
-import { filterByTimeWindow } from "./lib/people";
+import { filterByTimeWindow, paperCountsForWindow } from "./lib/people";
 import Rail from "./components/Rail/Rail";
 import Colophon from "./components/Colophon/Colophon";
 import ScatterView from "./components/ScatterView/ScatterView";
@@ -29,6 +29,11 @@ function AppInner() {
     [dataset, state.timeWindow],
   );
 
+  const windowedPaperCounts = useMemo(
+    () => paperCountsForWindow(paperCounts, state.timeWindow),
+    [paperCounts, state.timeWindow],
+  );
+
   if (loading) {
     return (
       <div className="boot-screen">
@@ -50,7 +55,7 @@ function AppInner() {
       {state.mapMode === "taxonomy" ? (
         <TaxonomyView />
       ) : state.mapMode === "geo" ? (
-        <GeoView people={timeFilteredPeople} paperCounts={state.timeWindow === "all" ? paperCounts : null} />
+        <GeoView people={timeFilteredPeople} paperCounts={windowedPaperCounts} />
       ) : state.mapMode === "list" ? (
         <TableView people={visiblePeople} />
       ) : (

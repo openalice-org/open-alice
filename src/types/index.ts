@@ -56,12 +56,30 @@ export interface DomainShares {
   sensing: number;
 }
 
+/** Distinct-paper shape shared by the top-level ("all") counts and each
+ * windowed slice below — a paper co-authored across institutions/countries
+ * is counted once per institution/country it touches, never once per
+ * author (see SPRINT 13's build_paper_counts.py). */
+export interface PaperCountsWindow {
+  by_country: Record<string, number>;
+  by_institution: Record<string, number>;
+  domain_by_country: Record<string, DomainShares>;
+  domain_by_institution: Record<string, DomainShares>;
+  total: number;
+}
+
 export interface PaperCounts {
   by_country: Record<string, number>;
   by_institution: Record<string, number>;
   domain_by_country: Record<string, DomainShares>;
   domain_by_institution: Record<string, DomainShares>;
   total: number;
+  /** Same distinct-paper counts narrowed to papers published in the last
+   * 5/10 years — added after the initial schema, so older data files won't
+   * have these. Filtered by each PAPER's own publication_year (not a
+   * person's activity span), matching TimeWindow's "last5"/"last10". */
+  last5?: PaperCountsWindow;
+  last10?: PaperCountsWindow;
 }
 
 export type GlassesMode = "constant" | "quantum_h_index" | "global_h_index";
