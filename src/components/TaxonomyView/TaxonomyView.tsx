@@ -9,8 +9,10 @@ import { useTaxonomyDataset } from "../../hooks/useTaxonomyDataset";
 import type { TaxPerson } from "../../types";
 import { fmtInt } from "../../lib/format";
 import { filterByTimeWindow } from "../../lib/people";
+import { countryOfScope, NORDICS_SCOPE } from "../../lib/institutions";
 import {
   TAX_UNIS,
+  TAX_UNI_COUNTRY,
   computeRings,
   buildSunLayout,
   buildPathIndex,
@@ -177,13 +179,24 @@ export default function TaxonomyView() {
     setQuery("");
   }, [state.scope]);
 
-  const isCountryWheel = state.scope === "country:SE";
+  // "Multi-uni wheel": country: scopes and Nordics both roll several
+  // universities into one wheel with a per-university roster/mosaic
+  // breakdown, as opposed to a single-university scope. Kept the
+  // isCountryWheel name (used throughout this file and mosaic.ts) even
+  // though it now also covers Nordics — renaming it everywhere would be a
+  // much bigger diff for no behavior change.
+  const isCountryWheel = state.scope.startsWith("country:") || state.scope === NORDICS_SCOPE;
+  const wheelCountry = countryOfScope(state.scope);
 
   const scopedPeople = useMemo<TaxPerson[]>(() => {
     if (!data) return [];
-    const base = isCountryWheel ? data.people.filter((p) => TAX_UNIS.has(p.university)) : data.people.filter((p) => p.university === state.scope);
+    const base = wheelCountry
+      ? data.people.filter((p) => TAX_UNI_COUNTRY.get(p.university) === wheelCountry)
+      : state.scope === NORDICS_SCOPE
+        ? data.people.filter((p) => TAX_UNIS.has(p.university))
+        : data.people.filter((p) => p.university === state.scope);
     return filterByTimeWindow(base, state.timeWindow) as TaxPerson[];
-  }, [data, isCountryWheel, state.scope, state.timeWindow]);
+  }, [data, wheelCountry, state.scope, state.timeWindow]);
 
   const rings = useMemo(() => computeRings(size.width, size.height), [size.width, size.height]);
 
@@ -316,7 +329,7 @@ export default function TaxonomyView() {
 
   const rosterRows = useMemo<RosterRow[]>(() => {
     if (isCountryWheel) {
-      return [...TAX_UNIS].map((uni) => ({
+      return [...uniTotals.keys()].map((uni) => ({
         id: uni,
         label: uni,
         sub: fmtInt(uniTotals.get(uni)?.papers ?? 0),

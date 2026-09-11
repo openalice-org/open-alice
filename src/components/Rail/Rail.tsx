@@ -8,7 +8,7 @@ import "./Rail.css";
 
 // The unified view picker — every way of looking at the data, in one menu.
 const VIEWS: { key: MapMode; label: string; icon: string; badge: string }[] = [
-  { key: "taxonomy", label: "Disciplines", icon: "ph-tree-structure", badge: "Sweden (9 unis) only" },
+  { key: "taxonomy", label: "Disciplines", icon: "ph-tree-structure", badge: "36 unis" },
   { key: "domains", label: "Domains", icon: "ph-triangle", badge: "" },
   { key: "cartesian", label: "Axes", icon: "ph-crosshair", badge: "" },
   { key: "geo", label: "Geo", icon: "ph-map-trifold", badge: "" },
