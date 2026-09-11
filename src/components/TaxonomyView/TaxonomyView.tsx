@@ -8,8 +8,11 @@ import { useAppState } from "../../state/AppState";
 import { useTaxonomyDataset } from "../../hooks/useTaxonomyDataset";
 import type { TaxPerson } from "../../types";
 import { fmtInt } from "../../lib/format";
+import { filterByTimeWindow } from "../../lib/people";
+import { countryOfScope, NORDICS_SCOPE } from "../../lib/institutions";
 import {
   TAX_UNIS,
+  TAX_UNI_COUNTRY,
   computeRings,
   buildSunLayout,
   buildPathIndex,
@@ -124,6 +127,9 @@ export default function TaxonomyView() {
   // (used for cross-arc dim/outline highlighting) isn't enough to know which
   // specific arc's numbers the hover card should show.
   const [hoveredOwner, setHoveredOwner] = useState<MosaicOwner | null>(null);
+  // Roster row elements keyed by row id, so a mosaic hover can scroll the
+  // matching row into view without re-querying the DOM by id/class.
+  const rowRefs = useRef(new Map<string, HTMLDivElement>());
 
   // ---- measure the container, mirroring ScatterView's approach but via
   // ResizeObserver so the wheel also reacts to the roster/rail panels
@@ -173,13 +179,24 @@ export default function TaxonomyView() {
     setQuery("");
   }, [state.scope]);
 
-  const isCountryWheel = state.scope === "country:SE";
+  // "Multi-uni wheel": country: scopes and Nordics both roll several
+  // universities into one wheel with a per-university roster/mosaic
+  // breakdown, as opposed to a single-university scope. Kept the
+  // isCountryWheel name (used throughout this file and mosaic.ts) even
+  // though it now also covers Nordics — renaming it everywhere would be a
+  // much bigger diff for no behavior change.
+  const isCountryWheel = state.scope.startsWith("country:") || state.scope === NORDICS_SCOPE;
+  const wheelCountry = countryOfScope(state.scope);
 
   const scopedPeople = useMemo<TaxPerson[]>(() => {
     if (!data) return [];
-    if (isCountryWheel) return data.people.filter((p) => TAX_UNIS.has(p.university));
-    return data.people.filter((p) => p.university === state.scope);
-  }, [data, isCountryWheel, state.scope]);
+    const base = wheelCountry
+      ? data.people.filter((p) => TAX_UNI_COUNTRY.get(p.university) === wheelCountry)
+      : state.scope === NORDICS_SCOPE
+        ? data.people.filter((p) => TAX_UNIS.has(p.university))
+        : data.people.filter((p) => p.university === state.scope);
+    return filterByTimeWindow(base, state.timeWindow) as TaxPerson[];
+  }, [data, wheelCountry, state.scope, state.timeWindow]);
 
   const rings = useMemo(() => computeRings(size.width, size.height), [size.width, size.height]);
 
@@ -279,6 +296,15 @@ export default function TaxonomyView() {
     return mosaic.islands.filter((isl) => isl.ownerId === highlightedId);
   }, [highlightedId, mosaic.islands]);
 
+  // Hovering a person's mosaic tile scrolls their roster entry into view —
+  // hoveredMosaicId only fires from mosaic hover (never roster hover/lock,
+  // see its state doc above), so this never fights the user's own scrolling
+  // of the roster.
+  useEffect(() => {
+    if (!hoveredMosaicId) return;
+    rowRefs.current.get(hoveredMosaicId)?.scrollIntoView({ block: "nearest" });
+  }, [hoveredMosaicId]);
+
   function unpin() {
     dispatch({ type: "SET_PINNED", id: null });
     if (svgRef.current && zoomRef.current) {
@@ -303,7 +329,7 @@ export default function TaxonomyView() {
 
   const rosterRows = useMemo<RosterRow[]>(() => {
     if (isCountryWheel) {
-      return [...TAX_UNIS].map((uni) => ({
+      return [...uniTotals.keys()].map((uni) => ({
         id: uni,
         label: uni,
         sub: fmtInt(uniTotals.get(uni)?.papers ?? 0),
@@ -415,9 +441,6 @@ export default function TaxonomyView() {
               </g>
 
               <circle className="tax-center-hole" r={rings.ringIn[1]} />
-              <text className="tax-center-caption" textAnchor="middle" dominantBaseline="middle">
-                Quantum
-              </text>
             </g>
           )}
         </g>
@@ -447,10 +470,14 @@ export default function TaxonomyView() {
           />
           <div className="tax-roster-list">
             {filteredRows.map((row) => {
-              const active = !row.isUniversity && highlightedId === row.id;
+              const active = row.isUniversity ? highlightedId === "uni::" + row.id : highlightedId === row.id;
               return (
                 <div
                   key={row.id}
+                  ref={(el) => {
+                    if (el) rowRefs.current.set(row.id, el);
+                    else rowRefs.current.delete(row.id);
+                  }}
                   className={"tax-roster-row" + (active ? " active" : "")}
                   onMouseEnter={(e) => {
                     if (row.isUniversity) return;

@@ -12,37 +12,108 @@ import type { TaxNode, TaxPerson } from "../types";
 import { DOMAIN_COLORS, type DomainKey } from "./ternary";
 
 /**
- * Only 9 of the ~36 Nordic institutions in the main dataset have taxonomy
- * data (Sweden only) — a separate, deliberately hardcoded allowlist from the
- * Nordic-wide institution list in lib/institutions.ts. people_taxonomy.json
- * technically carries every person, but `tax_path` is only meaningful/dense
- * for these 9 universities. Exact `person.university` values, matching the
- * canonical names lib/institutions.ts and GeoView already use.
+ * 36 of the 45 Nordic institutions in the main dataset have taxonomy data
+ * (people_taxonomy.json carries every person, but `tax_path` is only
+ * present for universities that had a classified-works corpus at build
+ * time — the other 9 have zero or near-zero quantum papers). Hardcoded
+ * rather than derived at runtime because taxScopeAllowed (via Rail.tsx/
+ * AppState.tsx) gates the Disciplines nav item before the ~22MB taxonomy
+ * dataset itself is ever fetched (see useTaxonomyDataset's lazy-load
+ * comment) — there's no dataset in hand yet to derive it from. Exact
+ * `person.university` values, matching the canonical names
+ * lib/institutions.ts and GeoView already use. Country majority-voted from
+ * people_taxonomy.json's own per-person `country`, except Nord University
+ * (2 people, a single foreign co-author majority-voted it to the wrong
+ * country) which is corrected by hand.
  */
 export const TAX_UNIS = new Set([
-  "KTH",
-  "Stockholm University",
-  "Karolinska Institutet",
+  "Aalborg University",
+  "Aalto University",
+  "Aarhus University",
   "Chalmers",
+  "Copenhagen Business School (CBS)",
   "Gothenburg",
+  "KTH",
+  "Karolinska Institutet",
+  "LUT University",
   "Linköping University",
   "Lund",
+  "Nord University",
+  "Norwegian University of Life Sciences (NMBU)",
+  "Norwegian University of Science and Technology (NTNU)",
+  "OsloMet – Oslo Metropolitan University",
+  "Reykjavík University",
+  "Roskilde University",
+  "Stockholm University",
+  "Tampere University",
+  "Technical University of Denmark (DTU)",
+  "UiT The Arctic University of Norway",
   "Umeå University",
+  "University of Agder (UiA)",
+  "University of Bergen (UiB)",
+  "University of Copenhagen",
+  "University of Eastern Finland",
+  "University of Helsinki",
+  "University of Iceland",
+  "University of Jyväskylä",
+  "University of Oslo (UiO)",
+  "University of South-Eastern Norway (USN)",
+  "University of Southern Denmark",
+  "University of Stavanger (UiS)",
+  "University of Turku",
   "Uppsala University",
+  "Åbo Akademi University",
 ]);
 
-export const TAX_UNI_COUNTRY = new Map([...TAX_UNIS].map((u) => [u, "SE"]));
+export const TAX_UNI_COUNTRY = new Map<string, string>([
+  ["Aalborg University", "DK"],
+  ["Aalto University", "FI"],
+  ["Aarhus University", "DK"],
+  ["Chalmers", "SE"],
+  ["Copenhagen Business School (CBS)", "DK"],
+  ["Gothenburg", "SE"],
+  ["KTH", "SE"],
+  ["Karolinska Institutet", "SE"],
+  ["LUT University", "FI"],
+  ["Linköping University", "SE"],
+  ["Lund", "SE"],
+  ["Nord University", "NO"],
+  ["Norwegian University of Life Sciences (NMBU)", "NO"],
+  ["Norwegian University of Science and Technology (NTNU)", "NO"],
+  ["OsloMet – Oslo Metropolitan University", "NO"],
+  ["Reykjavík University", "IS"],
+  ["Roskilde University", "DK"],
+  ["Stockholm University", "SE"],
+  ["Tampere University", "FI"],
+  ["Technical University of Denmark (DTU)", "DK"],
+  ["UiT The Arctic University of Norway", "NO"],
+  ["Umeå University", "SE"],
+  ["University of Agder (UiA)", "NO"],
+  ["University of Bergen (UiB)", "NO"],
+  ["University of Copenhagen", "DK"],
+  ["University of Eastern Finland", "FI"],
+  ["University of Helsinki", "FI"],
+  ["University of Iceland", "IS"],
+  ["University of Jyväskylä", "FI"],
+  ["University of Oslo (UiO)", "NO"],
+  ["University of South-Eastern Norway (USN)", "NO"],
+  ["University of Southern Denmark", "DK"],
+  ["University of Stavanger (UiS)", "NO"],
+  ["University of Turku", "FI"],
+  ["Uppsala University", "SE"],
+  ["Åbo Akademi University", "FI"],
+]);
 export const TAX_COUNTRIES = new Set(TAX_UNI_COUNTRY.values());
 
 /**
  * Whether the Disciplines view is reachable from a given scope. "Nordics"
- * itself is explicitly excluded even though it's a valid geo scope — it
- * would show "All Nordics" while the wheel only ever contains Swedes, which
- * is misleading.
+ * is now allowed too — coverage spans all five Nordic countries (see
+ * TAX_UNIS above), so "ALL NORDICS" no longer means "only Swedes" the way
+ * it did when this view was Sweden-only.
  */
 export function taxScopeAllowed(scope: string): boolean {
   if (scope.startsWith("country:")) return TAX_COUNTRIES.has(scope.slice("country:".length));
-  if (scope === "Nordics") return false;
+  if (scope === "Nordics") return true;
   return TAX_UNIS.has(scope);
 }
 

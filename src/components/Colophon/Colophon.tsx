@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useAppState } from "../../state/AppState";
-import type { Person, PaperCounts } from "../../types";
+import type { Person, PaperCounts, TimeWindow } from "../../types";
 import {
   COUNTRY_LABELS,
   COUNTRY_ORDER,
@@ -12,7 +12,14 @@ import {
   universityCountryMap,
 } from "../../lib/institutions";
 import { fmtInt } from "../../lib/format";
+import { filterByTimeWindow } from "../../lib/people";
 import "./Colophon.css";
+
+const TIME_WINDOW_LABELS: Record<TimeWindow, string> = {
+  all: "All corpus",
+  last5: "Last 5 years",
+  last10: "Last 10 years",
+};
 
 interface ColophonProps {
   people: Person[];
@@ -28,6 +35,7 @@ export default function Colophon({ people, paperCounts }: ColophonProps) {
   // change state.scope — only picking a leaf (All Nordics, All of X, or a
   // university) does.
   const [menuCountry, setMenuCountry] = useState<string | null>(null);
+  const [timeOpen, setTimeOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
 
   const byCountry = useMemo(() => institutionsByCountry(people), [people]);
@@ -41,6 +49,7 @@ export default function Colophon({ people, paperCounts }: ColophonProps) {
   useEffect(() => {
     function onDocClick() {
       setOpen(false);
+      setTimeOpen(false);
     }
     document.addEventListener("click", onDocClick);
     return () => document.removeEventListener("click", onDocClick);
@@ -51,6 +60,7 @@ export default function Colophon({ people, paperCounts }: ColophonProps) {
   // into Sweden's list rather than making you drill down again.
   function openMenu() {
     setMenuCountry(scopeCountry && countries.includes(scopeCountry) ? scopeCountry : null);
+    setTimeOpen(false);
     setOpen(true);
   }
 
@@ -59,9 +69,19 @@ export default function Colophon({ people, paperCounts }: ColophonProps) {
     setOpen(false);
   }
 
+  function openTimeMenu() {
+    setOpen(false);
+    setTimeOpen(true);
+  }
+
+  function pickTime(window: TimeWindow) {
+    dispatch({ type: "SET_TIME_WINDOW", window });
+    setTimeOpen(false);
+  }
+
   const scopedPeople = useMemo(() => {
-    return peopleForScope(people, state.scope, uniCountry);
-  }, [people, state.scope, uniCountry]);
+    return filterByTimeWindow(peopleForScope(people, state.scope, uniCountry), state.timeWindow);
+  }, [people, state.scope, uniCountry, state.timeWindow]);
 
   const paperCount = useMemo(() => {
     if (isGeoScope(state.scope) && paperCounts) {
@@ -151,6 +171,39 @@ export default function Colophon({ people, paperCounts }: ColophonProps) {
                   ))}
                 </>
               )}
+            </div>
+          )}
+          <span> @ </span>
+          <span
+            className={"inst-pick" + (timeOpen ? " open" : "")}
+            tabIndex={0}
+            role="button"
+            aria-haspopup="listbox"
+            aria-expanded={timeOpen}
+            title="Change time window"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (timeOpen) setTimeOpen(false);
+              else openTimeMenu();
+            }}
+          >
+            <span>{TIME_WINDOW_LABELS[state.timeWindow]}</span>
+            <i className="ph-light ph-caret-up" />
+          </span>
+          {timeOpen && (
+            <div className="inst-menu glass-panel" role="listbox" onClick={(e) => e.stopPropagation()}>
+              {(Object.keys(TIME_WINDOW_LABELS) as TimeWindow[]).map((w) => (
+                <div
+                  key={w}
+                  className={"inst-opt inst-all" + (state.timeWindow === w ? " active" : "")}
+                  role="option"
+                  aria-selected={state.timeWindow === w}
+                  onClick={() => pickTime(w)}
+                >
+                  <i className={"ph-light inst-check " + (state.timeWindow === w ? "ph-check-square" : "ph-square")} />
+                  {TIME_WINDOW_LABELS[w]}
+                </div>
+              ))}
             </div>
           )}
         </div>

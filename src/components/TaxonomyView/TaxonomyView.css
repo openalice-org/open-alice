@@ -67,23 +67,12 @@
   fill: var(--ink-faint);
 }
 
-/* ---- centre hole + caption ----------------------------------------------- */
+/* ---- centre hole ----------------------------------------------------- */
 
 .tax-center-hole {
   fill: rgba(246, 244, 238, 0.985);
   stroke: var(--line-soft);
   stroke-width: 0.8;
-  pointer-events: none;
-}
-
-.tax-center-caption {
-  font-family: var(--sans);
-  font-weight: 600;
-  font-size: 13px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  fill: var(--ink);
-  opacity: 0.26;
   pointer-events: none;
 }
 
@@ -183,6 +172,15 @@
   flex: none;
   color: var(--ink-faint);
   font-variant-numeric: tabular-nums;
+}
+
+/* Stronger blur than the shared .glass-panel default — the wheel behind these
+   hover cards is busy enough (arcs, mosaic, labels) that the default 14px
+   blur/0.62 opacity leaves text hard to read. Scoped to this view only. */
+.tax-view .tooltip {
+  background: rgba(246, 244, 238, 0.88);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
 }
 
 .tax-roster-empty {
