@@ -52,6 +52,7 @@ function domainConfigAllowed(key: AggMode, scope: string): boolean {
 const CARTESIAN_CONFIG: { key: AggMode; label: string }[] = [
   { key: "none", label: "People" },
   { key: "boxplot", label: "Boxes" },
+  { key: "patents", label: "Patents" },
 ];
 
 function cartesianConfigAllowed(key: AggMode, scope: string): boolean {
