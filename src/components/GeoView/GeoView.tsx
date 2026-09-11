@@ -536,7 +536,7 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
           <div className="aid-head">{labelForScope(state.scope)}</div>
           <div className="aid-sub">
             {fmtInt(panelAgg.people)} people ·{" "}
-            {sizeByCitations ? `${fmtInt(panelAgg.citations)} citation impact` : `${fmtInt(panelAgg.papers)} papers`}
+            {sizeByCitations ? `${fmtInt(panelAgg.citations)} citations` : `${fmtInt(panelAgg.papers)} papers`}
           </div>
 
           <div className="aid-overview">
@@ -552,7 +552,7 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
               </g>
             </svg>
             <div className="aid-caption">
-              <div>Grey wedges show each domain's share of the {sizeByCitations ? "citation impact" : "papers"} here</div>
+              <div>Grey wedges show each domain's share of the {sizeByCitations ? "citations" : "papers"} here</div>
               <div>Hover a domain below to pick it out in colour</div>
             </div>
           </div>
@@ -574,7 +574,7 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
                   <span className="aid-domain-count">
                     {fmtInt(panelDomainPeople[k])} people ·{" "}
                     {sizeByCitations
-                      ? `${fmtInt(panelAgg.citationSlices[k])} citation impact`
+                      ? `${fmtInt(panelAgg.citationSlices[k])} citations`
                       : `${fmtInt(panelAgg.slices[k])} papers`}
                   </span>
                 </div>
@@ -601,7 +601,7 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
             <b>{fmtInt(hover.agg.people)}</b>
           </div>
           <div className="row">
-            <span>{sizeByCitations ? "Citation impact" : "Quantum papers"}</span>
+            <span>{sizeByCitations ? "Citations" : "Quantum papers"}</span>
             <b>{fmtInt(sizeByCitations ? hover.agg.citations : hover.agg.papers)}</b>
           </div>
           {DOMAIN_ORDER.map((k) => {
