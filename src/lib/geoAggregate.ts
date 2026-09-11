@@ -40,6 +40,14 @@ export interface GeoAggregate {
    *  `yearly` falls back to their whole-career h-index even in that case). */
   citationsWindowed: boolean;
   slices: DomainShares;
+  /** Same per-domain breakdown as `slices`, but weighted by each member's
+   *  citation contribution (the same value summed into `citations`) instead
+   *  of their paper count — lets the aid panel show a citations-by-domain
+   *  split when Geo is sized by citations. Always person-summed: unlike
+   *  `slices` there's no precomputed distinct source to prefer, so this
+   *  double-counts a co-authored paper's citations once per co-author the
+   *  same way the plain `citations` total does. */
+  citationSlices: DomainShares;
 }
 
 function windowedCitations(p: Person, cutoff: number): number | null {
@@ -69,20 +77,21 @@ export function aggregateGeo(
   let citationsWindowed = false;
   const cutoff = window === "all" ? null : timeWindowCutoff(window);
   const slices: DomainShares = { computing: 0, communication: 0, sensing: 0 };
+  const citationSlices: DomainShares = { computing: 0, communication: 0, sensing: 0 };
   members.forEach((p) => {
     const papers = p.quantum_papers || 0;
     summedPapers += papers;
     const windowed = cutoff != null ? windowedCitations(p, cutoff) : null;
-    if (windowed != null) {
-      summedCitations += windowed;
-      citationsWindowed = true;
-    } else {
-      summedCitations += p.quantum_h_index ?? p.h_index ?? 0;
-    }
+    const personCitations = windowed ?? (p.quantum_h_index ?? p.h_index ?? 0);
+    summedCitations += personCitations;
+    if (windowed != null) citationsWindowed = true;
     if (p.computing_share != null && p.communication_share != null && p.sensing_share != null) {
       slices.computing += papers * p.computing_share;
       slices.communication += papers * p.communication_share;
       slices.sensing += papers * p.sensing_share;
+      citationSlices.computing += personCitations * p.computing_share;
+      citationSlices.communication += personCitations * p.communication_share;
+      citationSlices.sensing += personCitations * p.sensing_share;
     }
   });
   const papersDistinct = distinctPapers != null;
@@ -93,5 +102,6 @@ export function aggregateGeo(
     citations: summedCitations,
     citationsWindowed,
     slices: distinctSlices ?? slices,
+    citationSlices,
   };
 }

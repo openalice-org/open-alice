@@ -106,16 +106,22 @@ function PieGlyph({
   agg,
   highlight,
   colors = DOMAIN_SHADES,
+  slicesKey = "slices",
 }: {
   r: number;
   agg: GeoAggregate;
   highlight?: keyof DomainShares | null;
   colors?: Record<keyof DomainShares, string>;
+  /** Which per-domain breakdown to draw from — `slices` (papers, the map's
+   * own default) or `citationSlices` (aid-panel overview when Geo is sized
+   * by citations). */
+  slicesKey?: "slices" | "citationSlices";
 }) {
-  const total = DOMAIN_ORDER.reduce((s, k) => s + agg.slices[k], 0);
+  const slices = agg[slicesKey];
+  const total = DOMAIN_ORDER.reduce((s, k) => s + slices[k], 0);
   if (total <= 0) return <circle r={r} className="geo-pie-fallback" />;
   const arcGen = d3Arc<{ value: number }>().innerRadius(0).outerRadius(r);
-  const arcs = pie(DOMAIN_ORDER.map((k) => agg.slices[k]));
+  const arcs = pie(DOMAIN_ORDER.map((k) => slices[k]));
   return (
     <>
       {arcs.map((a, i) => {
@@ -412,6 +418,11 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
         communication: sum(countryNodes, (c) => c.agg.slices.communication),
         sensing: sum(countryNodes, (c) => c.agg.slices.sensing),
       },
+      citationSlices: {
+        computing: sum(countryNodes, (c) => c.agg.citationSlices.computing),
+        communication: sum(countryNodes, (c) => c.agg.citationSlices.communication),
+        sensing: sum(countryNodes, (c) => c.agg.citationSlices.sensing),
+      },
     }),
     [countryNodes, paperCounts],
   );
@@ -437,17 +448,23 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
     return countryNodes.map((c) => ({ name: COUNTRY_LABELS[c.cc] ?? c.cc, agg: c.agg }));
   }, [countryScope, countryUniAgg, countryNodes]);
 
+  // Whichever count reads as the map's own headline number right now — when
+  // Geo is sized by citations, the aid panel/hover card switch to citations
+  // too (both the head total and the per-domain breakdown below) so the
+  // displayed figures match what's actually driving node size.
+  const sizeByCitations = state.geoSizeMetric === "citations";
+
   const panelDomainTop3 = useMemo(() => {
     const result = {} as Record<keyof DomainShares, { name: string; value: number }[]>;
     PANEL_DOMAIN_ORDER.forEach((k) => {
       result[k] = panelRows
-        .map((u) => ({ name: u.name, value: u.agg.slices[k] }))
+        .map((u) => ({ name: u.name, value: sizeByCitations ? u.agg.citationSlices[k] : u.agg.slices[k] }))
         .filter((row) => row.value > 0)
         .sort((a, b) => b.value - a.value)
         .slice(0, 3);
     });
     return result;
-  }, [panelRows]);
+  }, [panelRows, sizeByCitations]);
 
   const panelDomainPeople = useMemo(() => {
     const counts = { computing: 0, communication: 0, sensing: 0 } as Record<keyof DomainShares, number>;
@@ -462,14 +479,6 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
   // Overview pie is always fixed-size — it never resizes or swaps to a
   // single unit's own mix on hover, in the panel or on the map.
   const panelR = 44;
-
-  // Whichever count reads as the map's own headline number right now — when
-  // Geo is sized by citations, the aid panel/hover card summaries switch to
-  // citations too so the displayed figure matches what's actually driving
-  // node size. Only the top-level totals switch: the domain breakdown stays
-  // paper-based (see the aid-caption note below), since there's no
-  // per-domain citation split to show instead.
-  const sizeByCitations = state.geoSizeMetric === "citations";
 
   return (
     <div className="geo-view">
@@ -533,13 +542,18 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
           <div className="aid-overview">
             <svg width={panelR * 2 + 4} height={panelR * 2 + 4} className="aid-pie-svg">
               <g transform={`translate(${panelR + 2},${panelR + 2})`}>
-                <PieGlyph r={panelR} agg={panelAgg} highlight={hoveredPanelDomain} colors={DOMAIN_SHADES} />
+                <PieGlyph
+                  r={panelR}
+                  agg={panelAgg}
+                  highlight={hoveredPanelDomain}
+                  colors={DOMAIN_SHADES}
+                  slicesKey={sizeByCitations ? "citationSlices" : "slices"}
+                />
               </g>
             </svg>
             <div className="aid-caption">
-              <div>Grey wedges show each domain's share of the papers here</div>
+              <div>Grey wedges show each domain's share of the {sizeByCitations ? "citation impact" : "papers"} here</div>
               <div>Hover a domain below to pick it out in colour</div>
-              {sizeByCitations && <div>(Domain breakdown stays paper-based — no per-domain citation split yet)</div>}
             </div>
           </div>
 
@@ -558,7 +572,10 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
                     {DOMAIN_LABELS[k]}
                   </span>
                   <span className="aid-domain-count">
-                    {fmtInt(panelDomainPeople[k])} people · {fmtInt(panelAgg.slices[k])} papers
+                    {fmtInt(panelDomainPeople[k])} people ·{" "}
+                    {sizeByCitations
+                      ? `${fmtInt(panelAgg.citationSlices[k])} citation impact`
+                      : `${fmtInt(panelAgg.slices[k])} papers`}
                   </span>
                 </div>
                 <div className="aid-domain-list">
