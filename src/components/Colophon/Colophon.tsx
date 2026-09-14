@@ -96,7 +96,7 @@ export default function Colophon({ people, paperCounts }: ColophonProps) {
   return (
     <div className="colophon" ref={rootRef}>
         <div className="brand">
-          Quantum <span>@</span>{" "}
+          Quantum <span>/</span>{" "}
           <span
             className={"inst-pick" + (open ? " open" : "")}
             tabIndex={0}
@@ -111,7 +111,6 @@ export default function Colophon({ people, paperCounts }: ColophonProps) {
             }}
           >
             <span>{labelForScope(state.scope)}</span>
-            <i className="ph-light ph-caret-up" />
           </span>
           {open && (
             <div className="inst-menu glass-panel" role="listbox" onClick={(e) => e.stopPropagation()}>
@@ -173,7 +172,7 @@ export default function Colophon({ people, paperCounts }: ColophonProps) {
               )}
             </div>
           )}
-          <span> @ </span>
+          <span> / </span>
           <span
             className={"inst-pick" + (timeOpen ? " open" : "")}
             tabIndex={0}
@@ -188,7 +187,6 @@ export default function Colophon({ people, paperCounts }: ColophonProps) {
             }}
           >
             <span>{TIME_WINDOW_LABELS[state.timeWindow]}</span>
-            <i className="ph-light ph-caret-up" />
           </span>
           {timeOpen && (
             <div className="inst-menu glass-panel" role="listbox" onClick={(e) => e.stopPropagation()}>

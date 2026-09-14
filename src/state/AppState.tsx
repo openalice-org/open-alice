@@ -82,7 +82,7 @@ function nextMapMode(mode: MapMode, scope: string): MapMode {
 // (Density for Domains, Boxplot for Axes) instead.
 function aggForScope(mapMode: MapMode, agg: AggMode, scope: string): AggMode {
   if (!isGeoScope(scope)) return agg;
-  if (mapMode === "domains" && (agg === "none" || agg === "clusters")) return "hexdensity";
+  if (mapMode === "domains" && (agg === "none" || agg === "clusters" || agg === "patents")) return "hexdensity";
   if (mapMode === "cartesian" && agg === "none") return "boxplot";
   return agg;
 }
