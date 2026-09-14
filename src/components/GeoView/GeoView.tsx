@@ -23,6 +23,64 @@ function hexToRgba(hex: string, alpha: number): string {
   return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
 }
 
+function hexToHsl(hex: string): [number, number, number] {
+  const n = parseInt(hex.slice(1), 16);
+  const r = ((n >> 16) & 255) / 255;
+  const g = ((n >> 8) & 255) / 255;
+  const b = (n & 255) / 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  if (max === min) return [0, 0, l];
+  const d = max - min;
+  const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+  let h: number;
+  if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+  else if (max === g) h = ((b - r) / d + 2) / 6;
+  else h = ((r - g) / d + 4) / 6;
+  return [h, s, l];
+}
+
+function hslToHex(h: number, s: number, l: number): string {
+  const hue2rgb = (p: number, q: number, t: number) => {
+    let tt = t;
+    if (tt < 0) tt += 1;
+    if (tt > 1) tt -= 1;
+    if (tt < 1 / 6) return p + (q - p) * 6 * tt;
+    if (tt < 1 / 2) return q;
+    if (tt < 2 / 3) return p + (q - p) * (2 / 3 - tt) * 6;
+    return p;
+  };
+  let r: number, g: number, b: number;
+  if (s === 0) {
+    r = g = b = l;
+  } else {
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    const p = 2 * l - q;
+    r = hue2rgb(p, q, h + 1 / 3);
+    g = hue2rgb(p, q, h);
+    b = hue2rgb(p, q, h - 1 / 3);
+  }
+  const toHex = (v: number) =>
+    Math.round(v * 255)
+      .toString(16)
+      .padStart(2, "0");
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
+
+/** Rank-fades a domain colour toward paler/lighter as `rank` (0 = top) grows,
+ * a very slight secondary cue alongside size: rank 0 stays the full vivid
+ * colour, the last-ranked node reads slightly desaturated and brighter.
+ * Deliberately subtle — capped at a 30% saturation cut / 18% lightness lift. */
+function rankFadeColor(hex: string, rank: number, total: number): string {
+  if (total <= 1) return hex;
+  const t = Math.min(1, Math.max(0, rank / (total - 1)));
+  const [h, s, l] = hexToHsl(hex);
+  const newS = s * (1 - t * 0.3);
+  const newL = l + (1 - l) * t * 0.18;
+  return hslToHex(h, newS, newL);
+}
+
 // Real Nordic country outlines (Natural Earth 1:50m, simplified), ported
 // verbatim from SPRINT 13's NORDICS_GEO. One GeoJSON Polygon/MultiPolygon per
 // country code.
@@ -107,6 +165,8 @@ function PieGlyph({
   highlight,
   colors = DOMAIN_SHADES,
   slicesKey = "slices",
+  onSliceHover,
+  onSliceLeave,
 }: {
   r: number;
   agg: GeoAggregate;
@@ -116,6 +176,12 @@ function PieGlyph({
    * own default) or `citationSlices` (aid-panel overview when Geo is sized
    * by citations). */
   slicesKey?: "slices" | "citationSlices";
+  /** Only wired up for the aid panel's own overview pie — hovering a slice
+   * there should trigger the exact same highlight as hovering its row below
+   * (see the aid-domain list). The map's per-country/university glyphs never
+   * pass these, so their slices stay non-interactive. */
+  onSliceHover?: (k: keyof DomainShares) => void;
+  onSliceLeave?: () => void;
 }) {
   const slices = agg[slicesKey];
   const total = DOMAIN_ORDER.reduce((s, k) => s + slices[k], 0);
@@ -126,13 +192,15 @@ function PieGlyph({
     <>
       {arcs.map((a, i) => {
         const k = DOMAIN_ORDER[i];
-        const fill = highlight != null && highlight !== k ? PANEL_DIM_FILL : colors[k];
+        const fill = highlight == null ? colors[k] : highlight === k ? DOMAIN_COLORS_VIVID[k] : PANEL_DIM_FILL;
         return (
           <path
             key={k}
             d={arcGen(a) ?? undefined}
             className={highlight !== undefined ? "pie-slice-transition" : undefined}
-            style={{ fill }}
+            style={{ fill, cursor: onSliceHover ? "pointer" : undefined }}
+            onMouseEnter={onSliceHover ? () => onSliceHover(k) : undefined}
+            onMouseLeave={onSliceLeave}
           />
         );
       })}
@@ -184,6 +252,7 @@ function CityNode({
   onClickMember,
   hoveredDomain,
   domainScale,
+  domainRank,
 }: {
   city: CityGroup;
   // The one university currently under the mouse (drives the floating
@@ -199,6 +268,10 @@ function CityNode({
   // of its usual fixed size.
   hoveredDomain: keyof DomainShares | null;
   domainScale: ((value: number) => number) | null;
+  // Rank of each university's own value in the hovered domain (0 = biggest)
+  // — fades the resting colour slightly paler/brighter further down the
+  // ranking, alongside the size difference above.
+  domainRank: { rankOf: Map<string, number>; total: number };
 }) {
   const n = city.members.length;
 
@@ -217,7 +290,9 @@ function CityNode({
       {city.members.map((m) => {
         const showPie = hoveredName === m.name;
         const displayR = hoveredDomain && domainScale ? domainScale(m.agg.slices[hoveredDomain]) : m.r;
-        const circleFill = hoveredDomain ? DOMAIN_COLORS_VIVID[hoveredDomain] : GEO_UNI_GRAY;
+        const circleFill = hoveredDomain
+          ? rankFadeColor(DOMAIN_COLORS_VIVID[hoveredDomain], domainRank.rankOf.get(m.name) ?? 0, domainRank.total)
+          : GEO_UNI_GRAY;
         return (
           <g
             key={m.name}
@@ -388,13 +463,39 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
   const hoverDomainScale = useMemo(() => {
     if (!hoveredPanelDomain) return null;
     // Close to the resting size ranges (country/uni [8,38]/[4,26]) so the
-    // hover swap doesn't blow past the map's own scale, but exponent 0.18
-    // (well below scaleSqrt's 0.5) still heavily exaggerates the small/large
-    // gap beyond true area-proportionality — deliberately "unfair" so the
-    // swap reads as an obvious size change without ballooning past the map.
+    // hover swap doesn't blow past the map's own scale. scalePow's exponent
+    // works on the normalized (value/max) fraction, so an exponent BELOW 1
+    // (an earlier 0.18, then a mistaken 0.1) actually pushes small fractions
+    // UP toward the top of the range — e.g. exponent 0.1 puts even 1% of
+    // max at ~63% of full size — which compresses everything together
+    // instead of spreading it out. Real "more contrast than the resting
+    // scaleSqrt (exponent 0.5)" needs an exponent above 1 — but 1.4 pushed
+    // small values down too hard (most balls read as tiny). 0.7 spreads the
+    // middle out a little more than the resting scale without shrinking
+    // everything that isn't the biggest.
     const range: [number, number] = countryScope ? [2, 26] : [4, 36];
-    return scalePow().exponent(0.18).domain([0, hoverDomainMax]).range(range);
+    return scalePow().exponent(0.7).domain([0, hoverDomainMax]).range(range);
   }, [hoveredPanelDomain, hoverDomainMax, countryScope]);
+
+  // Rank of each plotted node's OWN value in the hovered domain, biggest
+  // first (rank 0) — feeds rankFadeColor so nodes fade slightly toward
+  // paler/brighter the further down the ranking they sit, on top of the
+  // size difference above.
+  const hoverDomainRank = useMemo(() => {
+    if (!hoveredPanelDomain) return { rankOf: new Map<string, number>(), total: 0 };
+    const key = (agg: GeoAggregate) => agg.slices[hoveredPanelDomain];
+    if (countryScope) {
+      const flat = cityNodes.flatMap((c) => c.members);
+      const sorted = [...flat].sort((a, b) => key(b.agg) - key(a.agg));
+      const rankOf = new Map<string, number>();
+      sorted.forEach((m, i) => rankOf.set(m.name, i));
+      return { rankOf, total: sorted.length };
+    }
+    const sorted = [...countryNodes].sort((a, b) => key(b.agg) - key(a.agg));
+    const rankOf = new Map<string, number>();
+    sorted.forEach((c, i) => rankOf.set(c.cc, i));
+    return { rankOf, total: sorted.length };
+  }, [hoveredPanelDomain, countryScope, cityNodes, countryNodes]);
 
   // Aid panel data — same shape at both levels: an overview aggregate, a
   // {name, agg} row per unit for the top-3-by-domain lists, and each
@@ -494,7 +595,9 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
               const label = COUNTRY_LABELS[c.cc] ?? c.cc;
               const showPie = hover?.title === label;
               const displayR = hoveredPanelDomain && hoverDomainScale ? hoverDomainScale(c.agg.slices[hoveredPanelDomain]) : c.r;
-              const circleFill = hoveredPanelDomain ? DOMAIN_COLORS_VIVID[hoveredPanelDomain] : GEO_UNI_GRAY;
+              const circleFill = hoveredPanelDomain
+                ? rankFadeColor(DOMAIN_COLORS_VIVID[hoveredPanelDomain], hoverDomainRank.rankOf.get(c.cc) ?? 0, hoverDomainRank.total)
+                : GEO_UNI_GRAY;
               return (
                 <g
                   key={c.cc}
@@ -527,6 +630,7 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
                 onClickMember={(name) => dispatch({ type: "SET_SCOPE", scope: name })}
                 hoveredDomain={hoveredPanelDomain}
                 domainScale={hoverDomainScale}
+                domainRank={hoverDomainRank}
               />
             ))}
       </svg>
@@ -548,6 +652,8 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
                   highlight={hoveredPanelDomain}
                   colors={DOMAIN_SHADES}
                   slicesKey={sizeByCitations ? "citationSlices" : "slices"}
+                  onSliceHover={setHoveredPanelDomain}
+                  onSliceLeave={() => setHoveredPanelDomain(null)}
                 />
               </g>
             </svg>
