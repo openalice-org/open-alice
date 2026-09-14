@@ -1,0 +1,343 @@
+{
+  "link_type": "dedupe_only",
+  "probability_two_random_records_match": 0.0005544276038417688,
+  "retain_matching_columns": true,
+  "retain_intermediate_calculation_columns": true,
+  "additional_columns_to_retain": [],
+  "sql_dialect": "duckdb",
+  "linker_uid": "zefigutl",
+  "em_convergence": 0.0001,
+  "max_iterations": 25,
+  "bayes_factor_column_prefix": "bf_",
+  "term_frequency_adjustment_column_prefix": "tf_",
+  "comparison_vector_value_column_prefix": "gamma_",
+  "unique_id_column_name": "id",
+  "source_dataset_column_name": "source_dataset",
+  "blocking_rules_to_generate_predictions": [
+    {
+      "blocking_rule": "l.\"surname_key\" = r.\"surname_key\"",
+      "sql_dialect": "duckdb"
+    }
+  ],
+  "comparisons": [
+    {
+      "output_column_name": "name",
+      "comparison_levels": [
+        {
+          "sql_condition": "\"name_l\" IS NULL OR \"name_r\" IS NULL",
+          "label_for_charts": "name is NULL",
+          "fix_m_probability": false,
+          "fix_u_probability": false,
+          "is_null_level": true
+        },
+        {
+          "sql_condition": "\"name_l\" = \"name_r\"",
+          "label_for_charts": "Exact match on name",
+          "m_probability": 0.025934475964821457,
+          "u_probability": 6.464397331695686e-06,
+          "fix_m_probability": false,
+          "fix_u_probability": false
+        },
+        {
+          "sql_condition": "jaro_winkler_similarity(\"name_l\", \"name_r\") >= 0.95",
+          "label_for_charts": "Jaro-Winkler distance of name >= 0.95",
+          "m_probability": 0.00786891148812988,
+          "u_probability": 4.475351998866244e-06,
+          "fix_m_probability": false,
+          "fix_u_probability": false
+        },
+        {
+          "sql_condition": "jaro_winkler_similarity(\"name_l\", \"name_r\") >= 0.88",
+          "label_for_charts": "Jaro-Winkler distance of name >= 0.88",
+          "m_probability": 0.05832481070655626,
+          "u_probability": 9.994952797467945e-05,
+          "fix_m_probability": false,
+          "fix_u_probability": false
+        },
+        {
+          "sql_condition": "jaro_winkler_similarity(\"name_l\", \"name_r\") >= 0.75",
+          "label_for_charts": "Jaro-Winkler distance of name >= 0.75",
+          "m_probability": 0.3497748481040246,
+          "u_probability": 0.0018010805488770595,
+          "fix_m_probability": false,
+          "fix_u_probability": false
+        },
+        {
+          "sql_condition": "ELSE",
+          "label_for_charts": "All other comparisons",
+          "m_probability": 0.558096953736468,
+          "u_probability": 0.9980880301738178,
+          "fix_m_probability": false,
+          "fix_u_probability": false
+        }
+      ],
+      "comparison_description": "JaroWinklerAtThresholds"
+    },
+    {
+      "output_column_name": "first_year",
+      "comparison_levels": [
+        {
+          "sql_condition": "\"first_year_l\" IS NULL OR \"first_year_r\" IS NULL",
+          "label_for_charts": "first_year is NULL",
+          "fix_m_probability": false,
+          "fix_u_probability": false,
+          "is_null_level": true
+        },
+        {
+          "sql_condition": "ABS(\"first_year_l\" - \"first_year_r\") <= 0",
+          "label_for_charts": "Absolute difference of 'first_year' <= 0",
+          "m_probability": 0.02804884950959883,
+          "u_probability": 0.021699490058502795,
+          "fix_m_probability": false,
+          "fix_u_probability": false
+        },
+        {
+          "sql_condition": "ABS(\"first_year_l\" - \"first_year_r\") <= 2",
+          "label_for_charts": "Absolute difference of 'first_year' <= 2",
+          "m_probability": 0.09992319762125475,
+          "u_probability": 0.08441408940261509,
+          "fix_m_probability": false,
+          "fix_u_probability": false
+        },
+        {
+          "sql_condition": "ABS(\"first_year_l\" - \"first_year_r\") <= 5",
+          "label_for_charts": "Absolute difference of 'first_year' <= 5",
+          "m_probability": 0.1296903332287488,
+          "u_probability": 0.12063510217477244,
+          "fix_m_probability": false,
+          "fix_u_probability": false
+        },
+        {
+          "sql_condition": "ELSE",
+          "label_for_charts": "All other comparisons",
+          "m_probability": 0.7423376196403978,
+          "u_probability": 0.7732513183641097,
+          "fix_m_probability": false,
+          "fix_u_probability": false
+        }
+      ],
+      "comparison_description": "CustomComparison"
+    },
+    {
+      "output_column_name": "last_year",
+      "comparison_levels": [
+        {
+          "sql_condition": "\"last_year_l\" IS NULL OR \"last_year_r\" IS NULL",
+          "label_for_charts": "last_year is NULL",
+          "fix_m_probability": false,
+          "fix_u_probability": false,
+          "is_null_level": true
+        },
+        {
+          "sql_condition": "ABS(\"last_year_l\" - \"last_year_r\") <= 0",
+          "label_for_charts": "Absolute difference of 'last_year' <= 0",
+          "m_probability": 0.05391742395918524,
+          "u_probability": 0.05274102878397227,
+          "fix_m_probability": false,
+          "fix_u_probability": false
+        },
+        {
+          "sql_condition": "ABS(\"last_year_l\" - \"last_year_r\") <= 2",
+          "label_for_charts": "Absolute difference of 'last_year' <= 2",
+          "m_probability": 0.14697232972255178,
+          "u_probability": 0.15514702774469608,
+          "fix_m_probability": false,
+          "fix_u_probability": false
+        },
+        {
+          "sql_condition": "ABS(\"last_year_l\" - \"last_year_r\") <= 5",
+          "label_for_charts": "Absolute difference of 'last_year' <= 5",
+          "m_probability": 0.15439269832079558,
+          "u_probability": 0.15707640171754064,
+          "fix_m_probability": false,
+          "fix_u_probability": false
+        },
+        {
+          "sql_condition": "ELSE",
+          "label_for_charts": "All other comparisons",
+          "m_probability": 0.6447175479974674,
+          "u_probability": 0.635035541753791,
+          "fix_m_probability": false,
+          "fix_u_probability": false
+        }
+      ],
+      "comparison_description": "CustomComparison"
+    },
+    {
+      "output_column_name": "country",
+      "comparison_levels": [
+        {
+          "sql_condition": "\"country_l\" IS NULL OR \"country_r\" IS NULL",
+          "label_for_charts": "country is NULL",
+          "fix_m_probability": false,
+          "fix_u_probability": false,
+          "is_null_level": true
+        },
+        {
+          "sql_condition": "\"country_l\" = \"country_r\"",
+          "label_for_charts": "Exact match on country",
+          "m_probability": 0.8281454982479847,
+          "u_probability": 0.2786911087187316,
+          "fix_m_probability": false,
+          "fix_u_probability": false
+        },
+        {
+          "sql_condition": "ELSE",
+          "label_for_charts": "All other comparisons",
+          "m_probability": 0.1718545017520153,
+          "u_probability": 0.7213088912812684,
+          "fix_m_probability": false,
+          "fix_u_probability": false
+        }
+      ],
+      "comparison_description": "ExactMatch"
+    },
+    {
+      "output_column_name": "university",
+      "comparison_levels": [
+        {
+          "sql_condition": "\"university_l\" IS NULL OR \"university_r\" IS NULL",
+          "label_for_charts": "university is NULL",
+          "fix_m_probability": false,
+          "fix_u_probability": false,
+          "is_null_level": true
+        },
+        {
+          "sql_condition": "\"university_l\" = \"university_r\"",
+          "label_for_charts": "Exact match on university",
+          "m_probability": 0.2879795210538844,
+          "u_probability": 0.06468275970094703,
+          "fix_m_probability": false,
+          "fix_u_probability": false
+        },
+        {
+          "sql_condition": "ELSE",
+          "label_for_charts": "All other comparisons",
+          "m_probability": 0.7120204789461155,
+          "u_probability": 0.9353172402990529,
+          "fix_m_probability": false,
+          "fix_u_probability": false
+        }
+      ],
+      "comparison_description": "ExactMatch"
+    },
+    {
+      "output_column_name": "institution",
+      "comparison_levels": [
+        {
+          "sql_condition": "\"institution_l\" IS NULL OR \"institution_r\" IS NULL",
+          "label_for_charts": "institution is NULL",
+          "fix_m_probability": false,
+          "fix_u_probability": false,
+          "is_null_level": true
+        },
+        {
+          "sql_condition": "\"institution_l\" = \"institution_r\"",
+          "label_for_charts": "Exact match on institution",
+          "m_probability": 0.27832816490790013,
+          "u_probability": 0.056360096767055445,
+          "fix_m_probability": false,
+          "fix_u_probability": false
+        },
+        {
+          "sql_condition": "jaro_winkler_similarity(\"institution_l\", \"institution_r\") >= 0.95",
+          "label_for_charts": "Jaro-Winkler distance of institution >= 0.95",
+          "u_probability": 3.6797338657344674e-05,
+          "fix_m_probability": false,
+          "fix_u_probability": false
+        },
+        {
+          "sql_condition": "jaro_winkler_similarity(\"institution_l\", \"institution_r\") >= 0.8",
+          "label_for_charts": "Jaro-Winkler distance of institution >= 0.8",
+          "m_probability": 0.030259141025234994,
+          "u_probability": 0.0865761816794007,
+          "fix_m_probability": false,
+          "fix_u_probability": false
+        },
+        {
+          "sql_condition": "ELSE",
+          "label_for_charts": "All other comparisons",
+          "m_probability": 0.6914126940668647,
+          "u_probability": 0.8570269242148865,
+          "fix_m_probability": false,
+          "fix_u_probability": false
+        }
+      ],
+      "comparison_description": "JaroWinklerAtThresholds"
+    },
+    {
+      "output_column_name": "topics",
+      "comparison_levels": [
+        {
+          "sql_condition": "\"topics_l\" IS NULL OR \"topics_r\" IS NULL",
+          "label_for_charts": "topics is NULL",
+          "fix_m_probability": false,
+          "fix_u_probability": false,
+          "is_null_level": true
+        },
+        {
+          "sql_condition": "array_length(list_intersect(\"topics_l\", \"topics_r\")) >= 2",
+          "label_for_charts": "Array intersection size >= 2",
+          "m_probability": 0.03853427508326774,
+          "u_probability": 0.008826388664430649,
+          "fix_m_probability": false,
+          "fix_u_probability": false
+        },
+        {
+          "sql_condition": "array_length(list_intersect(\"topics_l\", \"topics_r\")) >= 1",
+          "label_for_charts": "Array intersection size >= 1",
+          "m_probability": 0.14587031156615254,
+          "u_probability": 0.08314756478693595,
+          "fix_m_probability": false,
+          "fix_u_probability": false
+        },
+        {
+          "sql_condition": "ELSE",
+          "label_for_charts": "All other comparisons",
+          "m_probability": 0.8155954133505796,
+          "u_probability": 0.9080260465486334,
+          "fix_m_probability": false,
+          "fix_u_probability": false
+        }
+      ],
+      "comparison_description": "ArrayIntersectAtSizes"
+    },
+    {
+      "output_column_name": "keywords",
+      "comparison_levels": [
+        {
+          "sql_condition": "\"keywords_l\" IS NULL OR \"keywords_r\" IS NULL",
+          "label_for_charts": "keywords is NULL",
+          "fix_m_probability": false,
+          "fix_u_probability": false,
+          "is_null_level": true
+        },
+        {
+          "sql_condition": "array_length(list_intersect(\"keywords_l\", \"keywords_r\")) >= 3",
+          "label_for_charts": "Array intersection size >= 3",
+          "m_probability": 0.17945260778151018,
+          "u_probability": 0.10106637692906319,
+          "fix_m_probability": false,
+          "fix_u_probability": false
+        },
+        {
+          "sql_condition": "array_length(list_intersect(\"keywords_l\", \"keywords_r\")) >= 1",
+          "label_for_charts": "Array intersection size >= 1",
+          "m_probability": 0.6518557416701091,
+          "u_probability": 0.6780357182815643,
+          "fix_m_probability": false,
+          "fix_u_probability": false
+        },
+        {
+          "sql_condition": "ELSE",
+          "label_for_charts": "All other comparisons",
+          "m_probability": 0.16869165054838078,
+          "u_probability": 0.22089790478937252,
+          "fix_m_probability": false,
+          "fix_u_probability": false
+        }
+      ],
+      "comparison_description": "ArrayIntersectAtSizes"
+    }
+  ]
+}
