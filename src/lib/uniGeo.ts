@@ -50,4 +50,13 @@ export const UNI_GEO: Record<string, [number, number]> = {
   "LUT University": [28.19, 61.06],
   "University of Lapland": [25.73, 66.5],
   "University of Eastern Finland": [27.68, 62.89],
+
+  "University of Tartu": [26.72, 58.38],
+  "Tallinn University of Technology": [24.66, 59.4],
+  "University of Latvia": [24.11, 56.95],
+  "Riga Technical University": [24.1, 56.95],
+  "Vilnius University": [25.29, 54.68],
+  "Kaunas University of Technology": [23.9, 54.9],
+  "Center for Physical Sciences and Technology": [25.24, 54.71],
+  Nordita: [18.024, 59.348],
 };

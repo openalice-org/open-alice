@@ -2,7 +2,7 @@
 // CITY_COUNTRY / CITY_FAN. A multi-university city collapses to one node at
 // rest and bursts into its members on hover (see GeoView's CityNode).
 export const CITY_UNIS: Record<string, string[]> = {
-  Stockholm: ["KTH", "Stockholm University", "Karolinska Institutet"],
+  Stockholm: ["KTH", "Stockholm University", "Karolinska Institutet", "Nordita"],
   Gothenburg: ["Chalmers", "Gothenburg"],
   "Linköping": ["Linköping University"],
   Lund: ["Lund"],
@@ -44,6 +44,12 @@ export const CITY_UNIS: Record<string, string[]> = {
   Lappeenranta: ["LUT University"],
   Rovaniemi: ["University of Lapland"],
   Kuopio: ["University of Eastern Finland"],
+
+  Tartu: ["University of Tartu"],
+  Tallinn: ["Tallinn University of Technology"],
+  Riga: ["University of Latvia", "Riga Technical University"],
+  Vilnius: ["Vilnius University", "Center for Physical Sciences and Technology"],
+  Kaunas: ["Kaunas University of Technology"],
 };
 
 export const CITY_COUNTRY: Record<string, string> = {
@@ -54,6 +60,9 @@ export const CITY_COUNTRY: Record<string, string> = {
   Stavanger: "NO", Kristiansand: "NO", "Bodø": "NO", Drammen: "NO", Hamar: "NO",
   Helsinki: "FI", Turku: "FI", Tampere: "FI", "Jyväskylä": "FI", Vaasa: "FI",
   Lappeenranta: "FI", Rovaniemi: "FI", Kuopio: "FI",
+  Tartu: "EE", Tallinn: "EE",
+  Riga: "LV",
+  Vilnius: "LT", Kaunas: "LT",
 };
 
 // Which way a multi-university city fans its members out on hover (SVG angle,
@@ -66,4 +75,5 @@ export const CITY_FAN: Record<string, { center: number; spread: number }> = {
   Oslo: { center: -Math.PI / 2, spread: 1.0 },
   Helsinki: { center: Math.PI / 2, spread: 2.4 },
   Turku: { center: Math.PI / 2, spread: 1.0 },
+  Riga: { center: 0, spread: 1.0 },
 };

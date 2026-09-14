@@ -63,6 +63,14 @@ export const TAX_UNIS = new Set([
   "University of Turku",
   "Uppsala University",
   "Åbo Akademi University",
+  "University of Tartu",
+  "Tallinn University of Technology",
+  "University of Latvia",
+  "Riga Technical University",
+  "Vilnius University",
+  "Kaunas University of Technology",
+  "Center for Physical Sciences and Technology",
+  "Nordita",
 ]);
 
 export const TAX_UNI_COUNTRY = new Map<string, string>([
@@ -102,6 +110,14 @@ export const TAX_UNI_COUNTRY = new Map<string, string>([
   ["University of Turku", "FI"],
   ["Uppsala University", "SE"],
   ["Åbo Akademi University", "FI"],
+  ["University of Tartu", "EE"],
+  ["Tallinn University of Technology", "EE"],
+  ["University of Latvia", "LV"],
+  ["Riga Technical University", "LV"],
+  ["Vilnius University", "LT"],
+  ["Kaunas University of Technology", "LT"],
+  ["Center for Physical Sciences and Technology", "LT"],
+  ["Nordita", "SE"],
 ]);
 export const TAX_COUNTRIES = new Set(TAX_UNI_COUNTRY.values());
 

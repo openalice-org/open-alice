@@ -3,13 +3,16 @@
 // mirroring SPRINT 13's getUniversityOptions().
 import type { Person } from "../types";
 
-export const COUNTRY_ORDER = ["SE", "NO", "DK", "IS", "FI"];
+export const COUNTRY_ORDER = ["SE", "NO", "DK", "IS", "FI", "EE", "LV", "LT"];
 export const COUNTRY_LABELS: Record<string, string> = {
   SE: "Sweden",
   NO: "Norway",
   DK: "Denmark",
   IS: "Iceland",
   FI: "Finland",
+  EE: "Estonia",
+  LV: "Latvia",
+  LT: "Lithuania",
 };
 
 export const NORDICS_SCOPE = "Nordics";
@@ -109,7 +112,7 @@ export function getInstitutionOptions(people: Person[]): string[] {
 }
 
 export function labelForScope(scope: string): string {
-  if (scope === NORDICS_SCOPE) return "ALL NORDICS";
+  if (scope === NORDICS_SCOPE) return "ALL NEW NORDICS";
   if (scope.startsWith("country:")) {
     const cc = scope.slice("country:".length);
     return "ALL OF " + (COUNTRY_LABELS[cc] ?? cc).toUpperCase();

@@ -1,102 +1,133 @@
 {
   "by_country": {
-    "DK": 20770,
-    "FI": 13538,
-    "IS": 1243,
-    "NO": 9489,
-    "SE": 35634
+    "DK": 20784,
+    "EE": 639,
+    "FI": 13563,
+    "IS": 1244,
+    "LT": 1409,
+    "LV": 638,
+    "NO": 9499,
+    "SE": 35955
   },
   "by_institution": {
     "Aalborg University": 835,
-    "Aalto University": 3169,
-    "Aarhus University": 5353,
-    "Chalmers": 7396,
+    "Aalto University": 3172,
+    "Aarhus University": 5362,
+    "Center for Physical Sciences and Technology": 347,
+    "Chalmers": 7400,
     "Copenhagen Business School (CBS)": 25,
-    "Gothenburg": 1890,
+    "Gothenburg": 1891,
     "Hanken School of Economics": 1,
     "IT University of Copenhagen": 114,
-    "KTH": 4602,
+    "KTH": 4640,
     "Karolinska Institutet": 263,
-    "LUT University": 273,
-    "Link\u00f6ping University": 3381,
-    "Lund": 8092,
+    "Kaunas University of Technology": 285,
+    "LUT University": 275,
+    "Link\u00f6ping University": 3389,
+    "Lund": 8097,
     "Nord University": 27,
+    "Nordita": 674,
     "Norwegian University of Life Sciences (NMBU)": 223,
-    "Norwegian University of Science and Technology (NTNU)": 2717,
+    "Norwegian University of Science and Technology (NTNU)": 2718,
     "OsloMet \u2013 Oslo Metropolitan University": 240,
     "Reykjav\u00edk University": 175,
+    "Riga Technical University": 130,
     "Roskilde University": 342,
-    "Stockholm University": 5434,
+    "Stockholm University": 5446,
+    "Tallinn University of Technology": 134,
     "Tampere University": 717,
-    "Technical University of Denmark (DTU)": 5976,
-    "UiT The Arctic University of Norway": 629,
-    "Ume\u00e5 University": 1459,
+    "Technical University of Denmark (DTU)": 5979,
+    "UiT The Arctic University of Norway": 630,
+    "Ume\u00e5 University": 1460,
     "University of Agder (UiA)": 103,
     "University of Akureyri": 1,
     "University of Bergen (UiB)": 1777,
-    "University of Copenhagen": 7383,
-    "University of Eastern Finland": 456,
-    "University of Helsinki": 5242,
-    "University of Iceland": 1159,
+    "University of Copenhagen": 7385,
+    "University of Eastern Finland": 457,
+    "University of Helsinki": 5254,
+    "University of Iceland": 1160,
     "University of Inland Norway": 3,
-    "University of Jyv\u00e4skyl\u00e4": 2981,
-    "University of Oslo (UiO)": 4130,
+    "University of Jyv\u00e4skyl\u00e4": 2983,
+    "University of Latvia": 545,
+    "University of Oslo (UiO)": 4137,
     "University of South-Eastern Norway (USN)": 97,
     "University of Southern Denmark": 1842,
-    "University of Stavanger (UiS)": 386,
-    "University of Turku": 1600,
+    "University of Stavanger (UiS)": 387,
+    "University of Tartu": 525,
+    "University of Turku": 1605,
     "University of Vaasa": 114,
     "University of the Arts Helsinki": 2,
-    "Uppsala University": 8085,
-    "\u00c5bo Akademi University": 439
+    "Uppsala University": 8105,
+    "Vilnius University": 962,
+    "\u00c5bo Akademi University": 442
   },
   "domain_by_country": {
     "DK": {
-      "communication": 4924,
-      "computing": 6512,
-      "sensing": 6068
+      "communication": 4905,
+      "computing": 6505,
+      "sensing": 6110
+    },
+    "EE": {
+      "communication": 132,
+      "computing": 143,
+      "sensing": 223
     },
     "FI": {
-      "communication": 3508,
-      "computing": 4053,
-      "sensing": 3772
+      "communication": 3503,
+      "computing": 4061,
+      "sensing": 3792
     },
     "IS": {
-      "communication": 284,
+      "communication": 283,
       "computing": 557,
-      "sensing": 237
+      "sensing": 239
+    },
+    "LT": {
+      "communication": 419,
+      "computing": 432,
+      "sensing": 384
+    },
+    "LV": {
+      "communication": 127,
+      "computing": 247,
+      "sensing": 166
     },
     "NO": {
-      "communication": 2443,
+      "communication": 2431,
       "computing": 2751,
-      "sensing": 2665
+      "sensing": 2687
     },
     "SE": {
-      "communication": 8392,
-      "computing": 11851,
-      "sensing": 10536
+      "communication": 8438,
+      "computing": 11925,
+      "sensing": 10679
     }
   },
   "domain_by_institution": {
     "Aalborg University": {
       "communication": 190,
-      "computing": 198,
-      "sensing": 250
+      "computing": 197,
+      "sensing": 251
     },
     "Aalto University": {
-      "communication": 485,
-      "computing": 1337,
+      "communication": 487,
+      "computing": 1338,
       "sensing": 831
     },
     "Aarhus University": {
-      "communication": 937,
-      "computing": 1858,
-      "sensing": 1852
+      "communication": 930,
+      "computing": 1860,
+      "sensing": 1867
+    },
+    "Center for Physical Sciences and Technology": {
+      "communication": 78,
+      "computing": 148,
+      "sensing": 85
     },
     "Chalmers": {
-      "communication": 1539,
-      "computing": 2690,
-      "sensing": 2191
+      "communication": 1536,
+      "computing": 2684,
+      "sensing": 2205
     },
     "Copenhagen Business School (CBS)": {
       "communication": 6,
@@ -105,7 +136,7 @@
     },
     "Gothenburg": {
       "communication": 303,
-      "computing": 713,
+      "computing": 714,
       "sensing": 628
     },
     "IT University of Copenhagen": {
@@ -114,14 +145,19 @@
       "sensing": 15
     },
     "KTH": {
-      "communication": 1270,
-      "computing": 1390,
-      "sensing": 1279
+      "communication": 1276,
+      "computing": 1401,
+      "sensing": 1297
     },
     "Karolinska Institutet": {
       "communication": 26,
       "computing": 43,
       "sensing": 110
+    },
+    "Kaunas University of Technology": {
+      "communication": 128,
+      "computing": 84,
+      "sensing": 46
     },
     "LUT University": {
       "communication": 14,
@@ -129,29 +165,34 @@
       "sensing": 141
     },
     "Link\u00f6ping University": {
-      "communication": 610,
-      "computing": 1602,
-      "sensing": 879
+      "communication": 609,
+      "computing": 1608,
+      "sensing": 883
     },
     "Lund": {
-      "communication": 2214,
-      "computing": 2506,
-      "sensing": 2575
+      "communication": 2202,
+      "computing": 2507,
+      "sensing": 2595
     },
     "Nord University": {
       "communication": 4,
       "computing": 4,
       "sensing": 5
     },
+    "Nordita": {
+      "communication": 178,
+      "computing": 191,
+      "sensing": 156
+    },
     "Norwegian University of Life Sciences (NMBU)": {
-      "communication": 53,
+      "communication": 52,
       "computing": 9,
-      "sensing": 124
+      "sensing": 125
     },
     "Norwegian University of Science and Technology (NTNU)": {
-      "communication": 440,
-      "computing": 1023,
-      "sensing": 807
+      "communication": 436,
+      "computing": 1024,
+      "sensing": 810
     },
     "OsloMet \u2013 Oslo Metropolitan University": {
       "communication": 86,
@@ -163,35 +204,45 @@
       "computing": 115,
       "sensing": 17
     },
+    "Riga Technical University": {
+      "communication": 41,
+      "computing": 26,
+      "sensing": 39
+    },
     "Roskilde University": {
       "communication": 49,
       "computing": 70,
       "sensing": 168
     },
     "Stockholm University": {
-      "communication": 1690,
-      "computing": 1465,
-      "sensing": 1419
+      "communication": 1684,
+      "computing": 1473,
+      "sensing": 1426
+    },
+    "Tallinn University of Technology": {
+      "communication": 29,
+      "computing": 25,
+      "sensing": 31
     },
     "Tampere University": {
       "communication": 196,
-      "computing": 228,
-      "sensing": 194
+      "computing": 227,
+      "sensing": 195
     },
     "Technical University of Denmark (DTU)": {
-      "communication": 1376,
-      "computing": 2031,
-      "sensing": 1855
+      "communication": 1375,
+      "computing": 2032,
+      "sensing": 1859
     },
     "UiT The Arctic University of Norway": {
       "communication": 82,
       "computing": 301,
-      "sensing": 158
+      "sensing": 159
     },
     "Ume\u00e5 University": {
-      "communication": 346,
-      "computing": 246,
-      "sensing": 653
+      "communication": 344,
+      "computing": 245,
+      "sensing": 656
     },
     "University of Agder (UiA)": {
       "communication": 26,
@@ -199,39 +250,44 @@
       "sensing": 11
     },
     "University of Bergen (UiB)": {
-      "communication": 782,
-      "computing": 226,
-      "sensing": 498
+      "communication": 778,
+      "computing": 225,
+      "sensing": 504
     },
     "University of Copenhagen": {
-      "communication": 2026,
-      "computing": 2212,
-      "sensing": 1818
+      "communication": 2016,
+      "computing": 2203,
+      "sensing": 1839
     },
     "University of Eastern Finland": {
       "communication": 70,
       "computing": 49,
-      "sensing": 260
+      "sensing": 261
     },
     "University of Helsinki": {
-      "communication": 1829,
-      "computing": 1257,
-      "sensing": 1329
+      "communication": 1824,
+      "computing": 1259,
+      "sensing": 1341
     },
     "University of Iceland": {
-      "communication": 275,
+      "communication": 274,
       "computing": 499,
-      "sensing": 223
+      "sensing": 225
     },
     "University of Jyv\u00e4skyl\u00e4": {
-      "communication": 836,
-      "computing": 1019,
-      "sensing": 715
+      "communication": 831,
+      "computing": 1022,
+      "sensing": 720
+    },
+    "University of Latvia": {
+      "communication": 99,
+      "computing": 228,
+      "sensing": 141
     },
     "University of Oslo (UiO)": {
-      "communication": 1238,
-      "computing": 1120,
-      "sensing": 1117
+      "communication": 1233,
+      "computing": 1121,
+      "sensing": 1128
     },
     "University of South-Eastern Norway (USN)": {
       "communication": 19,
@@ -239,19 +295,24 @@
       "sensing": 44
     },
     "University of Southern Denmark": {
-      "communication": 495,
-      "computing": 581,
-      "sensing": 470
+      "communication": 492,
+      "computing": 580,
+      "sensing": 474
     },
     "University of Stavanger (UiS)": {
-      "communication": 114,
-      "computing": 123,
-      "sensing": 53
+      "communication": 115,
+      "computing": 122,
+      "sensing": 54
+    },
+    "University of Tartu": {
+      "communication": 112,
+      "computing": 122,
+      "sensing": 195
     },
     "University of Turku": {
-      "communication": 441,
-      "computing": 332,
-      "sensing": 534
+      "communication": 442,
+      "computing": 335,
+      "sensing": 537
     },
     "University of Vaasa": {
       "communication": 48,
@@ -260,92 +321,123 @@
     },
     "Uppsala University": {
       "communication": 1658,
-      "computing": 2902,
-      "sensing": 2306
+      "computing": 2904,
+      "sensing": 2332
+    },
+    "Vilnius University": {
+      "communication": 270,
+      "computing": 271,
+      "sensing": 303
     },
     "\u00c5bo Akademi University": {
       "communication": 65,
-      "computing": 144,
-      "sensing": 150
+      "computing": 145,
+      "sensing": 152
     }
   },
   "last10": {
     "by_country": {
-      "DK": 7804,
-      "FI": 5265,
-      "IS": 636,
-      "NO": 3620,
-      "SE": 11386
+      "DK": 7810,
+      "EE": 262,
+      "FI": 5275,
+      "IS": 637,
+      "LT": 695,
+      "LV": 321,
+      "NO": 3627,
+      "SE": 11466
     },
     "by_institution": {
       "Aalborg University": 340,
-      "Aalto University": 2004,
-      "Aarhus University": 1777,
-      "Chalmers": 1950,
+      "Aalto University": 2005,
+      "Aarhus University": 1779,
+      "Center for Physical Sciences and Technology": 168,
+      "Chalmers": 1953,
       "Copenhagen Business School (CBS)": 22,
       "Gothenburg": 742,
       "Hanken School of Economics": 1,
       "IT University of Copenhagen": 77,
-      "KTH": 1939,
+      "KTH": 1964,
       "Karolinska Institutet": 91,
+      "Kaunas University of Technology": 213,
       "LUT University": 135,
-      "Link\u00f6ping University": 867,
-      "Lund": 2499,
+      "Link\u00f6ping University": 873,
+      "Lund": 2500,
       "Nord University": 14,
+      "Nordita": 265,
       "Norwegian University of Life Sciences (NMBU)": 202,
-      "Norwegian University of Science and Technology (NTNU)": 1076,
+      "Norwegian University of Science and Technology (NTNU)": 1077,
       "OsloMet \u2013 Oslo Metropolitan University": 114,
       "Reykjav\u00edk University": 95,
+      "Riga Technical University": 80,
       "Roskilde University": 84,
-      "Stockholm University": 2237,
+      "Stockholm University": 2245,
+      "Tallinn University of Technology": 59,
       "Tampere University": 508,
-      "Technical University of Denmark (DTU)": 2240,
-      "UiT The Arctic University of Norway": 221,
-      "Ume\u00e5 University": 224,
+      "Technical University of Denmark (DTU)": 2243,
+      "UiT The Arctic University of Norway": 222,
+      "Ume\u00e5 University": 225,
       "University of Agder (UiA)": 76,
       "University of Akureyri": 1,
       "University of Bergen (UiB)": 586,
-      "University of Copenhagen": 2763,
-      "University of Eastern Finland": 237,
-      "University of Helsinki": 1328,
-      "University of Iceland": 581,
+      "University of Copenhagen": 2764,
+      "University of Eastern Finland": 238,
+      "University of Helsinki": 1334,
+      "University of Iceland": 582,
       "University of Inland Norway": 3,
-      "University of Jyv\u00e4skyl\u00e4": 1199,
-      "University of Oslo (UiO)": 1320,
+      "University of Jyv\u00e4skyl\u00e4": 1200,
+      "University of Latvia": 260,
+      "University of Oslo (UiO)": 1324,
       "University of South-Eastern Norway (USN)": 81,
       "University of Southern Denmark": 978,
-      "University of Stavanger (UiS)": 312,
-      "University of Turku": 451,
+      "University of Stavanger (UiS)": 313,
+      "University of Tartu": 208,
+      "University of Turku": 454,
       "University of Vaasa": 50,
       "University of the Arts Helsinki": 1,
-      "Uppsala University": 2979,
+      "Uppsala University": 2990,
+      "Vilnius University": 409,
       "\u00c5bo Akademi University": 84
     },
     "domain_by_country": {
       "DK": {
-        "communication": 2014,
-        "computing": 2575,
-        "sensing": 1755
+        "communication": 2009,
+        "computing": 2571,
+        "sensing": 1771
+      },
+      "EE": {
+        "communication": 76,
+        "computing": 43,
+        "sensing": 63
       },
       "FI": {
-        "communication": 1221,
-        "computing": 1741,
-        "sensing": 1310
+        "communication": 1218,
+        "computing": 1748,
+        "sensing": 1316
       },
       "IS": {
         "communication": 148,
         "computing": 300,
-        "sensing": 104
+        "sensing": 105
+      },
+      "LT": {
+        "communication": 224,
+        "computing": 205,
+        "sensing": 178
+      },
+      "LV": {
+        "communication": 76,
+        "computing": 107,
+        "sensing": 90
       },
       "NO": {
-        "communication": 876,
-        "computing": 1096,
-        "sensing": 901
+        "communication": 871,
+        "computing": 1099,
+        "sensing": 909
       },
       "SE": {
-        "communication": 2896,
-        "computing": 3904,
-        "sensing": 2670
+        "communication": 2909,
+        "computing": 3927,
+        "sensing": 2706
       }
     },
     "domain_by_institution": {
@@ -356,18 +448,23 @@
       },
       "Aalto University": {
         "communication": 327,
-        "computing": 842,
+        "computing": 843,
         "sensing": 484
       },
       "Aarhus University": {
-        "communication": 262,
-        "computing": 709,
-        "sensing": 498
+        "communication": 260,
+        "computing": 708,
+        "sensing": 504
+      },
+      "Center for Physical Sciences and Technology": {
+        "communication": 39,
+        "computing": 70,
+        "sensing": 39
       },
       "Chalmers": {
-        "communication": 392,
-        "computing": 688,
-        "sensing": 511
+        "communication": 394,
+        "computing": 686,
+        "sensing": 515
       },
       "Copenhagen Business School (CBS)": {
         "communication": 6,
@@ -385,14 +482,19 @@
         "sensing": 8
       },
       "KTH": {
-        "communication": 553,
-        "computing": 654,
-        "sensing": 401
+        "communication": 558,
+        "computing": 661,
+        "sensing": 412
       },
       "Karolinska Institutet": {
         "communication": 9,
         "computing": 11,
         "sensing": 35
+      },
+      "Kaunas University of Technology": {
+        "communication": 92,
+        "computing": 66,
+        "sensing": 36
       },
       "LUT University": {
         "communication": 9,
@@ -401,28 +503,33 @@
       },
       "Link\u00f6ping University": {
         "communication": 182,
-        "computing": 409,
-        "sensing": 147
+        "computing": 414,
+        "sensing": 149
       },
       "Lund": {
-        "communication": 822,
+        "communication": 821,
         "computing": 788,
-        "sensing": 594
+        "sensing": 597
       },
       "Nord University": {
         "communication": 4,
         "computing": 1,
         "sensing": 1
       },
+      "Nordita": {
+        "communication": 70,
+        "computing": 92,
+        "sensing": 51
+      },
       "Norwegian University of Life Sciences (NMBU)": {
-        "communication": 48,
+        "communication": 47,
         "computing": 8,
-        "sensing": 116
+        "sensing": 117
       },
       "Norwegian University of Science and Technology (NTNU)": {
-        "communication": 130,
-        "computing": 483,
-        "sensing": 272
+        "communication": 128,
+        "computing": 484,
+        "sensing": 273
       },
       "OsloMet \u2013 Oslo Metropolitan University": {
         "communication": 33,
@@ -434,35 +541,45 @@
         "computing": 69,
         "sensing": 9
       },
+      "Riga Technical University": {
+        "communication": 28,
+        "computing": 14,
+        "sensing": 24
+      },
       "Roskilde University": {
         "communication": 9,
         "computing": 19,
         "sensing": 38
       },
       "Stockholm University": {
-        "communication": 664,
-        "computing": 663,
-        "sensing": 508
+        "communication": 662,
+        "computing": 668,
+        "sensing": 511
+      },
+      "Tallinn University of Technology": {
+        "communication": 13,
+        "computing": 7,
+        "sensing": 9
       },
       "Tampere University": {
         "communication": 143,
-        "computing": 160,
-        "sensing": 134
+        "computing": 159,
+        "sensing": 135
       },
       "Technical University of Denmark (DTU)": {
         "communication": 602,
         "computing": 769,
-        "sensing": 543
+        "sensing": 546
       },
       "UiT The Arctic University of Norway": {
         "communication": 24,
-        "computing": 108,
+        "computing": 109,
         "sensing": 41
       },
       "Ume\u00e5 University": {
-        "communication": 40,
+        "communication": 39,
         "computing": 50,
-        "sensing": 77
+        "sensing": 78
       },
       "University of Agder (UiA)": {
         "communication": 17,
@@ -470,39 +587,44 @@
         "sensing": 6
       },
       "University of Bergen (UiB)": {
-        "communication": 284,
+        "communication": 282,
         "computing": 35,
-        "sensing": 148
+        "sensing": 150
       },
       "University of Copenhagen": {
-        "communication": 830,
-        "computing": 898,
-        "sensing": 497
+        "communication": 827,
+        "computing": 896,
+        "sensing": 503
       },
       "University of Eastern Finland": {
         "communication": 38,
         "computing": 14,
-        "sensing": 141
+        "sensing": 142
       },
       "University of Helsinki": {
-        "communication": 441,
-        "computing": 366,
-        "sensing": 284
+        "communication": 440,
+        "computing": 368,
+        "sensing": 287
       },
       "University of Iceland": {
         "communication": 142,
         "computing": 260,
-        "sensing": 96
+        "sensing": 97
       },
       "University of Jyv\u00e4skyl\u00e4": {
-        "communication": 336,
-        "computing": 403,
-        "sensing": 251
+        "communication": 333,
+        "computing": 407,
+        "sensing": 252
+      },
+      "University of Latvia": {
+        "communication": 52,
+        "computing": 98,
+        "sensing": 75
       },
       "University of Oslo (UiO)": {
-        "communication": 441,
-        "computing": 341,
-        "sensing": 285
+        "communication": 439,
+        "computing": 343,
+        "sensing": 289
       },
       "University of South-Eastern Norway (USN)": {
         "communication": 17,
@@ -510,19 +632,24 @@
         "sensing": 38
       },
       "University of Southern Denmark": {
-        "communication": 290,
-        "computing": 277,
-        "sensing": 228
+        "communication": 289,
+        "computing": 276,
+        "sensing": 230
       },
       "University of Stavanger (UiS)": {
-        "communication": 86,
-        "computing": 110,
-        "sensing": 41
+        "communication": 87,
+        "computing": 109,
+        "sensing": 42
+      },
+      "University of Tartu": {
+        "communication": 65,
+        "computing": 36,
+        "sensing": 55
       },
       "University of Turku": {
         "communication": 122,
-        "computing": 112,
-        "sensing": 104
+        "computing": 115,
+        "sensing": 105
       },
       "University of Vaasa": {
         "communication": 17,
@@ -530,9 +657,14 @@
         "sensing": 6
       },
       "Uppsala University": {
-        "communication": 691,
-        "computing": 1107,
-        "sensing": 675
+        "communication": 697,
+        "computing": 1105,
+        "sensing": 689
+      },
+      "Vilnius University": {
+        "communication": 120,
+        "computing": 103,
+        "sensing": 132
       },
       "\u00c5bo Akademi University": {
         "communication": 13,
@@ -540,84 +672,110 @@
         "sensing": 27
       }
     },
-    "total": 26739
+    "total": 27825
   },
   "last5": {
     "by_country": {
-      "DK": 3851,
-      "FI": 2685,
-      "IS": 296,
-      "NO": 1909,
-      "SE": 5741
+      "DK": 3854,
+      "EE": 146,
+      "FI": 2690,
+      "IS": 297,
+      "LT": 384,
+      "LV": 198,
+      "NO": 1914,
+      "SE": 5788
     },
     "by_institution": {
       "Aalborg University": 187,
-      "Aalto University": 967,
+      "Aalto University": 968,
       "Aarhus University": 846,
-      "Chalmers": 1021,
+      "Center for Physical Sciences and Technology": 85,
+      "Chalmers": 1023,
       "Copenhagen Business School (CBS)": 16,
       "Gothenburg": 336,
       "Hanken School of Economics": 1,
       "IT University of Copenhagen": 68,
-      "KTH": 904,
+      "KTH": 919,
       "Karolinska Institutet": 39,
+      "Kaunas University of Technology": 120,
       "LUT University": 51,
-      "Link\u00f6ping University": 402,
+      "Link\u00f6ping University": 407,
       "Lund": 1277,
       "Nord University": 9,
+      "Nordita": 169,
       "Norwegian University of Life Sciences (NMBU)": 130,
       "Norwegian University of Science and Technology (NTNU)": 521,
       "OsloMet \u2013 Oslo Metropolitan University": 65,
       "Reykjav\u00edk University": 39,
+      "Riga Technical University": 56,
       "Roskilde University": 45,
-      "Stockholm University": 1101,
+      "Stockholm University": 1106,
+      "Tallinn University of Technology": 36,
       "Tampere University": 285,
-      "Technical University of Denmark (DTU)": 1129,
-      "UiT The Arctic University of Norway": 122,
+      "Technical University of Denmark (DTU)": 1131,
+      "UiT The Arctic University of Norway": 123,
       "Ume\u00e5 University": 134,
       "University of Agder (UiA)": 41,
       "University of Bergen (UiB)": 325,
-      "University of Copenhagen": 1334,
+      "University of Copenhagen": 1335,
       "University of Eastern Finland": 112,
-      "University of Helsinki": 746,
-      "University of Iceland": 272,
+      "University of Helsinki": 748,
+      "University of Iceland": 273,
       "University of Inland Norway": 3,
-      "University of Jyv\u00e4skyl\u00e4": 656,
-      "University of Oslo (UiO)": 716,
+      "University of Jyv\u00e4skyl\u00e4": 657,
+      "University of Latvia": 154,
+      "University of Oslo (UiO)": 719,
       "University of South-Eastern Norway (USN)": 52,
       "University of Southern Denmark": 494,
-      "University of Stavanger (UiS)": 148,
-      "University of Turku": 202,
+      "University of Stavanger (UiS)": 149,
+      "University of Tartu": 114,
+      "University of Turku": 204,
       "University of Vaasa": 22,
       "University of the Arts Helsinki": 1,
-      "Uppsala University": 1571,
+      "Uppsala University": 1581,
+      "Vilnius University": 230,
       "\u00c5bo Akademi University": 40
     },
     "domain_by_country": {
       "DK": {
-        "communication": 985,
-        "computing": 1342,
-        "sensing": 820
+        "communication": 983,
+        "computing": 1343,
+        "sensing": 825
+      },
+      "EE": {
+        "communication": 51,
+        "computing": 22,
+        "sensing": 22
       },
       "FI": {
-        "communication": 666,
-        "computing": 944,
-        "sensing": 590
+        "communication": 664,
+        "computing": 950,
+        "sensing": 591
       },
       "IS": {
         "communication": 81,
         "computing": 139,
-        "sensing": 44
+        "sensing": 45
+      },
+      "LT": {
+        "communication": 126,
+        "computing": 101,
+        "sensing": 97
+      },
+      "LV": {
+        "communication": 52,
+        "computing": 63,
+        "sensing": 54
       },
       "NO": {
-        "communication": 458,
-        "computing": 574,
-        "sensing": 463
+        "communication": 455,
+        "computing": 577,
+        "sensing": 468
       },
       "SE": {
-        "communication": 1587,
-        "computing": 2026,
-        "sensing": 1228
+        "communication": 1600,
+        "computing": 2038,
+        "sensing": 1252
       }
     },
     "domain_by_institution": {
@@ -628,18 +786,23 @@
       },
       "Aalto University": {
         "communication": 193,
-        "computing": 427,
+        "computing": 428,
         "sensing": 206
       },
       "Aarhus University": {
         "communication": 133,
         "computing": 364,
-        "sensing": 221
+        "sensing": 222
+      },
+      "Center for Physical Sciences and Technology": {
+        "communication": 20,
+        "computing": 30,
+        "sensing": 24
       },
       "Chalmers": {
-        "communication": 196,
+        "communication": 198,
         "computing": 415,
-        "sensing": 246
+        "sensing": 247
       },
       "Copenhagen Business School (CBS)": {
         "communication": 6,
@@ -657,14 +820,19 @@
         "sensing": 7
       },
       "KTH": {
-        "communication": 289,
-        "computing": 337,
-        "sensing": 161
+        "communication": 295,
+        "computing": 340,
+        "sensing": 165
       },
       "Karolinska Institutet": {
         "communication": 5,
         "computing": 5,
         "sensing": 16
+      },
+      "Kaunas University of Technology": {
+        "communication": 49,
+        "computing": 35,
+        "sensing": 18
       },
       "LUT University": {
         "communication": 6,
@@ -672,28 +840,33 @@
         "sensing": 8
       },
       "Link\u00f6ping University": {
-        "communication": 84,
-        "computing": 193,
-        "sensing": 53
+        "communication": 85,
+        "computing": 196,
+        "sensing": 55
       },
       "Lund": {
-        "communication": 439,
+        "communication": 438,
         "computing": 403,
-        "sensing": 282
+        "sensing": 284
       },
       "Nord University": {
         "communication": 3,
         "computing": 0,
         "sensing": 0
       },
+      "Nordita": {
+        "communication": 52,
+        "computing": 52,
+        "sensing": 36
+      },
       "Norwegian University of Life Sciences (NMBU)": {
-        "communication": 30,
+        "communication": 29,
         "computing": 5,
-        "sensing": 71
+        "sensing": 72
       },
       "Norwegian University of Science and Technology (NTNU)": {
-        "communication": 53,
-        "computing": 242,
+        "communication": 52,
+        "computing": 243,
         "sensing": 131
       },
       "OsloMet \u2013 Oslo Metropolitan University": {
@@ -706,6 +879,11 @@
         "computing": 37,
         "sensing": 0
       },
+      "Riga Technical University": {
+        "communication": 20,
+        "computing": 9,
+        "sensing": 15
+      },
       "Roskilde University": {
         "communication": 4,
         "computing": 9,
@@ -713,8 +891,13 @@
       },
       "Stockholm University": {
         "communication": 372,
-        "computing": 351,
-        "sensing": 225
+        "computing": 353,
+        "sensing": 227
+      },
+      "Tallinn University of Technology": {
+        "communication": 8,
+        "computing": 4,
+        "sensing": 3
       },
       "Tampere University": {
         "communication": 70,
@@ -724,17 +907,17 @@
       "Technical University of Denmark (DTU)": {
         "communication": 301,
         "computing": 391,
-        "sensing": 260
+        "sensing": 262
       },
       "UiT The Arctic University of Norway": {
         "communication": 12,
-        "computing": 55,
+        "computing": 56,
         "sensing": 25
       },
       "Ume\u00e5 University": {
-        "communication": 31,
+        "communication": 30,
         "computing": 24,
-        "sensing": 41
+        "sensing": 42
       },
       "University of Agder (UiA)": {
         "communication": 8,
@@ -742,14 +925,14 @@
         "sensing": 1
       },
       "University of Bergen (UiB)": {
-        "communication": 149,
+        "communication": 148,
         "computing": 20,
-        "sensing": 88
+        "sensing": 89
       },
       "University of Copenhagen": {
-        "communication": 383,
-        "computing": 492,
-        "sensing": 226
+        "communication": 381,
+        "computing": 493,
+        "sensing": 228
       },
       "University of Eastern Finland": {
         "communication": 21,
@@ -758,23 +941,28 @@
       },
       "University of Helsinki": {
         "communication": 246,
-        "computing": 240,
+        "computing": 241,
         "sensing": 150
       },
       "University of Iceland": {
         "communication": 79,
         "computing": 117,
-        "sensing": 44
+        "sensing": 45
       },
       "University of Jyv\u00e4skyl\u00e4": {
-        "communication": 191,
-        "computing": 226,
+        "communication": 190,
+        "computing": 229,
         "sensing": 127
       },
+      "University of Latvia": {
+        "communication": 33,
+        "computing": 59,
+        "sensing": 44
+      },
       "University of Oslo (UiO)": {
-        "communication": 246,
-        "computing": 198,
-        "sensing": 128
+        "communication": 244,
+        "computing": 199,
+        "sensing": 132
       },
       "University of South-Eastern Norway (USN)": {
         "communication": 9,
@@ -787,14 +975,19 @@
         "sensing": 100
       },
       "University of Stavanger (UiS)": {
-        "communication": 49,
+        "communication": 50,
         "computing": 47,
         "sensing": 19
       },
+      "University of Tartu": {
+        "communication": 45,
+        "computing": 18,
+        "sensing": 20
+      },
       "University of Turku": {
-        "communication": 56,
-        "computing": 53,
-        "sensing": 44
+        "communication": 55,
+        "computing": 55,
+        "sensing": 45
       },
       "University of Vaasa": {
         "communication": 7,
@@ -802,9 +995,14 @@
         "sensing": 1
       },
       "Uppsala University": {
-        "communication": 449,
-        "computing": 534,
-        "sensing": 332
+        "communication": 455,
+        "computing": 535,
+        "sensing": 342
+      },
+      "Vilnius University": {
+        "communication": 75,
+        "computing": 51,
+        "sensing": 71
       },
       "\u00c5bo Akademi University": {
         "communication": 8,
@@ -812,7 +1010,7 @@
         "sensing": 12
       }
     },
-    "total": 13514
+    "total": 14125
   },
-  "total": 76109
+  "total": 78526
 }

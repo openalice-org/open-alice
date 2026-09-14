@@ -135,7 +135,7 @@ export default function Colophon({ people, paperCounts }: ColophonProps) {
                     onClick={() => pick(NORDICS_SCOPE)}
                   >
                     <i className={"ph-light inst-check " + (state.scope === NORDICS_SCOPE ? "ph-check-square" : "ph-square")} />
-                    All Nordics
+                    All New Nordics
                   </div>
                   {countries.map((cc) => (
                     <div
