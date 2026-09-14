@@ -1,0 +1,2278 @@
+# Potential duplicate people — splink experiment
+
+Blocked on normalized surname (9,352 people -> 4289 scored pairs), probabilistic model trained unsupervised (EM) on name similarity, first/last publication year, country/university/institution match, and topic/keyword overlap. 452 clusters scored >= 0.5; showing the top 40, enriched with real coauthor overlap scanned from the underlying paper corpus.
+
+## Exact-ORCID collisions (near-certain — same ORCID, different OpenAlex id)
+
+- `https://orcid.org/0000-0003-4158-3583`
+  - Ivy Peng — KTH — `https://openalex.org/A5037069204`
+  - Ivy Peng — KTH — `https://openalex.org/A5122360044`
+- `https://orcid.org/0000-0002-1335-4022` ⚠️ **different names on the same ORCID — likely an OpenAlex ORCID mis-link, not a duplicate person**
+  - A. L’Huillier — Lund — `https://openalex.org/A5087194862`
+  - Ivan Sytcevich — Lund — `https://openalex.org/A5076185911`
+- `https://orcid.org/0000-0003-3529-5171`
+  - G. Eigen — University of Bergen (UiB) — `https://openalex.org/A5077178294`
+  - G. Eigen — University of Bergen (UiB) — `https://openalex.org/A5107838594`
+- `https://orcid.org/0000-0002-6764-4789` ⚠️ **different names on the same ORCID — likely an OpenAlex ORCID mis-link, not a duplicate person**
+  - J.R. Hansen — University of Copenhagen — `https://openalex.org/A5120644337`
+  - P. H. Hansen — University of Copenhagen — `https://openalex.org/A5013845636`
+
+## Top 40 splink clusters
+
+### 1. H. Smith — best match_probability 0.999 (4 records)
+
+- **H. Smith** — University of Copenhagen, DK — active 2001–2008 — 6 quantum papers — `https://openalex.org/A5022783730`
+- **H. Smith** — University of Copenhagen, DK — active 1971–2008 — 30 quantum papers — `https://openalex.org/A5064287340`
+- **H. Smith** — University of Copenhagen, DK — active 2001–2008 — 9 quantum papers — `https://openalex.org/A5067577741`
+- **Henrik Smith** — University of Copenhagen, DK — active 1972–1996 — 11 quantum papers — `https://openalex.org/A5111379224`
+  
+  Coauthor overlap:
+  - `22783730` vs `64287340`: 1 shared coauthors (of 1/29), jaccard=0.03
+  - `22783730` vs `67577741`: 0 shared coauthors (of 1/1), jaccard=0.00
+  - `22783730` vs `11379224`: 0 shared coauthors (of 1/11), jaccard=0.00
+  - `64287340` vs `67577741`: 0 shared coauthors (of 29/1), jaccard=0.00
+  - `64287340` vs `11379224`: 1 shared coauthors (of 29/11), jaccard=0.03
+  - `67577741` vs `11379224`: 0 shared coauthors (of 1/11), jaccard=0.00
+
+### 2. J. Adolfsson — best match_probability 0.999 (5 records)
+
+- **J. Adolfsson** — Lund, SE — active 2017–2021 — 4 quantum papers — `https://openalex.org/A5040298005`
+- **J. Adolfsson** — Lund, SE — active 2018–2022 — 12 quantum papers — `https://openalex.org/A5105703092`
+- **J. Adolfsson** — Lund, SE — active 2018–2022 — 19 quantum papers — `https://openalex.org/A5105756734`
+- **J. Adolfsson** — Lund, SE — active 2018–2024 — 11 quantum papers — `https://openalex.org/A5106038080`
+- **J. Adolfsson** — Lund, SE — active 2017–2021 — 16 quantum papers — `https://openalex.org/A5106940547`
+  
+  Coauthor overlap:
+  - `40298005` vs `05703092`: 169 shared coauthors (of 266/424), jaccard=0.32
+  - `40298005` vs `05756734`: 191 shared coauthors (of 266/461), jaccard=0.36
+  - `40298005` vs `06038080`: 166 shared coauthors (of 266/381), jaccard=0.35
+  - `40298005` vs `06940547`: 181 shared coauthors (of 266/419), jaccard=0.36
+  - `05703092` vs `05756734`: 291 shared coauthors (of 424/461), jaccard=0.49
+  - `05703092` vs `06038080`: 245 shared coauthors (of 424/381), jaccard=0.44
+  - `05703092` vs `06940547`: 262 shared coauthors (of 424/419), jaccard=0.45
+  - `05756734` vs `06038080`: 285 shared coauthors (of 461/381), jaccard=0.51
+  - `05756734` vs `06940547`: 316 shared coauthors (of 461/419), jaccard=0.56
+  - `06038080` vs `06940547`: 263 shared coauthors (of 381/419), jaccard=0.49
+
+### 3. Claudia Piccinini — best match_probability 0.999 (2 records)
+
+- **Claudia Piccinini** — Technical University of Denmark (DTU), DK — active 2024–2025 — 4 quantum papers — `https://openalex.org/A5051463213`
+- **Claudia Piccinini** — Technical University of Denmark (DTU), DK — active 2024–2025 — 5 quantum papers — `https://openalex.org/A5067537551`
+  
+  Coauthor overlap:
+  - `51463213` vs `67537551`: 7 shared coauthors (of 19/20), jaccard=0.22
+
+### 4. Val Zwiller — best match_probability 0.999 (4 records)
+
+- **Val Zwiller** — KTH, SE — active 2016–2025 — 125 quantum papers — `https://openalex.org/A5026097303`
+- **Val Zwiller** — KTH, SE — active 2016–2025 — 17 quantum papers — `https://openalex.org/A5062957496`
+- **Valéry Zwiller** — KTH, SE — active 2001–2025 — 13 quantum papers — `https://openalex.org/A5111565968`
+- **V. Zwiller** — KTH, SE — active 1998–2026 — 9 quantum papers — `https://openalex.org/A5111985277`
+  
+  Coauthor overlap:
+  - `26097303` vs `62957496`: 47 shared coauthors (of 244/91), jaccard=0.16
+  - `26097303` vs `11565968`: 27 shared coauthors (of 244/54), jaccard=0.10
+  - `26097303` vs `11985277`: 20 shared coauthors (of 244/30), jaccard=0.08
+  - `62957496` vs `11565968`: 14 shared coauthors (of 91/54), jaccard=0.11
+  - `62957496` vs `11985277`: 8 shared coauthors (of 91/30), jaccard=0.07
+  - `11565968` vs `11985277`: 7 shared coauthors (of 54/30), jaccard=0.09
+
+### 5. P. C. Batzing — best match_probability 0.999 (4 records)
+
+- **P. C. Batzing** — University of Oslo (UiO), NO — active 2013–2019 — 6 quantum papers — `https://openalex.org/A5105618124`
+- **P. C. Batzing** — University of Oslo (UiO), NO — active 2015–2019 — 9 quantum papers — `https://openalex.org/A5106447168`
+- **P. C. Batzing** — University of Oslo (UiO), NO — active 2013–2019 — 37 quantum papers — `https://openalex.org/A5107860181`
+- **P. C. Batzing** — University of Oslo (UiO), NO — active 2014–2020 — 25 quantum papers — `https://openalex.org/A5112517286`
+  
+  Coauthor overlap:
+  - `05618124` vs `06447168`: 179 shared coauthors (of 316/343), jaccard=0.37
+  - `05618124` vs `07860181`: 226 shared coauthors (of 316/488), jaccard=0.39
+  - `05618124` vs `12517286`: 227 shared coauthors (of 316/515), jaccard=0.38
+  - `06447168` vs `07860181`: 252 shared coauthors (of 343/488), jaccard=0.44
+  - `06447168` vs `12517286`: 272 shared coauthors (of 343/515), jaccard=0.46
+  - `07860181` vs `12517286`: 350 shared coauthors (of 488/515), jaccard=0.54
+
+### 6. M. Hansson — best match_probability 0.999 (2 records)
+
+- **M. Hansson** — Lund, SE — active 2006–2009 — 4 quantum papers — `https://openalex.org/A5101793954`
+- **M. Hansson** — Lund, SE — active 2006–2009 — 21 quantum papers — `https://openalex.org/A5104440206`
+  
+  Coauthor overlap:
+  - `01793954` vs `04440206`: 118 shared coauthors (of 143/162), jaccard=0.63
+
+### 7. Jonas Johansson — best match_probability 0.999 (28 records)
+
+- **Jonas Johansson** — Lund, SE — active 1997–2023 — 50 quantum papers — `https://openalex.org/A5000421563`
+- **Börje Johansson** — Uppsala University, SE — active 1979–2017 — 168 quantum papers — `https://openalex.org/A5002029016`
+- **Fredrik O. L. Johansson** — Uppsala University, SE — active 2017–2025 — 14 quantum papers — `https://openalex.org/A5008304873`
+- **J. Johansson** — Chalmers, SE — active 1986–2007 — 5 quantum papers — `https://openalex.org/A5010408027`
+- **Mikael Johansson** — Lund, SE — active 1994–2005 — 12 quantum papers — `https://openalex.org/A5012784303`
+- **Sofia Johansson** — Lund, SE — active 2010–2016 — 5 quantum papers — `https://openalex.org/A5014549118`
+- **Thomas Johansson** — Lund, SE — active 2003–2023 — 16 quantum papers — `https://openalex.org/A5019956193`
+- **Patrik Johansson** — Chalmers, SE — active 1979–2023 — 10 quantum papers — `https://openalex.org/A5025962179`
+- **Emma Johansson** — Lund, SE — active 2005–2010 — 7 quantum papers — `https://openalex.org/A5027150467`
+- **Henrik Johansson** — Uppsala University, SE — active 2015–2026 — 37 quantum papers — `https://openalex.org/A5028727525`
+- **H. Johansson** — Chalmers, SE — active 2008–2024 — 13 quantum papers — `https://openalex.org/A5032952999`
+- **Erik M. J. Johansson** — Uppsala University, SE — active 2008–2024 — 77 quantum papers — `https://openalex.org/A5038924594`
+- **Pia A. Johansson** — Lund, SE — active 2000–2000 — 4 quantum papers — `https://openalex.org/A5043496124`
+- **B. Johansson** — Uppsala University, SE — active 1994–2006 — 4 quantum papers — `https://openalex.org/A5053412281`
+- **B. Johansson** — Uppsala University, SE — active 1995–2011 — 17 quantum papers — `https://openalex.org/A5060977723`
+- **B. Johansson** — Uppsala University, SE — active 1997–2011 — 11 quantum papers — `https://openalex.org/A5070857343`
+- **T. Johansson** — Uppsala University, SE — active 1963–2023 — 154 quantum papers — `https://openalex.org/A5072376954`
+- **Malin B. Johansson** — Uppsala University, SE — active 2016–2024 — 26 quantum papers — `https://openalex.org/A5076375950`
+- **Erik Johansson** — Stockholm University, SE — active 1972–1986 — 10 quantum papers — `https://openalex.org/A5088789180`
+- **Peter Johansson** — Chalmers, SE — active 1976–2025 — 24 quantum papers — `https://openalex.org/A5101695299`
+- **Sveneric Johansson** — Lund, SE — active 1980–2008 — 22 quantum papers — `https://openalex.org/A5107835449`
+- **K. Johansson** — Uppsala University, SE — active 1965–1987 — 7 quantum papers — `https://openalex.org/A5107888863`
+- **L. I. Johansson** — Linköping University, SE — active 1981–2002 — 7 quantum papers — `https://openalex.org/A5108565260`
+- **B. Johansson** — Uppsala University, SE — active 1994–2012 — 13 quantum papers — `https://openalex.org/A5109921980`
+- **B. Johansson** — Uppsala University, SE — active 1998–2008 — 11 quantum papers — `https://openalex.org/A5109934067`
+- **K. E. Johansson** — Stockholm University, SE — active 1975–2012 — 16 quantum papers — `https://openalex.org/A5110274259`
+- **S. Johansson** — Lund, SE — active 1983–2007 — 12 quantum papers — `https://openalex.org/A5110823142`
+- **Cecilia Johansson** — Uppsala University, SE — active 2002–2007 — 5 quantum papers — `https://openalex.org/A5111384382`
+  
+  Coauthor overlap:
+  - `00421563` vs `02029016`: 0 shared coauthors (of 100/175), jaccard=0.00
+  - `00421563` vs `08304873`: 0 shared coauthors (of 100/86), jaccard=0.00
+  - `00421563` vs `10408027`: 0 shared coauthors (of 100/15), jaccard=0.00
+  - `00421563` vs `12784303`: 13 shared coauthors (of 100/25), jaccard=0.12
+  - `00421563` vs `14549118`: 3 shared coauthors (of 100/12), jaccard=0.03
+  - `00421563` vs `19956193`: 0 shared coauthors (of 100/17), jaccard=0.00
+  - `00421563` vs `25962179`: 0 shared coauthors (of 100/51), jaccard=0.00
+  - `00421563` vs `27150467`: 0 shared coauthors (of 100/95), jaccard=0.00
+  - `00421563` vs `28727525`: 0 shared coauthors (of 100/58), jaccard=0.00
+  - `00421563` vs `32952999`: 0 shared coauthors (of 100/295), jaccard=0.00
+  - `00421563` vs `38924594`: 0 shared coauthors (of 100/191), jaccard=0.00
+  - `00421563` vs `43496124`: 0 shared coauthors (of 100/8), jaccard=0.00
+  - `00421563` vs `53412281`: 0 shared coauthors (of 100/20), jaccard=0.00
+  - `00421563` vs `60977723`: 0 shared coauthors (of 100/57), jaccard=0.00
+  - `00421563` vs `70857343`: 0 shared coauthors (of 100/42), jaccard=0.00
+  - `00421563` vs `72376954`: 0 shared coauthors (of 100/979), jaccard=0.00
+  - `00421563` vs `76375950`: 0 shared coauthors (of 100/68), jaccard=0.00
+  - `00421563` vs `88789180`: 0 shared coauthors (of 100/198), jaccard=0.00
+  - `00421563` vs `01695299`: 0 shared coauthors (of 100/32), jaccard=0.00
+  - `00421563` vs `07835449`: 0 shared coauthors (of 100/35), jaccard=0.00
+  - `00421563` vs `07888863`: 0 shared coauthors (of 100/19), jaccard=0.00
+  - `00421563` vs `08565260`: 0 shared coauthors (of 100/13), jaccard=0.00
+  - `00421563` vs `09921980`: 0 shared coauthors (of 100/35), jaccard=0.00
+  - `00421563` vs `09934067`: 0 shared coauthors (of 100/30), jaccard=0.00
+  - `00421563` vs `10274259`: 0 shared coauthors (of 100/240), jaccard=0.00
+  - `00421563` vs `10823142`: 0 shared coauthors (of 100/189), jaccard=0.00
+  - `00421563` vs `11384382`: 0 shared coauthors (of 100/29), jaccard=0.00
+  - `02029016` vs `08304873`: 2 shared coauthors (of 175/86), jaccard=0.01
+  - `02029016` vs `10408027`: 0 shared coauthors (of 175/15), jaccard=0.00
+  - `02029016` vs `12784303`: 0 shared coauthors (of 175/25), jaccard=0.00
+  - `02029016` vs `14549118`: 0 shared coauthors (of 175/12), jaccard=0.00
+  - `02029016` vs `19956193`: 0 shared coauthors (of 175/17), jaccard=0.00
+  - `02029016` vs `25962179`: 1 shared coauthors (of 175/51), jaccard=0.00
+  - `02029016` vs `27150467`: 0 shared coauthors (of 175/95), jaccard=0.00
+  - `02029016` vs `28727525`: 0 shared coauthors (of 175/58), jaccard=0.00
+  - `02029016` vs `32952999`: 0 shared coauthors (of 175/295), jaccard=0.00
+  - `02029016` vs `38924594`: 3 shared coauthors (of 175/191), jaccard=0.01
+  - `02029016` vs `43496124`: 0 shared coauthors (of 175/8), jaccard=0.00
+  - `02029016` vs `53412281`: 11 shared coauthors (of 175/20), jaccard=0.06
+  - `02029016` vs `60977723`: 28 shared coauthors (of 175/57), jaccard=0.14
+  - `02029016` vs `70857343`: 20 shared coauthors (of 175/42), jaccard=0.10
+  - `02029016` vs `72376954`: 0 shared coauthors (of 175/979), jaccard=0.00
+  - `02029016` vs `76375950`: 1 shared coauthors (of 175/68), jaccard=0.00
+  - `02029016` vs `88789180`: 0 shared coauthors (of 175/198), jaccard=0.00
+  - `02029016` vs `01695299`: 0 shared coauthors (of 175/32), jaccard=0.00
+  - `02029016` vs `07835449`: 0 shared coauthors (of 175/35), jaccard=0.00
+  - `02029016` vs `07888863`: 0 shared coauthors (of 175/19), jaccard=0.00
+  - `02029016` vs `08565260`: 0 shared coauthors (of 175/13), jaccard=0.00
+  - `02029016` vs `09921980`: 18 shared coauthors (of 175/35), jaccard=0.09
+  - `02029016` vs `09934067`: 13 shared coauthors (of 175/30), jaccard=0.07
+  - `02029016` vs `10274259`: 0 shared coauthors (of 175/240), jaccard=0.00
+  - `02029016` vs `10823142`: 0 shared coauthors (of 175/189), jaccard=0.00
+  - `02029016` vs `11384382`: 0 shared coauthors (of 175/29), jaccard=0.00
+  - `08304873` vs `10408027`: 0 shared coauthors (of 86/15), jaccard=0.00
+  - `08304873` vs `12784303`: 0 shared coauthors (of 86/25), jaccard=0.00
+  - `08304873` vs `14549118`: 0 shared coauthors (of 86/12), jaccard=0.00
+  - `08304873` vs `19956193`: 0 shared coauthors (of 86/17), jaccard=0.00
+  - `08304873` vs `25962179`: 0 shared coauthors (of 86/51), jaccard=0.00
+  - `08304873` vs `27150467`: 0 shared coauthors (of 86/95), jaccard=0.00
+  - `08304873` vs `28727525`: 0 shared coauthors (of 86/58), jaccard=0.00
+  - `08304873` vs `32952999`: 0 shared coauthors (of 86/295), jaccard=0.00
+  - `08304873` vs `38924594`: 31 shared coauthors (of 86/191), jaccard=0.13
+  - `08304873` vs `43496124`: 0 shared coauthors (of 86/8), jaccard=0.00
+  - `08304873` vs `53412281`: 1 shared coauthors (of 86/20), jaccard=0.01
+  - `08304873` vs `60977723`: 0 shared coauthors (of 86/57), jaccard=0.00
+  - `08304873` vs `70857343`: 0 shared coauthors (of 86/42), jaccard=0.00
+  - `08304873` vs `72376954`: 0 shared coauthors (of 86/979), jaccard=0.00
+  - `08304873` vs `76375950`: 17 shared coauthors (of 86/68), jaccard=0.12
+  - `08304873` vs `88789180`: 0 shared coauthors (of 86/198), jaccard=0.00
+  - `08304873` vs `01695299`: 0 shared coauthors (of 86/32), jaccard=0.00
+  - `08304873` vs `07835449`: 0 shared coauthors (of 86/35), jaccard=0.00
+  - `08304873` vs `07888863`: 0 shared coauthors (of 86/19), jaccard=0.00
+  - `08304873` vs `08565260`: 0 shared coauthors (of 86/13), jaccard=0.00
+  - `08304873` vs `09921980`: 0 shared coauthors (of 86/35), jaccard=0.00
+  - `08304873` vs `09934067`: 0 shared coauthors (of 86/30), jaccard=0.00
+  - `08304873` vs `10274259`: 0 shared coauthors (of 86/240), jaccard=0.00
+  - `08304873` vs `10823142`: 0 shared coauthors (of 86/189), jaccard=0.00
+  - `08304873` vs `11384382`: 0 shared coauthors (of 86/29), jaccard=0.00
+  - `10408027` vs `12784303`: 0 shared coauthors (of 15/25), jaccard=0.00
+  - `10408027` vs `14549118`: 0 shared coauthors (of 15/12), jaccard=0.00
+  - `10408027` vs `19956193`: 0 shared coauthors (of 15/17), jaccard=0.00
+  - `10408027` vs `25962179`: 0 shared coauthors (of 15/51), jaccard=0.00
+  - `10408027` vs `27150467`: 0 shared coauthors (of 15/95), jaccard=0.00
+  - `10408027` vs `28727525`: 0 shared coauthors (of 15/58), jaccard=0.00
+  - `10408027` vs `32952999`: 0 shared coauthors (of 15/295), jaccard=0.00
+  - `10408027` vs `38924594`: 0 shared coauthors (of 15/191), jaccard=0.00
+  - `10408027` vs `43496124`: 0 shared coauthors (of 15/8), jaccard=0.00
+  - `10408027` vs `53412281`: 0 shared coauthors (of 15/20), jaccard=0.00
+  - `10408027` vs `60977723`: 0 shared coauthors (of 15/57), jaccard=0.00
+  - `10408027` vs `70857343`: 0 shared coauthors (of 15/42), jaccard=0.00
+  - `10408027` vs `72376954`: 0 shared coauthors (of 15/979), jaccard=0.00
+  - `10408027` vs `76375950`: 0 shared coauthors (of 15/68), jaccard=0.00
+  - `10408027` vs `88789180`: 0 shared coauthors (of 15/198), jaccard=0.00
+  - `10408027` vs `01695299`: 0 shared coauthors (of 15/32), jaccard=0.00
+  - `10408027` vs `07835449`: 0 shared coauthors (of 15/35), jaccard=0.00
+  - `10408027` vs `07888863`: 0 shared coauthors (of 15/19), jaccard=0.00
+  - `10408027` vs `08565260`: 0 shared coauthors (of 15/13), jaccard=0.00
+  - `10408027` vs `09921980`: 0 shared coauthors (of 15/35), jaccard=0.00
+  - `10408027` vs `09934067`: 0 shared coauthors (of 15/30), jaccard=0.00
+  - `10408027` vs `10274259`: 0 shared coauthors (of 15/240), jaccard=0.00
+  - `10408027` vs `10823142`: 0 shared coauthors (of 15/189), jaccard=0.00
+  - `10408027` vs `11384382`: 0 shared coauthors (of 15/29), jaccard=0.00
+  - `12784303` vs `14549118`: 0 shared coauthors (of 25/12), jaccard=0.00
+  - `12784303` vs `19956193`: 0 shared coauthors (of 25/17), jaccard=0.00
+  - `12784303` vs `25962179`: 0 shared coauthors (of 25/51), jaccard=0.00
+  - `12784303` vs `27150467`: 0 shared coauthors (of 25/95), jaccard=0.00
+  - `12784303` vs `28727525`: 0 shared coauthors (of 25/58), jaccard=0.00
+  - `12784303` vs `32952999`: 0 shared coauthors (of 25/295), jaccard=0.00
+  - `12784303` vs `38924594`: 0 shared coauthors (of 25/191), jaccard=0.00
+  - `12784303` vs `43496124`: 0 shared coauthors (of 25/8), jaccard=0.00
+  - `12784303` vs `53412281`: 0 shared coauthors (of 25/20), jaccard=0.00
+  - `12784303` vs `60977723`: 0 shared coauthors (of 25/57), jaccard=0.00
+  - `12784303` vs `70857343`: 0 shared coauthors (of 25/42), jaccard=0.00
+  - `12784303` vs `72376954`: 0 shared coauthors (of 25/979), jaccard=0.00
+  - `12784303` vs `76375950`: 0 shared coauthors (of 25/68), jaccard=0.00
+  - `12784303` vs `88789180`: 0 shared coauthors (of 25/198), jaccard=0.00
+  - `12784303` vs `01695299`: 0 shared coauthors (of 25/32), jaccard=0.00
+  - `12784303` vs `07835449`: 0 shared coauthors (of 25/35), jaccard=0.00
+  - `12784303` vs `07888863`: 0 shared coauthors (of 25/19), jaccard=0.00
+  - `12784303` vs `08565260`: 0 shared coauthors (of 25/13), jaccard=0.00
+  - `12784303` vs `09921980`: 0 shared coauthors (of 25/35), jaccard=0.00
+  - `12784303` vs `09934067`: 0 shared coauthors (of 25/30), jaccard=0.00
+  - `12784303` vs `10274259`: 0 shared coauthors (of 25/240), jaccard=0.00
+  - `12784303` vs `10823142`: 0 shared coauthors (of 25/189), jaccard=0.00
+  - `12784303` vs `11384382`: 0 shared coauthors (of 25/29), jaccard=0.00
+  - `14549118` vs `19956193`: 0 shared coauthors (of 12/17), jaccard=0.00
+  - `14549118` vs `25962179`: 0 shared coauthors (of 12/51), jaccard=0.00
+  - `14549118` vs `27150467`: 0 shared coauthors (of 12/95), jaccard=0.00
+  - `14549118` vs `28727525`: 0 shared coauthors (of 12/58), jaccard=0.00
+  - `14549118` vs `32952999`: 0 shared coauthors (of 12/295), jaccard=0.00
+  - `14549118` vs `38924594`: 0 shared coauthors (of 12/191), jaccard=0.00
+  - `14549118` vs `43496124`: 0 shared coauthors (of 12/8), jaccard=0.00
+  - `14549118` vs `53412281`: 0 shared coauthors (of 12/20), jaccard=0.00
+  - `14549118` vs `60977723`: 0 shared coauthors (of 12/57), jaccard=0.00
+  - `14549118` vs `70857343`: 0 shared coauthors (of 12/42), jaccard=0.00
+  - `14549118` vs `72376954`: 0 shared coauthors (of 12/979), jaccard=0.00
+  - `14549118` vs `76375950`: 0 shared coauthors (of 12/68), jaccard=0.00
+  - `14549118` vs `88789180`: 0 shared coauthors (of 12/198), jaccard=0.00
+  - `14549118` vs `01695299`: 0 shared coauthors (of 12/32), jaccard=0.00
+  - `14549118` vs `07835449`: 0 shared coauthors (of 12/35), jaccard=0.00
+  - `14549118` vs `07888863`: 0 shared coauthors (of 12/19), jaccard=0.00
+  - `14549118` vs `08565260`: 0 shared coauthors (of 12/13), jaccard=0.00
+  - `14549118` vs `09921980`: 0 shared coauthors (of 12/35), jaccard=0.00
+  - `14549118` vs `09934067`: 0 shared coauthors (of 12/30), jaccard=0.00
+  - `14549118` vs `10274259`: 0 shared coauthors (of 12/240), jaccard=0.00
+  - `14549118` vs `10823142`: 0 shared coauthors (of 12/189), jaccard=0.00
+  - `14549118` vs `11384382`: 0 shared coauthors (of 12/29), jaccard=0.00
+  - `19956193` vs `25962179`: 0 shared coauthors (of 17/51), jaccard=0.00
+  - `19956193` vs `27150467`: 0 shared coauthors (of 17/95), jaccard=0.00
+  - `19956193` vs `28727525`: 0 shared coauthors (of 17/58), jaccard=0.00
+  - `19956193` vs `32952999`: 0 shared coauthors (of 17/295), jaccard=0.00
+  - `19956193` vs `38924594`: 0 shared coauthors (of 17/191), jaccard=0.00
+  - `19956193` vs `43496124`: 0 shared coauthors (of 17/8), jaccard=0.00
+  - `19956193` vs `53412281`: 0 shared coauthors (of 17/20), jaccard=0.00
+  - `19956193` vs `60977723`: 0 shared coauthors (of 17/57), jaccard=0.00
+  - `19956193` vs `70857343`: 0 shared coauthors (of 17/42), jaccard=0.00
+  - `19956193` vs `72376954`: 0 shared coauthors (of 17/979), jaccard=0.00
+  - `19956193` vs `76375950`: 0 shared coauthors (of 17/68), jaccard=0.00
+  - `19956193` vs `88789180`: 0 shared coauthors (of 17/198), jaccard=0.00
+  - `19956193` vs `01695299`: 0 shared coauthors (of 17/32), jaccard=0.00
+  - `19956193` vs `07835449`: 0 shared coauthors (of 17/35), jaccard=0.00
+  - `19956193` vs `07888863`: 0 shared coauthors (of 17/19), jaccard=0.00
+  - `19956193` vs `08565260`: 0 shared coauthors (of 17/13), jaccard=0.00
+  - `19956193` vs `09921980`: 0 shared coauthors (of 17/35), jaccard=0.00
+  - `19956193` vs `09934067`: 0 shared coauthors (of 17/30), jaccard=0.00
+  - `19956193` vs `10274259`: 0 shared coauthors (of 17/240), jaccard=0.00
+  - `19956193` vs `10823142`: 0 shared coauthors (of 17/189), jaccard=0.00
+  - `19956193` vs `11384382`: 0 shared coauthors (of 17/29), jaccard=0.00
+  - `25962179` vs `27150467`: 0 shared coauthors (of 51/95), jaccard=0.00
+  - `25962179` vs `28727525`: 0 shared coauthors (of 51/58), jaccard=0.00
+  - `25962179` vs `32952999`: 0 shared coauthors (of 51/295), jaccard=0.00
+  - `25962179` vs `38924594`: 0 shared coauthors (of 51/191), jaccard=0.00
+  - `25962179` vs `43496124`: 0 shared coauthors (of 51/8), jaccard=0.00
+  - `25962179` vs `53412281`: 0 shared coauthors (of 51/20), jaccard=0.00
+  - `25962179` vs `60977723`: 0 shared coauthors (of 51/57), jaccard=0.00
+  - `25962179` vs `70857343`: 0 shared coauthors (of 51/42), jaccard=0.00
+  - `25962179` vs `72376954`: 0 shared coauthors (of 51/979), jaccard=0.00
+  - `25962179` vs `76375950`: 0 shared coauthors (of 51/68), jaccard=0.00
+  - `25962179` vs `88789180`: 0 shared coauthors (of 51/198), jaccard=0.00
+  - `25962179` vs `01695299`: 1 shared coauthors (of 51/32), jaccard=0.01
+  - `25962179` vs `07835449`: 0 shared coauthors (of 51/35), jaccard=0.00
+  - `25962179` vs `07888863`: 0 shared coauthors (of 51/19), jaccard=0.00
+  - `25962179` vs `08565260`: 0 shared coauthors (of 51/13), jaccard=0.00
+  - `25962179` vs `09921980`: 0 shared coauthors (of 51/35), jaccard=0.00
+  - `25962179` vs `09934067`: 0 shared coauthors (of 51/30), jaccard=0.00
+  - `25962179` vs `10274259`: 0 shared coauthors (of 51/240), jaccard=0.00
+  - `25962179` vs `10823142`: 0 shared coauthors (of 51/189), jaccard=0.00
+  - `25962179` vs `11384382`: 0 shared coauthors (of 51/29), jaccard=0.00
+  - `27150467` vs `28727525`: 0 shared coauthors (of 95/58), jaccard=0.00
+  - `27150467` vs `32952999`: 11 shared coauthors (of 95/295), jaccard=0.03
+  - `27150467` vs `38924594`: 0 shared coauthors (of 95/191), jaccard=0.00
+  - `27150467` vs `43496124`: 0 shared coauthors (of 95/8), jaccard=0.00
+  - `27150467` vs `53412281`: 0 shared coauthors (of 95/20), jaccard=0.00
+  - `27150467` vs `60977723`: 0 shared coauthors (of 95/57), jaccard=0.00
+  - `27150467` vs `70857343`: 0 shared coauthors (of 95/42), jaccard=0.00
+  - `27150467` vs `72376954`: 0 shared coauthors (of 95/979), jaccard=0.00
+  - `27150467` vs `76375950`: 0 shared coauthors (of 95/68), jaccard=0.00
+  - `27150467` vs `88789180`: 0 shared coauthors (of 95/198), jaccard=0.00
+  - `27150467` vs `01695299`: 0 shared coauthors (of 95/32), jaccard=0.00
+  - `27150467` vs `07835449`: 0 shared coauthors (of 95/35), jaccard=0.00
+  - `27150467` vs `07888863`: 0 shared coauthors (of 95/19), jaccard=0.00
+  - `27150467` vs `08565260`: 0 shared coauthors (of 95/13), jaccard=0.00
+  - `27150467` vs `09921980`: 0 shared coauthors (of 95/35), jaccard=0.00
+  - `27150467` vs `09934067`: 0 shared coauthors (of 95/30), jaccard=0.00
+  - `27150467` vs `10274259`: 0 shared coauthors (of 95/240), jaccard=0.00
+  - `27150467` vs `10823142`: 0 shared coauthors (of 95/189), jaccard=0.00
+  - `27150467` vs `11384382`: 0 shared coauthors (of 95/29), jaccard=0.00
+  - `28727525` vs `32952999`: 0 shared coauthors (of 58/295), jaccard=0.00
+  - `28727525` vs `38924594`: 0 shared coauthors (of 58/191), jaccard=0.00
+  - `28727525` vs `43496124`: 0 shared coauthors (of 58/8), jaccard=0.00
+  - `28727525` vs `53412281`: 0 shared coauthors (of 58/20), jaccard=0.00
+  - `28727525` vs `60977723`: 0 shared coauthors (of 58/57), jaccard=0.00
+  - `28727525` vs `70857343`: 0 shared coauthors (of 58/42), jaccard=0.00
+  - `28727525` vs `72376954`: 0 shared coauthors (of 58/979), jaccard=0.00
+  - `28727525` vs `76375950`: 0 shared coauthors (of 58/68), jaccard=0.00
+  - `28727525` vs `88789180`: 0 shared coauthors (of 58/198), jaccard=0.00
+  - `28727525` vs `01695299`: 0 shared coauthors (of 58/32), jaccard=0.00
+  - `28727525` vs `07835449`: 0 shared coauthors (of 58/35), jaccard=0.00
+  - `28727525` vs `07888863`: 0 shared coauthors (of 58/19), jaccard=0.00
+  - `28727525` vs `08565260`: 0 shared coauthors (of 58/13), jaccard=0.00
+  - `28727525` vs `09921980`: 0 shared coauthors (of 58/35), jaccard=0.00
+  - `28727525` vs `09934067`: 0 shared coauthors (of 58/30), jaccard=0.00
+  - `28727525` vs `10274259`: 0 shared coauthors (of 58/240), jaccard=0.00
+  - `28727525` vs `10823142`: 0 shared coauthors (of 58/189), jaccard=0.00
+  - `28727525` vs `11384382`: 0 shared coauthors (of 58/29), jaccard=0.00
+  - `32952999` vs `38924594`: 0 shared coauthors (of 295/191), jaccard=0.00
+  - `32952999` vs `43496124`: 0 shared coauthors (of 295/8), jaccard=0.00
+  - `32952999` vs `53412281`: 0 shared coauthors (of 295/20), jaccard=0.00
+  - `32952999` vs `60977723`: 0 shared coauthors (of 295/57), jaccard=0.00
+  - `32952999` vs `70857343`: 0 shared coauthors (of 295/42), jaccard=0.00
+  - `32952999` vs `72376954`: 1 shared coauthors (of 295/979), jaccard=0.00
+  - `32952999` vs `76375950`: 0 shared coauthors (of 295/68), jaccard=0.00
+  - `32952999` vs `88789180`: 0 shared coauthors (of 295/198), jaccard=0.00
+  - `32952999` vs `01695299`: 0 shared coauthors (of 295/32), jaccard=0.00
+  - `32952999` vs `07835449`: 0 shared coauthors (of 295/35), jaccard=0.00
+  - `32952999` vs `07888863`: 0 shared coauthors (of 295/19), jaccard=0.00
+  - `32952999` vs `08565260`: 0 shared coauthors (of 295/13), jaccard=0.00
+  - `32952999` vs `09921980`: 0 shared coauthors (of 295/35), jaccard=0.00
+  - `32952999` vs `09934067`: 0 shared coauthors (of 295/30), jaccard=0.00
+  - `32952999` vs `10274259`: 0 shared coauthors (of 295/240), jaccard=0.00
+  - `32952999` vs `10823142`: 0 shared coauthors (of 295/189), jaccard=0.00
+  - `32952999` vs `11384382`: 1 shared coauthors (of 295/29), jaccard=0.00
+  - `38924594` vs `43496124`: 0 shared coauthors (of 191/8), jaccard=0.00
+  - `38924594` vs `53412281`: 0 shared coauthors (of 191/20), jaccard=0.00
+  - `38924594` vs `60977723`: 0 shared coauthors (of 191/57), jaccard=0.00
+  - `38924594` vs `70857343`: 0 shared coauthors (of 191/42), jaccard=0.00
+  - `38924594` vs `72376954`: 0 shared coauthors (of 191/979), jaccard=0.00
+  - `38924594` vs `76375950`: 59 shared coauthors (of 191/68), jaccard=0.29
+  - `38924594` vs `88789180`: 0 shared coauthors (of 191/198), jaccard=0.00
+  - `38924594` vs `01695299`: 0 shared coauthors (of 191/32), jaccard=0.00
+  - `38924594` vs `07835449`: 0 shared coauthors (of 191/35), jaccard=0.00
+  - `38924594` vs `07888863`: 0 shared coauthors (of 191/19), jaccard=0.00
+  - `38924594` vs `08565260`: 0 shared coauthors (of 191/13), jaccard=0.00
+  - `38924594` vs `09921980`: 0 shared coauthors (of 191/35), jaccard=0.00
+  - `38924594` vs `09934067`: 0 shared coauthors (of 191/30), jaccard=0.00
+  - `38924594` vs `10274259`: 0 shared coauthors (of 191/240), jaccard=0.00
+  - `38924594` vs `10823142`: 0 shared coauthors (of 191/189), jaccard=0.00
+  - `38924594` vs `11384382`: 0 shared coauthors (of 191/29), jaccard=0.00
+  - `43496124` vs `53412281`: 0 shared coauthors (of 8/20), jaccard=0.00
+  - `43496124` vs `60977723`: 0 shared coauthors (of 8/57), jaccard=0.00
+  - `43496124` vs `70857343`: 0 shared coauthors (of 8/42), jaccard=0.00
+  - `43496124` vs `72376954`: 0 shared coauthors (of 8/979), jaccard=0.00
+  - `43496124` vs `76375950`: 0 shared coauthors (of 8/68), jaccard=0.00
+  - `43496124` vs `88789180`: 0 shared coauthors (of 8/198), jaccard=0.00
+  - `43496124` vs `01695299`: 2 shared coauthors (of 8/32), jaccard=0.05
+  - `43496124` vs `07835449`: 0 shared coauthors (of 8/35), jaccard=0.00
+  - `43496124` vs `07888863`: 0 shared coauthors (of 8/19), jaccard=0.00
+  - `43496124` vs `08565260`: 0 shared coauthors (of 8/13), jaccard=0.00
+  - `43496124` vs `09921980`: 0 shared coauthors (of 8/35), jaccard=0.00
+  - `43496124` vs `09934067`: 0 shared coauthors (of 8/30), jaccard=0.00
+  - `43496124` vs `10274259`: 0 shared coauthors (of 8/240), jaccard=0.00
+  - `43496124` vs `10823142`: 0 shared coauthors (of 8/189), jaccard=0.00
+  - `43496124` vs `11384382`: 0 shared coauthors (of 8/29), jaccard=0.00
+  - `53412281` vs `60977723`: 5 shared coauthors (of 20/57), jaccard=0.07
+  - `53412281` vs `70857343`: 6 shared coauthors (of 20/42), jaccard=0.11
+  - `53412281` vs `72376954`: 0 shared coauthors (of 20/979), jaccard=0.00
+  - `53412281` vs `76375950`: 0 shared coauthors (of 20/68), jaccard=0.00
+  - `53412281` vs `88789180`: 0 shared coauthors (of 20/198), jaccard=0.00
+  - `53412281` vs `01695299`: 0 shared coauthors (of 20/32), jaccard=0.00
+  - `53412281` vs `07835449`: 0 shared coauthors (of 20/35), jaccard=0.00
+  - `53412281` vs `07888863`: 0 shared coauthors (of 20/19), jaccard=0.00
+  - `53412281` vs `08565260`: 0 shared coauthors (of 20/13), jaccard=0.00
+  - `53412281` vs `09921980`: 7 shared coauthors (of 20/35), jaccard=0.15
+  - `53412281` vs `09934067`: 3 shared coauthors (of 20/30), jaccard=0.06
+  - `53412281` vs `10274259`: 0 shared coauthors (of 20/240), jaccard=0.00
+  - `53412281` vs `10823142`: 0 shared coauthors (of 20/189), jaccard=0.00
+  - `53412281` vs `11384382`: 0 shared coauthors (of 20/29), jaccard=0.00
+  - `60977723` vs `70857343`: 19 shared coauthors (of 57/42), jaccard=0.24
+  - `60977723` vs `72376954`: 0 shared coauthors (of 57/979), jaccard=0.00
+  - `60977723` vs `76375950`: 0 shared coauthors (of 57/68), jaccard=0.00
+  - `60977723` vs `88789180`: 0 shared coauthors (of 57/198), jaccard=0.00
+  - `60977723` vs `01695299`: 0 shared coauthors (of 57/32), jaccard=0.00
+  - `60977723` vs `07835449`: 0 shared coauthors (of 57/35), jaccard=0.00
+  - `60977723` vs `07888863`: 0 shared coauthors (of 57/19), jaccard=0.00
+  - `60977723` vs `08565260`: 0 shared coauthors (of 57/13), jaccard=0.00
+  - `60977723` vs `09921980`: 11 shared coauthors (of 57/35), jaccard=0.14
+  - `60977723` vs `09934067`: 14 shared coauthors (of 57/30), jaccard=0.19
+  - `60977723` vs `10274259`: 0 shared coauthors (of 57/240), jaccard=0.00
+  - `60977723` vs `10823142`: 0 shared coauthors (of 57/189), jaccard=0.00
+  - `60977723` vs `11384382`: 0 shared coauthors (of 57/29), jaccard=0.00
+  - `70857343` vs `72376954`: 0 shared coauthors (of 42/979), jaccard=0.00
+  - `70857343` vs `76375950`: 0 shared coauthors (of 42/68), jaccard=0.00
+  - `70857343` vs `88789180`: 0 shared coauthors (of 42/198), jaccard=0.00
+  - `70857343` vs `01695299`: 2 shared coauthors (of 42/32), jaccard=0.03
+  - `70857343` vs `07835449`: 0 shared coauthors (of 42/35), jaccard=0.00
+  - `70857343` vs `07888863`: 0 shared coauthors (of 42/19), jaccard=0.00
+  - `70857343` vs `08565260`: 0 shared coauthors (of 42/13), jaccard=0.00
+  - `70857343` vs `09921980`: 9 shared coauthors (of 42/35), jaccard=0.13
+  - `70857343` vs `09934067`: 11 shared coauthors (of 42/30), jaccard=0.18
+  - `70857343` vs `10274259`: 0 shared coauthors (of 42/240), jaccard=0.00
+  - `70857343` vs `10823142`: 0 shared coauthors (of 42/189), jaccard=0.00
+  - `70857343` vs `11384382`: 0 shared coauthors (of 42/29), jaccard=0.00
+  - `72376954` vs `76375950`: 0 shared coauthors (of 979/68), jaccard=0.00
+  - `72376954` vs `88789180`: 1 shared coauthors (of 979/198), jaccard=0.00
+  - `72376954` vs `01695299`: 0 shared coauthors (of 979/32), jaccard=0.00
+  - `72376954` vs `07835449`: 0 shared coauthors (of 979/35), jaccard=0.00
+  - `72376954` vs `07888863`: 0 shared coauthors (of 979/19), jaccard=0.00
+  - `72376954` vs `08565260`: 0 shared coauthors (of 979/13), jaccard=0.00
+  - `72376954` vs `09921980`: 0 shared coauthors (of 979/35), jaccard=0.00
+  - `72376954` vs `09934067`: 0 shared coauthors (of 979/30), jaccard=0.00
+  - `72376954` vs `10274259`: 4 shared coauthors (of 979/240), jaccard=0.00
+  - `72376954` vs `10823142`: 3 shared coauthors (of 979/189), jaccard=0.00
+  - `72376954` vs `11384382`: 2 shared coauthors (of 979/29), jaccard=0.00
+  - `76375950` vs `88789180`: 0 shared coauthors (of 68/198), jaccard=0.00
+  - `76375950` vs `01695299`: 0 shared coauthors (of 68/32), jaccard=0.00
+  - `76375950` vs `07835449`: 0 shared coauthors (of 68/35), jaccard=0.00
+  - `76375950` vs `07888863`: 0 shared coauthors (of 68/19), jaccard=0.00
+  - `76375950` vs `08565260`: 0 shared coauthors (of 68/13), jaccard=0.00
+  - `76375950` vs `09921980`: 0 shared coauthors (of 68/35), jaccard=0.00
+  - `76375950` vs `09934067`: 0 shared coauthors (of 68/30), jaccard=0.00
+  - `76375950` vs `10274259`: 0 shared coauthors (of 68/240), jaccard=0.00
+  - `76375950` vs `10823142`: 0 shared coauthors (of 68/189), jaccard=0.00
+  - `76375950` vs `11384382`: 0 shared coauthors (of 68/29), jaccard=0.00
+  - `88789180` vs `01695299`: 0 shared coauthors (of 198/32), jaccard=0.00
+  - `88789180` vs `07835449`: 0 shared coauthors (of 198/35), jaccard=0.00
+  - `88789180` vs `07888863`: 0 shared coauthors (of 198/19), jaccard=0.00
+  - `88789180` vs `08565260`: 0 shared coauthors (of 198/13), jaccard=0.00
+  - `88789180` vs `09921980`: 0 shared coauthors (of 198/35), jaccard=0.00
+  - `88789180` vs `09934067`: 0 shared coauthors (of 198/30), jaccard=0.00
+  - `88789180` vs `10274259`: 118 shared coauthors (of 198/240), jaccard=0.37
+  - `88789180` vs `10823142`: 8 shared coauthors (of 198/189), jaccard=0.02
+  - `88789180` vs `11384382`: 0 shared coauthors (of 198/29), jaccard=0.00
+  - `01695299` vs `07835449`: 0 shared coauthors (of 32/35), jaccard=0.00
+  - `01695299` vs `07888863`: 0 shared coauthors (of 32/19), jaccard=0.00
+  - `01695299` vs `08565260`: 0 shared coauthors (of 32/13), jaccard=0.00
+  - `01695299` vs `09921980`: 0 shared coauthors (of 32/35), jaccard=0.00
+  - `01695299` vs `09934067`: 0 shared coauthors (of 32/30), jaccard=0.00
+  - `01695299` vs `10274259`: 0 shared coauthors (of 32/240), jaccard=0.00
+  - `01695299` vs `10823142`: 0 shared coauthors (of 32/189), jaccard=0.00
+  - `01695299` vs `11384382`: 0 shared coauthors (of 32/29), jaccard=0.00
+  - `07835449` vs `07888863`: 0 shared coauthors (of 35/19), jaccard=0.00
+  - `07835449` vs `08565260`: 0 shared coauthors (of 35/13), jaccard=0.00
+  - `07835449` vs `09921980`: 0 shared coauthors (of 35/35), jaccard=0.00
+  - `07835449` vs `09934067`: 0 shared coauthors (of 35/30), jaccard=0.00
+  - `07835449` vs `10274259`: 0 shared coauthors (of 35/240), jaccard=0.00
+  - `07835449` vs `10823142`: 7 shared coauthors (of 35/189), jaccard=0.03
+  - `07835449` vs `11384382`: 0 shared coauthors (of 35/29), jaccard=0.00
+  - `07888863` vs `08565260`: 0 shared coauthors (of 19/13), jaccard=0.00
+  - `07888863` vs `09921980`: 0 shared coauthors (of 19/35), jaccard=0.00
+  - `07888863` vs `09934067`: 0 shared coauthors (of 19/30), jaccard=0.00
+  - `07888863` vs `10274259`: 0 shared coauthors (of 19/240), jaccard=0.00
+  - `07888863` vs `10823142`: 0 shared coauthors (of 19/189), jaccard=0.00
+  - `07888863` vs `11384382`: 0 shared coauthors (of 19/29), jaccard=0.00
+  - `08565260` vs `09921980`: 0 shared coauthors (of 13/35), jaccard=0.00
+  - `08565260` vs `09934067`: 0 shared coauthors (of 13/30), jaccard=0.00
+  - `08565260` vs `10274259`: 0 shared coauthors (of 13/240), jaccard=0.00
+  - `08565260` vs `10823142`: 0 shared coauthors (of 13/189), jaccard=0.00
+  - `08565260` vs `11384382`: 0 shared coauthors (of 13/29), jaccard=0.00
+  - `09921980` vs `09934067`: 9 shared coauthors (of 35/30), jaccard=0.16
+  - `09921980` vs `10274259`: 0 shared coauthors (of 35/240), jaccard=0.00
+  - `09921980` vs `10823142`: 0 shared coauthors (of 35/189), jaccard=0.00
+  - `09921980` vs `11384382`: 0 shared coauthors (of 35/29), jaccard=0.00
+  - `09934067` vs `10274259`: 0 shared coauthors (of 30/240), jaccard=0.00
+  - `09934067` vs `10823142`: 0 shared coauthors (of 30/189), jaccard=0.00
+  - `09934067` vs `11384382`: 0 shared coauthors (of 30/29), jaccard=0.00
+  - `10274259` vs `10823142`: 4 shared coauthors (of 240/189), jaccard=0.01
+  - `10274259` vs `11384382`: 0 shared coauthors (of 240/29), jaccard=0.00
+  - `10823142` vs `11384382`: 0 shared coauthors (of 189/29), jaccard=0.00
+
+### 8. G. Jarlskog — best match_probability 0.999 (6 records)
+
+- **G. Jarlskog** — Lund, SE — active 1973–2002 — 36 quantum papers — `https://openalex.org/A5014321085`
+- **Linda Jarlskog** — Lund, SE — active 2000–2003 — 4 quantum papers — `https://openalex.org/A5062598306`
+- **Cecilia Jarlskog** — Lund, SE — active 1966–2015 — 26 quantum papers — `https://openalex.org/A5069097871`
+- **G. Jarlskog** — Lund, SE — active 1976–1992 — 6 quantum papers — `https://openalex.org/A5107835780`
+- **G. Jarlskog** — Lund, SE — active 1973–1992 — 8 quantum papers — `https://openalex.org/A5107925079`
+- **Ch. Jarlskog** — Lund, SE — active 1967–2006 — 4 quantum papers — `https://openalex.org/A5110273402`
+  
+  Coauthor overlap:
+  - `14321085` vs `62598306`: 0 shared coauthors (of 313/15), jaccard=0.00
+  - `14321085` vs `69097871`: 0 shared coauthors (of 313/5), jaccard=0.00
+  - `14321085` vs `07835780`: 82 shared coauthors (of 313/207), jaccard=0.19
+  - `14321085` vs `07925079`: 137 shared coauthors (of 313/256), jaccard=0.32
+  - `14321085` vs `10273402`: 0 shared coauthors (of 313/1), jaccard=0.00
+  - `62598306` vs `69097871`: 0 shared coauthors (of 15/5), jaccard=0.00
+  - `62598306` vs `07835780`: 0 shared coauthors (of 15/207), jaccard=0.00
+  - `62598306` vs `07925079`: 0 shared coauthors (of 15/256), jaccard=0.00
+  - `62598306` vs `10273402`: 0 shared coauthors (of 15/1), jaccard=0.00
+  - `69097871` vs `07835780`: 0 shared coauthors (of 5/207), jaccard=0.00
+  - `69097871` vs `07925079`: 0 shared coauthors (of 5/256), jaccard=0.00
+  - `69097871` vs `10273402`: 0 shared coauthors (of 5/1), jaccard=0.00
+  - `07835780` vs `07925079`: 142 shared coauthors (of 207/256), jaccard=0.44
+  - `07835780` vs `10273402`: 0 shared coauthors (of 207/1), jaccard=0.00
+  - `07925079` vs `10273402`: 0 shared coauthors (of 256/1), jaccard=0.00
+
+### 9. T. Alt — best match_probability 0.999 (8 records)
+
+- **T. Alt** — University of Bergen (UiB), DE — active 2008–2026 — 118 quantum papers — `https://openalex.org/A5017974378`
+- **T. Alt** — University of Bergen (UiB), NO — active 2014–2025 — 5 quantum papers — `https://openalex.org/A5105178561`
+- **T. Alt** — University of Bergen (UiB), NO — active 2012–2024 — 9 quantum papers — `https://openalex.org/A5107828053`
+- **T. Alt** — University of Bergen (UiB), NO — active 2018–2024 — 9 quantum papers — `https://openalex.org/A5107884467`
+- **T. Alt** — University of Bergen (UiB), NO — active 2017–2025 — 11 quantum papers — `https://openalex.org/A5107887993`
+- **T. Alt** — University of Bergen (UiB), NO — active 2014–2022 — 18 quantum papers — `https://openalex.org/A5107913991`
+- **T. Alt** — University of Bergen (UiB), NO — active 2014–2021 — 4 quantum papers — `https://openalex.org/A5108536177`
+- **T. Alt** — University of Bergen (UiB), NO — active 2013–2021 — 17 quantum papers — `https://openalex.org/A5141683563`
+  
+  Coauthor overlap:
+  - `17974378` vs `05178561`: 238 shared coauthors (of 903/289), jaccard=0.25
+  - `17974378` vs `07828053`: 355 shared coauthors (of 903/428), jaccard=0.36
+  - `17974378` vs `07884467`: 335 shared coauthors (of 903/382), jaccard=0.35
+  - `17974378` vs `07887993`: 358 shared coauthors (of 903/403), jaccard=0.38
+  - `17974378` vs `07913991`: 351 shared coauthors (of 903/420), jaccard=0.36
+  - `17974378` vs `08536177`: 196 shared coauthors (of 903/236), jaccard=0.21
+  - `17974378` vs `41683563`: 363 shared coauthors (of 903/426), jaccard=0.38
+  - `05178561` vs `07828053`: 175 shared coauthors (of 289/428), jaccard=0.32
+  - `05178561` vs `07884467`: 174 shared coauthors (of 289/382), jaccard=0.35
+  - `05178561` vs `07887993`: 181 shared coauthors (of 289/403), jaccard=0.35
+  - `05178561` vs `07913991`: 177 shared coauthors (of 289/420), jaccard=0.33
+  - `05178561` vs `08536177`: 111 shared coauthors (of 289/236), jaccard=0.27
+  - `05178561` vs `41683563`: 173 shared coauthors (of 289/426), jaccard=0.32
+  - `07828053` vs `07884467`: 234 shared coauthors (of 428/382), jaccard=0.41
+  - `07828053` vs `07887993`: 242 shared coauthors (of 428/403), jaccard=0.41
+  - `07828053` vs `07913991`: 251 shared coauthors (of 428/420), jaccard=0.42
+  - `07828053` vs `08536177`: 148 shared coauthors (of 428/236), jaccard=0.29
+  - `07828053` vs `41683563`: 241 shared coauthors (of 428/426), jaccard=0.39
+  - `07884467` vs `07887993`: 241 shared coauthors (of 382/403), jaccard=0.44
+  - `07884467` vs `07913991`: 252 shared coauthors (of 382/420), jaccard=0.46
+  - `07884467` vs `08536177`: 142 shared coauthors (of 382/236), jaccard=0.30
+  - `07884467` vs `41683563`: 220 shared coauthors (of 382/426), jaccard=0.37
+  - `07887993` vs `07913991`: 234 shared coauthors (of 403/420), jaccard=0.40
+  - `07887993` vs `08536177`: 126 shared coauthors (of 403/236), jaccard=0.25
+  - `07887993` vs `41683563`: 221 shared coauthors (of 403/426), jaccard=0.36
+  - `07913991` vs `08536177`: 166 shared coauthors (of 420/236), jaccard=0.34
+  - `07913991` vs `41683563`: 280 shared coauthors (of 420/426), jaccard=0.49
+  - `08536177` vs `41683563`: 174 shared coauthors (of 236/426), jaccard=0.36
+
+### 10. J. M. Wills — best match_probability 0.999 (2 records)
+
+- **J. M. Wills** — Uppsala University, US — active 1992–2007 — 11 quantum papers — `https://openalex.org/A5109865662`
+- **J. M. Wills** — Uppsala University, US — active 1992–2012 — 37 quantum papers — `https://openalex.org/A5115603841`
+  
+  Coauthor overlap:
+  - `09865662` vs `15603841`: 18 shared coauthors (of 26/59), jaccard=0.27
+
+### 11. I.C. Arsene — best match_probability 0.999 (10 records)
+
+- **I.C. Arsene** — University of Oslo (UiO), NO — active 2023–2023 — 4 quantum papers — `https://openalex.org/A5007841988`
+- **I. C. Arsene** — University of Oslo (UiO), NO — active 2006–2026 — 115 quantum papers — `https://openalex.org/A5104519189`
+- **I. C. Arsene** — University of Oslo (UiO), NO — active 2019–2022 — 5 quantum papers — `https://openalex.org/A5105629884`
+- **I. C. Arsene** — University of Oslo (UiO), NO — active 2018–2020 — 6 quantum papers — `https://openalex.org/A5106558829`
+- **I. C. Arsene** — University of Oslo (UiO), NO — active 2022–2025 — 4 quantum papers — `https://openalex.org/A5106922971`
+- **I. C. Arsene** — University of Oslo (UiO), NO — active 2018–2021 — 4 quantum papers — `https://openalex.org/A5107640407`
+- **I. C. Arsene** — University of Oslo (UiO), NO — active 2004–2021 — 29 quantum papers — `https://openalex.org/A5107857615`
+- **I. C. Arsene** — University of Oslo (UiO), NO — active 2007–2024 — 11 quantum papers — `https://openalex.org/A5107858055`
+- **I. C. Arsene** — University of Oslo (UiO), NO — active 2014–2025 — 8 quantum papers — `https://openalex.org/A5108102732`
+- **I. C. Arsene** — University of Oslo (UiO), NO — active 2017–2025 — 21 quantum papers — `https://openalex.org/A5112367125`
+  
+  Coauthor overlap:
+  - `07841988` vs `04519189`: 4 shared coauthors (of 221/946), jaccard=0.00
+  - `07841988` vs `05629884`: 2 shared coauthors (of 221/276), jaccard=0.00
+  - `07841988` vs `06558829`: 0 shared coauthors (of 221/242), jaccard=0.00
+  - `07841988` vs `06922971`: 62 shared coauthors (of 221/303), jaccard=0.13
+  - `07841988` vs `07640407`: 1 shared coauthors (of 221/245), jaccard=0.00
+  - `07841988` vs `07857615`: 4 shared coauthors (of 221/504), jaccard=0.01
+  - `07841988` vs `07858055`: 68 shared coauthors (of 221/447), jaccard=0.11
+  - `07841988` vs `08102732`: 1 shared coauthors (of 221/401), jaccard=0.00
+  - `07841988` vs `12367125`: 62 shared coauthors (of 221/571), jaccard=0.08
+  - `04519189` vs `05629884`: 242 shared coauthors (of 946/276), jaccard=0.25
+  - `04519189` vs `06558829`: 219 shared coauthors (of 946/242), jaccard=0.23
+  - `04519189` vs `06922971`: 169 shared coauthors (of 946/303), jaccard=0.16
+  - `04519189` vs `07640407`: 208 shared coauthors (of 946/245), jaccard=0.21
+  - `04519189` vs `07857615`: 374 shared coauthors (of 946/504), jaccard=0.35
+  - `04519189` vs `07858055`: 286 shared coauthors (of 946/447), jaccard=0.26
+  - `04519189` vs `08102732`: 305 shared coauthors (of 946/401), jaccard=0.29
+  - `04519189` vs `12367125`: 355 shared coauthors (of 946/571), jaccard=0.31
+  - `05629884` vs `06558829`: 143 shared coauthors (of 276/242), jaccard=0.38
+  - `05629884` vs `06922971`: 105 shared coauthors (of 276/303), jaccard=0.22
+  - `05629884` vs `07640407`: 139 shared coauthors (of 276/245), jaccard=0.36
+  - `05629884` vs `07857615`: 178 shared coauthors (of 276/504), jaccard=0.30
+  - `05629884` vs `07858055`: 178 shared coauthors (of 276/447), jaccard=0.33
+  - `05629884` vs `08102732`: 135 shared coauthors (of 276/401), jaccard=0.25
+  - `05629884` vs `12367125`: 196 shared coauthors (of 276/571), jaccard=0.30
+  - `06558829` vs `06922971`: 97 shared coauthors (of 242/303), jaccard=0.22
+  - `06558829` vs `07640407`: 146 shared coauthors (of 242/245), jaccard=0.43
+  - `06558829` vs `07857615`: 176 shared coauthors (of 242/504), jaccard=0.31
+  - `06558829` vs `07858055`: 155 shared coauthors (of 242/447), jaccard=0.29
+  - `06558829` vs `08102732`: 145 shared coauthors (of 242/401), jaccard=0.29
+  - `06558829` vs `12367125`: 182 shared coauthors (of 242/571), jaccard=0.29
+  - `06922971` vs `07640407`: 100 shared coauthors (of 303/245), jaccard=0.22
+  - `06922971` vs `07857615`: 113 shared coauthors (of 303/504), jaccard=0.16
+  - `06922971` vs `07858055`: 161 shared coauthors (of 303/447), jaccard=0.27
+  - `06922971` vs `08102732`: 129 shared coauthors (of 303/401), jaccard=0.22
+  - `06922971` vs `12367125`: 170 shared coauthors (of 303/571), jaccard=0.24
+  - `07640407` vs `07857615`: 160 shared coauthors (of 245/504), jaccard=0.27
+  - `07640407` vs `07858055`: 148 shared coauthors (of 245/447), jaccard=0.27
+  - `07640407` vs `08102732`: 128 shared coauthors (of 245/401), jaccard=0.25
+  - `07640407` vs `12367125`: 178 shared coauthors (of 245/571), jaccard=0.28
+  - `07857615` vs `07858055`: 200 shared coauthors (of 504/447), jaccard=0.27
+  - `07857615` vs `08102732`: 223 shared coauthors (of 504/401), jaccard=0.33
+  - `07857615` vs `12367125`: 258 shared coauthors (of 504/571), jaccard=0.32
+  - `07858055` vs `08102732`: 185 shared coauthors (of 447/401), jaccard=0.28
+  - `07858055` vs `12367125`: 282 shared coauthors (of 447/571), jaccard=0.38
+  - `08102732` vs `12367125`: 214 shared coauthors (of 401/571), jaccard=0.28
+
+### 12. I. A. Shelykh — best match_probability 0.999 (7 records)
+
+- **I. A. Shelykh** — University of Iceland, IS — active 2022–2023 — 4 quantum papers — `https://openalex.org/A5019021389`
+- **I. A. Shelykh** — University of Iceland, IS — active 2013–2024 — 4 quantum papers — `https://openalex.org/A5046681383`
+- **I. A. Shelykh** — University of Iceland, IS — active 2011–2016 — 13 quantum papers — `https://openalex.org/A5054937582`
+- **I. A. Shelykh** — University of Iceland, IS — active 2015–2023 — 4 quantum papers — `https://openalex.org/A5063058671`
+- **I. A. Shelykh** — University of Iceland, IS — active 2008–2026 — 197 quantum papers — `https://openalex.org/A5072010728`
+- **Ivan A. Shelykh** — University of Iceland, IS — active 2012–2022 — 7 quantum papers — `https://openalex.org/A5109591681`
+- **I. A. Shelykh** — University of Iceland, IS — active 2011–2015 — 6 quantum papers — `https://openalex.org/A5111805441`
+  
+  Coauthor overlap:
+  - `19021389` vs `46681383`: 0 shared coauthors (of 14/5), jaccard=0.00
+  - `19021389` vs `54937582`: 0 shared coauthors (of 14/33), jaccard=0.00
+  - `19021389` vs `63058671`: 3 shared coauthors (of 14/12), jaccard=0.13
+  - `19021389` vs `72010728`: 8 shared coauthors (of 14/293), jaccard=0.03
+  - `19021389` vs `09591681`: 0 shared coauthors (of 14/26), jaccard=0.00
+  - `19021389` vs `11805441`: 0 shared coauthors (of 14/22), jaccard=0.00
+  - `46681383` vs `54937582`: 3 shared coauthors (of 5/33), jaccard=0.09
+  - `46681383` vs `63058671`: 1 shared coauthors (of 5/12), jaccard=0.06
+  - `46681383` vs `72010728`: 4 shared coauthors (of 5/293), jaccard=0.01
+  - `46681383` vs `09591681`: 1 shared coauthors (of 5/26), jaccard=0.03
+  - `46681383` vs `11805441`: 3 shared coauthors (of 5/22), jaccard=0.12
+  - `54937582` vs `63058671`: 0 shared coauthors (of 33/12), jaccard=0.00
+  - `54937582` vs `72010728`: 26 shared coauthors (of 33/293), jaccard=0.09
+  - `54937582` vs `09591681`: 1 shared coauthors (of 33/26), jaccard=0.02
+  - `54937582` vs `11805441`: 8 shared coauthors (of 33/22), jaccard=0.17
+  - `63058671` vs `72010728`: 9 shared coauthors (of 12/293), jaccard=0.03
+  - `63058671` vs `09591681`: 2 shared coauthors (of 12/26), jaccard=0.06
+  - `63058671` vs `11805441`: 1 shared coauthors (of 12/22), jaccard=0.03
+  - `72010728` vs `09591681`: 15 shared coauthors (of 293/26), jaccard=0.05
+  - `72010728` vs `11805441`: 13 shared coauthors (of 293/22), jaccard=0.04
+  - `09591681` vs `11805441`: 1 shared coauthors (of 26/22), jaccard=0.02
+
+### 13. Apoorv Tiwari — best match_probability 0.999 (2 records)
+
+- **Apoorv Tiwari** — KTH, SE — active 2022–2024 — 7 quantum papers — `https://openalex.org/A5049528930`
+- **Apoorv Tiwari** — KTH, SE — active 2022–2025 — 9 quantum papers — `https://openalex.org/A5081488584`
+  
+  Coauthor overlap:
+  - `49528930` vs `81488584`: 3 shared coauthors (of 13/11), jaccard=0.14
+
+### 14. P. O. Holtz — best match_probability 0.999 (6 records)
+
+- **P. O. Holtz** — Linköping University, SE — active 1984–2010 — 18 quantum papers — `https://openalex.org/A5003844580`
+- **P. O. Holtz** — Linköping University, SE — active 1987–2011 — 11 quantum papers — `https://openalex.org/A5028584173`
+- **P. O. Holtz** — Linköping University, SE — active 1985–2016 — 110 quantum papers — `https://openalex.org/A5109343886`
+- **Per-Olof Holtz** — Linköping University, SE — active 2001–2021 — 8 quantum papers — `https://openalex.org/A5109530051`
+- **P. O. Holtz** — Linköping University, SE — active 1986–2016 — 60 quantum papers — `https://openalex.org/A5111819995`
+- **Per Olof Holtz** — Linköping University, SE — active 1998–2017 — 24 quantum papers — `https://openalex.org/A5112088212`
+  
+  Coauthor overlap:
+  - `03844580` vs `28584173`: 24 shared coauthors (of 52/44), jaccard=0.33
+  - `03844580` vs `09343886`: 35 shared coauthors (of 52/193), jaccard=0.17
+  - `03844580` vs `09530051`: 8 shared coauthors (of 52/28), jaccard=0.11
+  - `03844580` vs `11819995`: 31 shared coauthors (of 52/147), jaccard=0.18
+  - `03844580` vs `12088212`: 7 shared coauthors (of 52/53), jaccard=0.07
+  - `28584173` vs `09343886`: 34 shared coauthors (of 44/193), jaccard=0.17
+  - `28584173` vs `09530051`: 7 shared coauthors (of 44/28), jaccard=0.11
+  - `28584173` vs `11819995`: 28 shared coauthors (of 44/147), jaccard=0.17
+  - `28584173` vs `12088212`: 11 shared coauthors (of 44/53), jaccard=0.13
+  - `09343886` vs `09530051`: 12 shared coauthors (of 193/28), jaccard=0.06
+  - `09343886` vs `11819995`: 93 shared coauthors (of 193/147), jaccard=0.38
+  - `09343886` vs `12088212`: 24 shared coauthors (of 193/53), jaccard=0.11
+  - `09530051` vs `11819995`: 16 shared coauthors (of 28/147), jaccard=0.10
+  - `09530051` vs `12088212`: 8 shared coauthors (of 28/53), jaccard=0.11
+  - `11819995` vs `12088212`: 19 shared coauthors (of 147/53), jaccard=0.10
+
+### 15. M.E. Sainio — best match_probability 0.999 (2 records)
+
+- **M.E. Sainio** — University of Helsinki, FI — active 1979–2010 — 22 quantum papers — `https://openalex.org/A5030482945`
+- **M.E. Sainio** — University of Helsinki, FI — active 1978–1982 — 5 quantum papers — `https://openalex.org/A5088342217`
+  
+  Coauthor overlap:
+  - `30482945` vs `88342217`: 1 shared coauthors (of 19/6), jaccard=0.04
+
+### 16. J. Blomqvist — best match_probability 0.999 (2 records)
+
+- **J. Blomqvist** — KTH, SE — active 1968–2012 — 15 quantum papers — `https://openalex.org/A5080993666`
+- **J. Blomqvist** — KTH, SE — active 1967–2002 — 8 quantum papers — `https://openalex.org/A5083847664`
+  
+  Coauthor overlap:
+  - `80993666` vs `83847664`: 0 shared coauthors (of 14/0), jaccard=0.00
+
+### 17. Jesper N. Andersen — best match_probability 0.999 (3 records)
+
+- **Jesper N. Andersen** — Lund, SE — active 2001–2016 — 10 quantum papers — `https://openalex.org/A5106034636`
+- **J. N. Andersen** — Lund, SE — active 1991–2006 — 9 quantum papers — `https://openalex.org/A5109077563`
+- **J. N. Andersen** — Lund, SE — active 1992–2012 — 8 quantum papers — `https://openalex.org/A5109945283`
+  
+  Coauthor overlap:
+  - `06034636` vs `09077563`: 5 shared coauthors (of 35/30), jaccard=0.08
+  - `06034636` vs `09945283`: 6 shared coauthors (of 35/40), jaccard=0.09
+  - `09077563` vs `09945283`: 11 shared coauthors (of 30/40), jaccard=0.19
+
+### 18. S. Garpman — best match_probability 0.999 (2 records)
+
+- **S. Garpman** — Lund, SE — active 1982–2012 — 46 quantum papers — `https://openalex.org/A5023906312`
+- **S. Garpman** — Lund, SE — active 1983–2006 — 32 quantum papers — `https://openalex.org/A5037377033`
+  
+  Coauthor overlap:
+  - `23906312` vs `37377033`: 501 shared coauthors (of 706/713), jaccard=0.55
+
+### 19. П. Нордблад — best match_probability 0.999 (2 records)
+
+- **П. Нордблад** — Uppsala University, SE — active 1988–2022 — 25 quantum papers — `https://openalex.org/A5037782009`
+- **П. Нордблад** — Uppsala University, SE — active 1990–2016 — 11 quantum papers — `https://openalex.org/A5072131058`
+  
+  Coauthor overlap:
+  - `37782009` vs `72131058`: 25 shared coauthors (of 75/43), jaccard=0.27
+
+### 20. A. Bilandzic — best match_probability 0.999 (2 records)
+
+- **A. Bilandzic** — University of Copenhagen, DE — active 2009–2026 — 31 quantum papers — `https://openalex.org/A5049364965`
+- **A. Bilandzic** — University of Copenhagen, DE — active 2010–2019 — 16 quantum papers — `https://openalex.org/A5107901112`
+  
+  Coauthor overlap:
+  - `49364965` vs `07901112`: 260 shared coauthors (of 446/480), jaccard=0.39
+
+### 21. B. Monemar — best match_probability 0.999 (4 records)
+
+- **B. Monemar** — Linköping University, SE — active 1988–2016 — 21 quantum papers — `https://openalex.org/A5005656811`
+- **B. Monemar** — Linköping University, SE — active 1986–2013 — 14 quantum papers — `https://openalex.org/A5050896389`
+- **Bo Monemar** — Linköping University, SE — active 1988–2018 — 48 quantum papers — `https://openalex.org/A5108438998`
+- **B. Ḿonemar** — Linköping University, SE — active 1984–2014 — 316 quantum papers — `https://openalex.org/A5113633482`
+  
+  Coauthor overlap:
+  - `05656811` vs `50896389`: 22 shared coauthors (of 61/54), jaccard=0.24
+  - `05656811` vs `08438998`: 23 shared coauthors (of 61/145), jaccard=0.13
+  - `05656811` vs `13633482`: 42 shared coauthors (of 61/366), jaccard=0.11
+  - `50896389` vs `08438998`: 23 shared coauthors (of 54/145), jaccard=0.13
+  - `50896389` vs `13633482`: 49 shared coauthors (of 54/366), jaccard=0.13
+  - `08438998` vs `13633482`: 82 shared coauthors (of 145/366), jaccard=0.19
+
+### 22. E.R. Christensen — best match_probability 0.999 (21 records)
+
+- **E.R. Christensen** — Aarhus University, DK — active 2018–2026 — 8 quantum papers — `https://openalex.org/A5016036202`
+- **Morten Christensen** — Technical University of Denmark (DTU), DK — active 2013–2025 — 7 quantum papers — `https://openalex.org/A5020393994`
+- **Jesper B. Christensen** — Technical University of Denmark (DTU), DK — active 2015–2021 — 22 quantum papers — `https://openalex.org/A5027514863`
+- **N. E. Christensen** — Aarhus University, DK — active 1990–2016 — 30 quantum papers — `https://openalex.org/A5027519108`
+- **Morten H. Christensen** — University of Copenhagen, DK — active 2014–2024 — 16 quantum papers — `https://openalex.org/A5029860274`
+- **Anders S. Christensen** — University of Copenhagen, DK — active 2011–2021 — 13 quantum papers — `https://openalex.org/A5032294761`
+- **Rasmus B. Christensen** — Technical University of Denmark (DTU), DK — active 2013–2016 — 4 quantum papers — `https://openalex.org/A5042257913`
+- **Jørn B. Christensen** — University of Copenhagen, DK — active 1990–2023 — 16 quantum papers — `https://openalex.org/A5045150424`
+- **Erik Christensen** — University of Copenhagen, DK — active 1980–2023 — 15 quantum papers — `https://openalex.org/A5056562596`
+- **D.H. Christensen** — University of Copenhagen, DK — active 1979–2000 — 5 quantum papers — `https://openalex.org/A5058388133`
+- **Ole Christensen** — Technical University of Denmark (DTU), DK — active 1997–2023 — 8 quantum papers — `https://openalex.org/A5066067609`
+- **N. B. Christensen** — Technical University of Denmark (DTU), DK — active 2007–2025 — 28 quantum papers — `https://openalex.org/A5068780032`
+- **Bjarke T. R. Christensen** — University of Copenhagen, DK — active 2014–2021 — 8 quantum papers — `https://openalex.org/A5076559825`
+- **Rasmus Søgaard Christensen** — Aarhus University, DK — active 2015–2016 — 4 quantum papers — `https://openalex.org/A5086462850`
+- **N. E. Christensen** — Aarhus University, DK — active 1991–2013 — 24 quantum papers — `https://openalex.org/A5100886400`
+- **N. E. Christensen** — Aarhus University, DK — active 1992–2019 — 31 quantum papers — `https://openalex.org/A5103146715`
+- **Erik N. Christensen** — Technical University of Denmark (DTU), DK — active 2017–2024 — 11 quantum papers — `https://openalex.org/A5103204463`
+- **P. R. Christensen** — University of Copenhagen, DK — active 1970–2015 — 5 quantum papers — `https://openalex.org/A5107919220`
+- **Daniel H. Christensen** — University of Copenhagen, DK — active 1967–2003 — 14 quantum papers — `https://openalex.org/A5110169226`
+- **Lauge Christensen** — Aarhus University, DK — active 2014–2020 — 7 quantum papers — `https://openalex.org/A5111617116`
+- **C. H. Christensen** — University of Copenhagen, DK — active 2001–2007 — 11 quantum papers — `https://openalex.org/A5114374859`
+  
+  Coauthor overlap:
+  - `16036202` vs `20393994`: 0 shared coauthors (of 11/82), jaccard=0.00
+  - `16036202` vs `27514863`: 0 shared coauthors (of 11/22), jaccard=0.00
+  - `16036202` vs `27519108`: 0 shared coauthors (of 11/67), jaccard=0.00
+  - `16036202` vs `29860274`: 0 shared coauthors (of 11/60), jaccard=0.00
+  - `16036202` vs `32294761`: 0 shared coauthors (of 11/10), jaccard=0.00
+  - `16036202` vs `42257913`: 0 shared coauthors (of 11/6), jaccard=0.00
+  - `16036202` vs `45150424`: 0 shared coauthors (of 11/40), jaccard=0.00
+  - `16036202` vs `56562596`: 0 shared coauthors (of 11/10), jaccard=0.00
+  - `16036202` vs `58388133`: 0 shared coauthors (of 11/19), jaccard=0.00
+  - `16036202` vs `66067609`: 0 shared coauthors (of 11/6), jaccard=0.00
+  - `16036202` vs `68780032`: 0 shared coauthors (of 11/218), jaccard=0.00
+  - `16036202` vs `76559825`: 0 shared coauthors (of 11/12), jaccard=0.00
+  - `16036202` vs `86462850`: 1 shared coauthors (of 11/12), jaccard=0.05
+  - `16036202` vs `00886400`: 0 shared coauthors (of 11/49), jaccard=0.00
+  - `16036202` vs `03146715`: 0 shared coauthors (of 11/80), jaccard=0.00
+  - `16036202` vs `03204463`: 0 shared coauthors (of 11/25), jaccard=0.00
+  - `16036202` vs `07919220`: 0 shared coauthors (of 11/110), jaccard=0.00
+  - `16036202` vs `10169226`: 0 shared coauthors (of 11/39), jaccard=0.00
+  - `16036202` vs `11617116`: 0 shared coauthors (of 11/46), jaccard=0.00
+  - `16036202` vs `14374859`: 0 shared coauthors (of 11/144), jaccard=0.00
+  - `20393994` vs `27514863`: 0 shared coauthors (of 82/22), jaccard=0.00
+  - `20393994` vs `27519108`: 0 shared coauthors (of 82/67), jaccard=0.00
+  - `20393994` vs `29860274`: 0 shared coauthors (of 82/60), jaccard=0.00
+  - `20393994` vs `32294761`: 0 shared coauthors (of 82/10), jaccard=0.00
+  - `20393994` vs `42257913`: 0 shared coauthors (of 82/6), jaccard=0.00
+  - `20393994` vs `45150424`: 1 shared coauthors (of 82/40), jaccard=0.01
+  - `20393994` vs `56562596`: 0 shared coauthors (of 82/10), jaccard=0.00
+  - `20393994` vs `58388133`: 0 shared coauthors (of 82/19), jaccard=0.00
+  - `20393994` vs `66067609`: 0 shared coauthors (of 82/6), jaccard=0.00
+  - `20393994` vs `68780032`: 1 shared coauthors (of 82/218), jaccard=0.00
+  - `20393994` vs `76559825`: 0 shared coauthors (of 82/12), jaccard=0.00
+  - `20393994` vs `86462850`: 0 shared coauthors (of 82/12), jaccard=0.00
+  - `20393994` vs `00886400`: 0 shared coauthors (of 82/49), jaccard=0.00
+  - `20393994` vs `03146715`: 0 shared coauthors (of 82/80), jaccard=0.00
+  - `20393994` vs `03204463`: 0 shared coauthors (of 82/25), jaccard=0.00
+  - `20393994` vs `07919220`: 0 shared coauthors (of 82/110), jaccard=0.00
+  - `20393994` vs `10169226`: 0 shared coauthors (of 82/39), jaccard=0.00
+  - `20393994` vs `11617116`: 0 shared coauthors (of 82/46), jaccard=0.00
+  - `20393994` vs `14374859`: 0 shared coauthors (of 82/144), jaccard=0.00
+  - `27514863` vs `27519108`: 0 shared coauthors (of 22/67), jaccard=0.00
+  - `27514863` vs `29860274`: 0 shared coauthors (of 22/60), jaccard=0.00
+  - `27514863` vs `32294761`: 0 shared coauthors (of 22/10), jaccard=0.00
+  - `27514863` vs `42257913`: 0 shared coauthors (of 22/6), jaccard=0.00
+  - `27514863` vs `45150424`: 0 shared coauthors (of 22/40), jaccard=0.00
+  - `27514863` vs `56562596`: 0 shared coauthors (of 22/10), jaccard=0.00
+  - `27514863` vs `58388133`: 0 shared coauthors (of 22/19), jaccard=0.00
+  - `27514863` vs `66067609`: 0 shared coauthors (of 22/6), jaccard=0.00
+  - `27514863` vs `68780032`: 0 shared coauthors (of 22/218), jaccard=0.00
+  - `27514863` vs `76559825`: 0 shared coauthors (of 22/12), jaccard=0.00
+  - `27514863` vs `86462850`: 0 shared coauthors (of 22/12), jaccard=0.00
+  - `27514863` vs `00886400`: 0 shared coauthors (of 22/49), jaccard=0.00
+  - `27514863` vs `03146715`: 0 shared coauthors (of 22/80), jaccard=0.00
+  - `27514863` vs `03204463`: 8 shared coauthors (of 22/25), jaccard=0.21
+  - `27514863` vs `07919220`: 0 shared coauthors (of 22/110), jaccard=0.00
+  - `27514863` vs `10169226`: 0 shared coauthors (of 22/39), jaccard=0.00
+  - `27514863` vs `11617116`: 0 shared coauthors (of 22/46), jaccard=0.00
+  - `27514863` vs `14374859`: 0 shared coauthors (of 22/144), jaccard=0.00
+  - `27519108` vs `29860274`: 0 shared coauthors (of 67/60), jaccard=0.00
+  - `27519108` vs `32294761`: 0 shared coauthors (of 67/10), jaccard=0.00
+  - `27519108` vs `42257913`: 0 shared coauthors (of 67/6), jaccard=0.00
+  - `27519108` vs `45150424`: 0 shared coauthors (of 67/40), jaccard=0.00
+  - `27519108` vs `56562596`: 0 shared coauthors (of 67/10), jaccard=0.00
+  - `27519108` vs `58388133`: 0 shared coauthors (of 67/19), jaccard=0.00
+  - `27519108` vs `66067609`: 0 shared coauthors (of 67/6), jaccard=0.00
+  - `27519108` vs `68780032`: 0 shared coauthors (of 67/218), jaccard=0.00
+  - `27519108` vs `76559825`: 0 shared coauthors (of 67/12), jaccard=0.00
+  - `27519108` vs `86462850`: 0 shared coauthors (of 67/12), jaccard=0.00
+  - `27519108` vs `00886400`: 25 shared coauthors (of 67/49), jaccard=0.27
+  - `27519108` vs `03146715`: 25 shared coauthors (of 67/80), jaccard=0.20
+  - `27519108` vs `03204463`: 0 shared coauthors (of 67/25), jaccard=0.00
+  - `27519108` vs `07919220`: 0 shared coauthors (of 67/110), jaccard=0.00
+  - `27519108` vs `10169226`: 0 shared coauthors (of 67/39), jaccard=0.00
+  - `27519108` vs `11617116`: 0 shared coauthors (of 67/46), jaccard=0.00
+  - `27519108` vs `14374859`: 0 shared coauthors (of 67/144), jaccard=0.00
+  - `29860274` vs `32294761`: 0 shared coauthors (of 60/10), jaccard=0.00
+  - `29860274` vs `42257913`: 0 shared coauthors (of 60/6), jaccard=0.00
+  - `29860274` vs `45150424`: 0 shared coauthors (of 60/40), jaccard=0.00
+  - `29860274` vs `56562596`: 0 shared coauthors (of 60/10), jaccard=0.00
+  - `29860274` vs `58388133`: 0 shared coauthors (of 60/19), jaccard=0.00
+  - `29860274` vs `66067609`: 0 shared coauthors (of 60/6), jaccard=0.00
+  - `29860274` vs `68780032`: 2 shared coauthors (of 60/218), jaccard=0.01
+  - `29860274` vs `76559825`: 0 shared coauthors (of 60/12), jaccard=0.00
+  - `29860274` vs `86462850`: 0 shared coauthors (of 60/12), jaccard=0.00
+  - `29860274` vs `00886400`: 0 shared coauthors (of 60/49), jaccard=0.00
+  - `29860274` vs `03146715`: 0 shared coauthors (of 60/80), jaccard=0.00
+  - `29860274` vs `03204463`: 0 shared coauthors (of 60/25), jaccard=0.00
+  - `29860274` vs `07919220`: 0 shared coauthors (of 60/110), jaccard=0.00
+  - `29860274` vs `10169226`: 0 shared coauthors (of 60/39), jaccard=0.00
+  - `29860274` vs `11617116`: 0 shared coauthors (of 60/46), jaccard=0.00
+  - `29860274` vs `14374859`: 0 shared coauthors (of 60/144), jaccard=0.00
+  - `32294761` vs `42257913`: 0 shared coauthors (of 10/6), jaccard=0.00
+  - `32294761` vs `45150424`: 1 shared coauthors (of 10/40), jaccard=0.02
+  - `32294761` vs `56562596`: 0 shared coauthors (of 10/10), jaccard=0.00
+  - `32294761` vs `58388133`: 0 shared coauthors (of 10/19), jaccard=0.00
+  - `32294761` vs `66067609`: 0 shared coauthors (of 10/6), jaccard=0.00
+  - `32294761` vs `68780032`: 0 shared coauthors (of 10/218), jaccard=0.00
+  - `32294761` vs `76559825`: 0 shared coauthors (of 10/12), jaccard=0.00
+  - `32294761` vs `86462850`: 0 shared coauthors (of 10/12), jaccard=0.00
+  - `32294761` vs `00886400`: 0 shared coauthors (of 10/49), jaccard=0.00
+  - `32294761` vs `03146715`: 0 shared coauthors (of 10/80), jaccard=0.00
+  - `32294761` vs `03204463`: 0 shared coauthors (of 10/25), jaccard=0.00
+  - `32294761` vs `07919220`: 0 shared coauthors (of 10/110), jaccard=0.00
+  - `32294761` vs `10169226`: 0 shared coauthors (of 10/39), jaccard=0.00
+  - `32294761` vs `11617116`: 0 shared coauthors (of 10/46), jaccard=0.00
+  - `32294761` vs `14374859`: 0 shared coauthors (of 10/144), jaccard=0.00
+  - `42257913` vs `45150424`: 0 shared coauthors (of 6/40), jaccard=0.00
+  - `42257913` vs `56562596`: 0 shared coauthors (of 6/10), jaccard=0.00
+  - `42257913` vs `58388133`: 0 shared coauthors (of 6/19), jaccard=0.00
+  - `42257913` vs `66067609`: 0 shared coauthors (of 6/6), jaccard=0.00
+  - `42257913` vs `68780032`: 0 shared coauthors (of 6/218), jaccard=0.00
+  - `42257913` vs `76559825`: 0 shared coauthors (of 6/12), jaccard=0.00
+  - `42257913` vs `86462850`: 0 shared coauthors (of 6/12), jaccard=0.00
+  - `42257913` vs `00886400`: 0 shared coauthors (of 6/49), jaccard=0.00
+  - `42257913` vs `03146715`: 0 shared coauthors (of 6/80), jaccard=0.00
+  - `42257913` vs `03204463`: 0 shared coauthors (of 6/25), jaccard=0.00
+  - `42257913` vs `07919220`: 0 shared coauthors (of 6/110), jaccard=0.00
+  - `42257913` vs `10169226`: 0 shared coauthors (of 6/39), jaccard=0.00
+  - `42257913` vs `11617116`: 0 shared coauthors (of 6/46), jaccard=0.00
+  - `42257913` vs `14374859`: 0 shared coauthors (of 6/144), jaccard=0.00
+  - `45150424` vs `56562596`: 0 shared coauthors (of 40/10), jaccard=0.00
+  - `45150424` vs `58388133`: 0 shared coauthors (of 40/19), jaccard=0.00
+  - `45150424` vs `66067609`: 0 shared coauthors (of 40/6), jaccard=0.00
+  - `45150424` vs `68780032`: 0 shared coauthors (of 40/218), jaccard=0.00
+  - `45150424` vs `76559825`: 0 shared coauthors (of 40/12), jaccard=0.00
+  - `45150424` vs `86462850`: 0 shared coauthors (of 40/12), jaccard=0.00
+  - `45150424` vs `00886400`: 0 shared coauthors (of 40/49), jaccard=0.00
+  - `45150424` vs `03146715`: 0 shared coauthors (of 40/80), jaccard=0.00
+  - `45150424` vs `03204463`: 0 shared coauthors (of 40/25), jaccard=0.00
+  - `45150424` vs `07919220`: 0 shared coauthors (of 40/110), jaccard=0.00
+  - `45150424` vs `10169226`: 0 shared coauthors (of 40/39), jaccard=0.00
+  - `45150424` vs `11617116`: 0 shared coauthors (of 40/46), jaccard=0.00
+  - `45150424` vs `14374859`: 0 shared coauthors (of 40/144), jaccard=0.00
+  - `56562596` vs `58388133`: 0 shared coauthors (of 10/19), jaccard=0.00
+  - `56562596` vs `66067609`: 0 shared coauthors (of 10/6), jaccard=0.00
+  - `56562596` vs `68780032`: 0 shared coauthors (of 10/218), jaccard=0.00
+  - `56562596` vs `76559825`: 0 shared coauthors (of 10/12), jaccard=0.00
+  - `56562596` vs `86462850`: 0 shared coauthors (of 10/12), jaccard=0.00
+  - `56562596` vs `00886400`: 0 shared coauthors (of 10/49), jaccard=0.00
+  - `56562596` vs `03146715`: 0 shared coauthors (of 10/80), jaccard=0.00
+  - `56562596` vs `03204463`: 0 shared coauthors (of 10/25), jaccard=0.00
+  - `56562596` vs `07919220`: 0 shared coauthors (of 10/110), jaccard=0.00
+  - `56562596` vs `10169226`: 0 shared coauthors (of 10/39), jaccard=0.00
+  - `56562596` vs `11617116`: 0 shared coauthors (of 10/46), jaccard=0.00
+  - `56562596` vs `14374859`: 0 shared coauthors (of 10/144), jaccard=0.00
+  - `58388133` vs `66067609`: 0 shared coauthors (of 19/6), jaccard=0.00
+  - `58388133` vs `68780032`: 0 shared coauthors (of 19/218), jaccard=0.00
+  - `58388133` vs `76559825`: 0 shared coauthors (of 19/12), jaccard=0.00
+  - `58388133` vs `86462850`: 0 shared coauthors (of 19/12), jaccard=0.00
+  - `58388133` vs `00886400`: 0 shared coauthors (of 19/49), jaccard=0.00
+  - `58388133` vs `03146715`: 0 shared coauthors (of 19/80), jaccard=0.00
+  - `58388133` vs `03204463`: 0 shared coauthors (of 19/25), jaccard=0.00
+  - `58388133` vs `07919220`: 0 shared coauthors (of 19/110), jaccard=0.00
+  - `58388133` vs `10169226`: 10 shared coauthors (of 19/39), jaccard=0.21
+  - `58388133` vs `11617116`: 0 shared coauthors (of 19/46), jaccard=0.00
+  - `58388133` vs `14374859`: 0 shared coauthors (of 19/144), jaccard=0.00
+  - `66067609` vs `68780032`: 0 shared coauthors (of 6/218), jaccard=0.00
+  - `66067609` vs `76559825`: 0 shared coauthors (of 6/12), jaccard=0.00
+  - `66067609` vs `86462850`: 0 shared coauthors (of 6/12), jaccard=0.00
+  - `66067609` vs `00886400`: 0 shared coauthors (of 6/49), jaccard=0.00
+  - `66067609` vs `03146715`: 0 shared coauthors (of 6/80), jaccard=0.00
+  - `66067609` vs `03204463`: 0 shared coauthors (of 6/25), jaccard=0.00
+  - `66067609` vs `07919220`: 0 shared coauthors (of 6/110), jaccard=0.00
+  - `66067609` vs `10169226`: 0 shared coauthors (of 6/39), jaccard=0.00
+  - `66067609` vs `11617116`: 0 shared coauthors (of 6/46), jaccard=0.00
+  - `66067609` vs `14374859`: 0 shared coauthors (of 6/144), jaccard=0.00
+  - `68780032` vs `76559825`: 0 shared coauthors (of 218/12), jaccard=0.00
+  - `68780032` vs `86462850`: 0 shared coauthors (of 218/12), jaccard=0.00
+  - `68780032` vs `00886400`: 0 shared coauthors (of 218/49), jaccard=0.00
+  - `68780032` vs `03146715`: 0 shared coauthors (of 218/80), jaccard=0.00
+  - `68780032` vs `03204463`: 0 shared coauthors (of 218/25), jaccard=0.00
+  - `68780032` vs `07919220`: 0 shared coauthors (of 218/110), jaccard=0.00
+  - `68780032` vs `10169226`: 0 shared coauthors (of 218/39), jaccard=0.00
+  - `68780032` vs `11617116`: 0 shared coauthors (of 218/46), jaccard=0.00
+  - `68780032` vs `14374859`: 0 shared coauthors (of 218/144), jaccard=0.00
+  - `76559825` vs `86462850`: 0 shared coauthors (of 12/12), jaccard=0.00
+  - `76559825` vs `00886400`: 0 shared coauthors (of 12/49), jaccard=0.00
+  - `76559825` vs `03146715`: 0 shared coauthors (of 12/80), jaccard=0.00
+  - `76559825` vs `03204463`: 0 shared coauthors (of 12/25), jaccard=0.00
+  - `76559825` vs `07919220`: 0 shared coauthors (of 12/110), jaccard=0.00
+  - `76559825` vs `10169226`: 0 shared coauthors (of 12/39), jaccard=0.00
+  - `76559825` vs `11617116`: 0 shared coauthors (of 12/46), jaccard=0.00
+  - `76559825` vs `14374859`: 0 shared coauthors (of 12/144), jaccard=0.00
+  - `86462850` vs `00886400`: 0 shared coauthors (of 12/49), jaccard=0.00
+  - `86462850` vs `03146715`: 0 shared coauthors (of 12/80), jaccard=0.00
+  - `86462850` vs `03204463`: 0 shared coauthors (of 12/25), jaccard=0.00
+  - `86462850` vs `07919220`: 0 shared coauthors (of 12/110), jaccard=0.00
+  - `86462850` vs `10169226`: 0 shared coauthors (of 12/39), jaccard=0.00
+  - `86462850` vs `11617116`: 0 shared coauthors (of 12/46), jaccard=0.00
+  - `86462850` vs `14374859`: 0 shared coauthors (of 12/144), jaccard=0.00
+  - `00886400` vs `03146715`: 20 shared coauthors (of 49/80), jaccard=0.18
+  - `00886400` vs `03204463`: 0 shared coauthors (of 49/25), jaccard=0.00
+  - `00886400` vs `07919220`: 0 shared coauthors (of 49/110), jaccard=0.00
+  - `00886400` vs `10169226`: 0 shared coauthors (of 49/39), jaccard=0.00
+  - `00886400` vs `11617116`: 0 shared coauthors (of 49/46), jaccard=0.00
+  - `00886400` vs `14374859`: 0 shared coauthors (of 49/144), jaccard=0.00
+  - `03146715` vs `03204463`: 0 shared coauthors (of 80/25), jaccard=0.00
+  - `03146715` vs `07919220`: 0 shared coauthors (of 80/110), jaccard=0.00
+  - `03146715` vs `10169226`: 0 shared coauthors (of 80/39), jaccard=0.00
+  - `03146715` vs `11617116`: 0 shared coauthors (of 80/46), jaccard=0.00
+  - `03146715` vs `14374859`: 0 shared coauthors (of 80/144), jaccard=0.00
+  - `03204463` vs `07919220`: 0 shared coauthors (of 25/110), jaccard=0.00
+  - `03204463` vs `10169226`: 0 shared coauthors (of 25/39), jaccard=0.00
+  - `03204463` vs `11617116`: 0 shared coauthors (of 25/46), jaccard=0.00
+  - `03204463` vs `14374859`: 0 shared coauthors (of 25/144), jaccard=0.00
+  - `07919220` vs `10169226`: 0 shared coauthors (of 110/39), jaccard=0.00
+  - `07919220` vs `11617116`: 0 shared coauthors (of 110/46), jaccard=0.00
+  - `07919220` vs `14374859`: 2 shared coauthors (of 110/144), jaccard=0.01
+  - `10169226` vs `11617116`: 0 shared coauthors (of 39/46), jaccard=0.00
+  - `10169226` vs `14374859`: 0 shared coauthors (of 39/144), jaccard=0.00
+  - `11617116` vs `14374859`: 0 shared coauthors (of 46/144), jaccard=0.00
+
+### 23. O. Kjebon — best match_probability 0.999 (2 records)
+
+- **O. Kjebon** — KTH, SE — active 1994–2006 — 22 quantum papers — `https://openalex.org/A5053632283`
+- **O. Kjebon** — KTH, SE — active 1995–2009 — 6 quantum papers — `https://openalex.org/A5111493945`
+  
+  Coauthor overlap:
+  - `53632283` vs `11493945`: 0 shared coauthors (of 0/8), jaccard=0.00
+
+### 24. J. S. Hangst — best match_probability 0.999 (2 records)
+
+- **J. S. Hangst** — Aarhus University, DK — active 1995–2024 — 7 quantum papers — `https://openalex.org/A5032266873`
+- **J. S. Hangst** — Aarhus University, DK — active 1993–2025 — 44 quantum papers — `https://openalex.org/A5091577210`
+  
+  Coauthor overlap:
+  - `32266873` vs `91577210`: 96 shared coauthors (of 113/249), jaccard=0.36
+
+### 25. M. Marklund — best match_probability 0.999 (4 records)
+
+- **M. Marklund** — Chalmers, SE — active 2013–2017 — 4 quantum papers — `https://openalex.org/A5090213105`
+- **M. Marklund** — Umeå University, SE — active 2004–2016 — 16 quantum papers — `https://openalex.org/A5108627887`
+- **Mattias Marklund** — Umeå University, SE — active 1995–2023 — 72 quantum papers — `https://openalex.org/A5111589119`
+- **M. Marklund** — Umeå University, SE — active 2002–2014 — 39 quantum papers — `https://openalex.org/A5112758587`
+  
+  Coauthor overlap:
+  - `90213105` vs `08627887`: 5 shared coauthors (of 26/34), jaccard=0.09
+  - `90213105` vs `11589119`: 7 shared coauthors (of 26/50), jaccard=0.10
+  - `90213105` vs `12758587`: 1 shared coauthors (of 26/43), jaccard=0.01
+  - `08627887` vs `11589119`: 18 shared coauthors (of 34/50), jaccard=0.27
+  - `08627887` vs `12758587`: 18 shared coauthors (of 34/43), jaccard=0.31
+  - `11589119` vs `12758587`: 13 shared coauthors (of 50/43), jaccard=0.16
+
+### 26. S. Altinpinar — best match_probability 0.999 (4 records)
+
+- **S. Altinpinar** — University of Bergen (UiB), NO — active 2014–2015 — 4 quantum papers — `https://openalex.org/A5105775773`
+- **S. Altinpinar** — University of Bergen (UiB), NO — active 2008–2017 — 38 quantum papers — `https://openalex.org/A5105786663`
+- **S. Altinpinar** — University of Bergen (UiB), NO — active 2013–2016 — 5 quantum papers — `https://openalex.org/A5107868703`
+- **S. Altinpinar** — University of Bergen (UiB), NO — active 2012–2017 — 9 quantum papers — `https://openalex.org/A5107875084`
+  
+  Coauthor overlap:
+  - `05775773` vs `05786663`: 148 shared coauthors (of 249/436), jaccard=0.28
+  - `05775773` vs `07868703`: 115 shared coauthors (of 249/245), jaccard=0.30
+  - `05775773` vs `07875084`: 154 shared coauthors (of 249/331), jaccard=0.36
+  - `05786663` vs `07868703`: 167 shared coauthors (of 436/245), jaccard=0.32
+  - `05786663` vs `07875084`: 235 shared coauthors (of 436/331), jaccard=0.44
+  - `07868703` vs `07875084`: 169 shared coauthors (of 245/331), jaccard=0.42
+
+### 27. Ying Wang — best match_probability 0.999 (5 records)
+
+- **Ying Wang** — University of Copenhagen, DK — active 2021–2025 — 13 quantum papers — `https://openalex.org/A5052300667`
+- **Ying Wang** — University of Copenhagen, DK — active 2020–2023 — 5 quantum papers — `https://openalex.org/A5100347002`
+- **Ying Wang** — University of Copenhagen, DK — active 2022–2025 — 4 quantum papers — `https://openalex.org/A5100628919`
+- **Qianyu Wang** — Technical University of Denmark (DTU), DK — active 2009–2010 — 4 quantum papers — `https://openalex.org/A5100754316`
+- **Yujing Wang** — Technical University of Denmark (DTU), DK — active 2021–2024 — 10 quantum papers — `https://openalex.org/A5100776575`
+  
+  Coauthor overlap:
+  - `52300667` vs `00347002`: 22 shared coauthors (of 47/32), jaccard=0.39
+  - `52300667` vs `00628919`: 14 shared coauthors (of 47/30), jaccard=0.22
+  - `52300667` vs `00754316`: 1 shared coauthors (of 47/11), jaccard=0.02
+  - `52300667` vs `00776575`: 0 shared coauthors (of 47/33), jaccard=0.00
+  - `00347002` vs `00628919`: 10 shared coauthors (of 32/30), jaccard=0.19
+  - `00347002` vs `00754316`: 1 shared coauthors (of 32/11), jaccard=0.02
+  - `00347002` vs `00776575`: 0 shared coauthors (of 32/33), jaccard=0.00
+  - `00628919` vs `00754316`: 1 shared coauthors (of 30/11), jaccard=0.03
+  - `00628919` vs `00776575`: 0 shared coauthors (of 30/33), jaccard=0.00
+  - `00754316` vs `00776575`: 0 shared coauthors (of 11/33), jaccard=0.00
+
+### 28. J. P. Pekola — best match_probability 0.999 (2 records)
+
+- **J. P. Pekola** — Aalto University, FI — active 2010–2026 — 18 quantum papers — `https://openalex.org/A5010125450`
+- **J. P. Pekola** — Aalto University, FI — active 2006–2026 — 154 quantum papers — `https://openalex.org/A5046283458`
+  
+  Coauthor overlap:
+  - `10125450` vs `46283458`: 42 shared coauthors (of 113/256), jaccard=0.13
+
+### 29. Yuwei Fu — best match_probability 0.999 (5 records)
+
+- **Yuwei Fu** — Chalmers, SE — active 1998–2005 — 15 quantum papers — `https://openalex.org/A5065326543`
+- **Ying Fu** — KTH, SE — active 2006–2009 — 7 quantum papers — `https://openalex.org/A5071222102`
+- **Yifeng Fu** — Chalmers, SE — active 1996–2020 — 54 quantum papers — `https://openalex.org/A5089632319`
+- **Ying Fu** — KTH, SE — active 2001–2019 — 64 quantum papers — `https://openalex.org/A5102012777`
+- **Yulan Fu** — KTH, SE — active 2008–2010 — 4 quantum papers — `https://openalex.org/A5103131754`
+  
+  Coauthor overlap:
+  - `65326543` vs `71222102`: 0 shared coauthors (of 39/13), jaccard=0.00
+  - `65326543` vs `89632319`: 16 shared coauthors (of 39/122), jaccard=0.11
+  - `65326543` vs `02012777`: 2 shared coauthors (of 39/104), jaccard=0.01
+  - `65326543` vs `03131754`: 0 shared coauthors (of 39/9), jaccard=0.00
+  - `71222102` vs `89632319`: 1 shared coauthors (of 13/122), jaccard=0.01
+  - `71222102` vs `02012777`: 11 shared coauthors (of 13/104), jaccard=0.10
+  - `71222102` vs `03131754`: 2 shared coauthors (of 13/9), jaccard=0.10
+  - `89632319` vs `02012777`: 3 shared coauthors (of 122/104), jaccard=0.01
+  - `89632319` vs `03131754`: 0 shared coauthors (of 122/9), jaccard=0.00
+  - `02012777` vs `03131754`: 6 shared coauthors (of 104/9), jaccard=0.06
+
+### 30. C.-G. Wahlström — best match_probability 0.999 (2 records)
+
+- **C.-G. Wahlström** — Lund, SE — active 1991–2013 — 9 quantum papers — `https://openalex.org/A5034571405`
+- **C.-G. Wahlström** — Lund, SE — active 1988–2002 — 4 quantum papers — `https://openalex.org/A5112917442`
+  
+  Coauthor overlap:
+  - `34571405` vs `12917442`: 11 shared coauthors (of 45/25), jaccard=0.19
+
+### 31. Anton Alekseev — best match_probability 0.999 (2 records)
+
+- **Anton Alekseev** — Uppsala University, SE — active 1995–2008 — 14 quantum papers — `https://openalex.org/A5042713027`
+- **Anton Alekseev** — Uppsala University, SE — active 1998–2005 — 6 quantum papers — `https://openalex.org/A5101689782`
+  
+  Coauthor overlap:
+  - `42713027` vs `01689782`: 3 shared coauthors (of 12/9), jaccard=0.17
+
+### 32. C. M. Marcus — best match_probability 0.999 (3 records)
+
+- **C. M. Marcus** — University of Copenhagen, DK — active 2006–2025 — 91 quantum papers — `https://openalex.org/A5006639172`
+- **C. M. Marcus** — University of Copenhagen, DK — active 2013–2024 — 6 quantum papers — `https://openalex.org/A5085953165`
+- **C. M. Marcus** — University of Copenhagen, DK — active 2010–2020 — 5 quantum papers — `https://openalex.org/A5109052389`
+  
+  Coauthor overlap:
+  - `06639172` vs `85953165`: 27 shared coauthors (of 237/32), jaccard=0.11
+  - `06639172` vs `09052389`: 27 shared coauthors (of 237/38), jaccard=0.11
+  - `85953165` vs `09052389`: 9 shared coauthors (of 32/38), jaccard=0.15
+
+### 33. Kai Jensen — best match_probability 0.999 (14 records)
+
+- **Kai Jensen** — University of Copenhagen, DK — active 1970–1977 — 4 quantum papers — `https://openalex.org/A5035254691`
+- **J. Jensen** — University of Copenhagen, DK — active 1979–2022 — 7 quantum papers — `https://openalex.org/A5046410188`
+- **Lasse Jensen** — University of Copenhagen, DK — active 2000–2024 — 6 quantum papers — `https://openalex.org/A5053090797`
+- **Jan H. Jensen** — University of Copenhagen, DK — active 2007–2026 — 43 quantum papers — `https://openalex.org/A5053685425`
+- **M. J. Jensen** — Aarhus University, DK — active 1999–2004 — 4 quantum papers — `https://openalex.org/A5055716267`
+- **Per Jensen** — Aarhus University, DK — active 1986–1995 — 7 quantum papers — `https://openalex.org/A5069475574`
+- **Aksel S. Jensen** — Aarhus University, DK — active 1983–2025 — 14 quantum papers — `https://openalex.org/A5101094514`
+- **A. S. Jensen** — Aarhus University, DK — active 1974–2022 — 113 quantum papers — `https://openalex.org/A5103407057`
+- **E. Dahl‐Jensen** — University of Copenhagen, DK — active 1971–1989 — 27 quantum papers — `https://openalex.org/A5105250136`
+- **Kasper Jensen** — University of Copenhagen, DK — active 2007–2024 — 13 quantum papers — `https://openalex.org/A5106522750`
+- **Anders Jensen** — University of Copenhagen, DK — active 2017–2019 — 6 quantum papers — `https://openalex.org/A5108022144`
+- **J.R. Jensen** — Technical University of Denmark (DTU), DK — active 1998–2005 — 29 quantum papers — `https://openalex.org/A5110150415`
+- **H.J. Jensen** — University of Copenhagen, DK — active 1991–2001 — 13 quantum papers — `https://openalex.org/A5110894387`
+- **A. S. Jensen** — Aarhus University, DK — active 1978–2021 — 57 quantum papers — `https://openalex.org/A5111545529`
+  
+  Coauthor overlap:
+  - `35254691` vs `46410188`: 0 shared coauthors (of 9/25), jaccard=0.00
+  - `35254691` vs `53090797`: 0 shared coauthors (of 9/8), jaccard=0.00
+  - `35254691` vs `53685425`: 0 shared coauthors (of 9/38), jaccard=0.00
+  - `35254691` vs `55716267`: 0 shared coauthors (of 9/17), jaccard=0.00
+  - `35254691` vs `69475574`: 0 shared coauthors (of 9/32), jaccard=0.00
+  - `35254691` vs `01094514`: 0 shared coauthors (of 9/11), jaccard=0.00
+  - `35254691` vs `03407057`: 0 shared coauthors (of 9/66), jaccard=0.00
+  - `35254691` vs `05250136`: 0 shared coauthors (of 9/221), jaccard=0.00
+  - `35254691` vs `06522750`: 0 shared coauthors (of 9/38), jaccard=0.00
+  - `35254691` vs `08022144`: 0 shared coauthors (of 9/16), jaccard=0.00
+  - `35254691` vs `10150415`: 0 shared coauthors (of 9/17), jaccard=0.00
+  - `35254691` vs `10894387`: 0 shared coauthors (of 9/106), jaccard=0.00
+  - `35254691` vs `11545529`: 0 shared coauthors (of 9/32), jaccard=0.00
+  - `46410188` vs `53090797`: 0 shared coauthors (of 25/8), jaccard=0.00
+  - `46410188` vs `53685425`: 0 shared coauthors (of 25/38), jaccard=0.00
+  - `46410188` vs `55716267`: 0 shared coauthors (of 25/17), jaccard=0.00
+  - `46410188` vs `69475574`: 0 shared coauthors (of 25/32), jaccard=0.00
+  - `46410188` vs `01094514`: 0 shared coauthors (of 25/11), jaccard=0.00
+  - `46410188` vs `03407057`: 0 shared coauthors (of 25/66), jaccard=0.00
+  - `46410188` vs `05250136`: 0 shared coauthors (of 25/221), jaccard=0.00
+  - `46410188` vs `06522750`: 0 shared coauthors (of 25/38), jaccard=0.00
+  - `46410188` vs `08022144`: 0 shared coauthors (of 25/16), jaccard=0.00
+  - `46410188` vs `10150415`: 0 shared coauthors (of 25/17), jaccard=0.00
+  - `46410188` vs `10894387`: 0 shared coauthors (of 25/106), jaccard=0.00
+  - `46410188` vs `11545529`: 0 shared coauthors (of 25/32), jaccard=0.00
+  - `53090797` vs `53685425`: 2 shared coauthors (of 8/38), jaccard=0.05
+  - `53090797` vs `55716267`: 0 shared coauthors (of 8/17), jaccard=0.00
+  - `53090797` vs `69475574`: 0 shared coauthors (of 8/32), jaccard=0.00
+  - `53090797` vs `01094514`: 0 shared coauthors (of 8/11), jaccard=0.00
+  - `53090797` vs `03407057`: 0 shared coauthors (of 8/66), jaccard=0.00
+  - `53090797` vs `05250136`: 0 shared coauthors (of 8/221), jaccard=0.00
+  - `53090797` vs `06522750`: 0 shared coauthors (of 8/38), jaccard=0.00
+  - `53090797` vs `08022144`: 0 shared coauthors (of 8/16), jaccard=0.00
+  - `53090797` vs `10150415`: 0 shared coauthors (of 8/17), jaccard=0.00
+  - `53090797` vs `10894387`: 0 shared coauthors (of 8/106), jaccard=0.00
+  - `53090797` vs `11545529`: 0 shared coauthors (of 8/32), jaccard=0.00
+  - `53685425` vs `55716267`: 0 shared coauthors (of 38/17), jaccard=0.00
+  - `53685425` vs `69475574`: 0 shared coauthors (of 38/32), jaccard=0.00
+  - `53685425` vs `01094514`: 0 shared coauthors (of 38/11), jaccard=0.00
+  - `53685425` vs `03407057`: 0 shared coauthors (of 38/66), jaccard=0.00
+  - `53685425` vs `05250136`: 0 shared coauthors (of 38/221), jaccard=0.00
+  - `53685425` vs `06522750`: 0 shared coauthors (of 38/38), jaccard=0.00
+  - `53685425` vs `08022144`: 2 shared coauthors (of 38/16), jaccard=0.04
+  - `53685425` vs `10150415`: 0 shared coauthors (of 38/17), jaccard=0.00
+  - `53685425` vs `10894387`: 0 shared coauthors (of 38/106), jaccard=0.00
+  - `53685425` vs `11545529`: 0 shared coauthors (of 38/32), jaccard=0.00
+  - `55716267` vs `69475574`: 0 shared coauthors (of 17/32), jaccard=0.00
+  - `55716267` vs `01094514`: 0 shared coauthors (of 17/11), jaccard=0.00
+  - `55716267` vs `03407057`: 0 shared coauthors (of 17/66), jaccard=0.00
+  - `55716267` vs `05250136`: 0 shared coauthors (of 17/221), jaccard=0.00
+  - `55716267` vs `06522750`: 0 shared coauthors (of 17/38), jaccard=0.00
+  - `55716267` vs `08022144`: 0 shared coauthors (of 17/16), jaccard=0.00
+  - `55716267` vs `10150415`: 0 shared coauthors (of 17/17), jaccard=0.00
+  - `55716267` vs `10894387`: 0 shared coauthors (of 17/106), jaccard=0.00
+  - `55716267` vs `11545529`: 0 shared coauthors (of 17/32), jaccard=0.00
+  - `69475574` vs `01094514`: 0 shared coauthors (of 32/11), jaccard=0.00
+  - `69475574` vs `03407057`: 2 shared coauthors (of 32/66), jaccard=0.02
+  - `69475574` vs `05250136`: 0 shared coauthors (of 32/221), jaccard=0.00
+  - `69475574` vs `06522750`: 0 shared coauthors (of 32/38), jaccard=0.00
+  - `69475574` vs `08022144`: 0 shared coauthors (of 32/16), jaccard=0.00
+  - `69475574` vs `10150415`: 0 shared coauthors (of 32/17), jaccard=0.00
+  - `69475574` vs `10894387`: 0 shared coauthors (of 32/106), jaccard=0.00
+  - `69475574` vs `11545529`: 0 shared coauthors (of 32/32), jaccard=0.00
+  - `01094514` vs `03407057`: 6 shared coauthors (of 11/66), jaccard=0.08
+  - `01094514` vs `05250136`: 0 shared coauthors (of 11/221), jaccard=0.00
+  - `01094514` vs `06522750`: 0 shared coauthors (of 11/38), jaccard=0.00
+  - `01094514` vs `08022144`: 0 shared coauthors (of 11/16), jaccard=0.00
+  - `01094514` vs `10150415`: 0 shared coauthors (of 11/17), jaccard=0.00
+  - `01094514` vs `10894387`: 0 shared coauthors (of 11/106), jaccard=0.00
+  - `01094514` vs `11545529`: 2 shared coauthors (of 11/32), jaccard=0.05
+  - `03407057` vs `05250136`: 0 shared coauthors (of 66/221), jaccard=0.00
+  - `03407057` vs `06522750`: 0 shared coauthors (of 66/38), jaccard=0.00
+  - `03407057` vs `08022144`: 0 shared coauthors (of 66/16), jaccard=0.00
+  - `03407057` vs `10150415`: 0 shared coauthors (of 66/17), jaccard=0.00
+  - `03407057` vs `10894387`: 0 shared coauthors (of 66/106), jaccard=0.00
+  - `03407057` vs `11545529`: 23 shared coauthors (of 66/32), jaccard=0.31
+  - `05250136` vs `06522750`: 0 shared coauthors (of 221/38), jaccard=0.00
+  - `05250136` vs `08022144`: 0 shared coauthors (of 221/16), jaccard=0.00
+  - `05250136` vs `10150415`: 0 shared coauthors (of 221/17), jaccard=0.00
+  - `05250136` vs `10894387`: 0 shared coauthors (of 221/106), jaccard=0.00
+  - `05250136` vs `11545529`: 0 shared coauthors (of 221/32), jaccard=0.00
+  - `06522750` vs `08022144`: 0 shared coauthors (of 38/16), jaccard=0.00
+  - `06522750` vs `10150415`: 0 shared coauthors (of 38/17), jaccard=0.00
+  - `06522750` vs `10894387`: 0 shared coauthors (of 38/106), jaccard=0.00
+  - `06522750` vs `11545529`: 0 shared coauthors (of 38/32), jaccard=0.00
+  - `08022144` vs `10150415`: 0 shared coauthors (of 16/17), jaccard=0.00
+  - `08022144` vs `10894387`: 1 shared coauthors (of 16/106), jaccard=0.01
+  - `08022144` vs `11545529`: 0 shared coauthors (of 16/32), jaccard=0.00
+  - `10150415` vs `10894387`: 0 shared coauthors (of 17/106), jaccard=0.00
+  - `10150415` vs `11545529`: 0 shared coauthors (of 17/32), jaccard=0.00
+  - `10894387` vs `11545529`: 0 shared coauthors (of 106/32), jaccard=0.00
+
+### 34. S. Andersson — best match_probability 0.999 (41 records)
+
+- **S. Andersson** — Chalmers, SE — active 1970–2006 — 37 quantum papers — `https://openalex.org/A5006141687`
+- **Kerstin Andersson** — Lund, SE — active 1992–1996 — 4 quantum papers — `https://openalex.org/A5010587717`
+- **Stefan Andersson** — Gothenburg, SE — active 2000–2017 — 15 quantum papers — `https://openalex.org/A5011972193`
+- **L. Mauritz Andersson** — KTH, SE — active 1999–2012 — 10 quantum papers — `https://openalex.org/A5013939054`
+- **C. B. M. Andersson** — KTH, SE — active 1994–1998 — 7 quantum papers — `https://openalex.org/A5019608205`
+- **G. Andersson** — Chalmers, SE — active 1976–2019 — 5 quantum papers — `https://openalex.org/A5020128275`
+- **Joakim Andersson** — Uppsala University, SE — active 2009–2025 — 7 quantum papers — `https://openalex.org/A5029757698`
+- **W. Ikegami Andersson** — Uppsala University, SE — active 2015–2020 — 8 quantum papers — `https://openalex.org/A5033611043`
+- **Ylva Andersson** — Chalmers, SE — active 1995–1998 — 7 quantum papers — `https://openalex.org/A5036240497`
+- **Ove Andersson** — Umeå University, SE — active 2004–2014 — 7 quantum papers — `https://openalex.org/A5036841805`
+- **Bo Andersson** — Lund, SE — active 1980–2023 — 8 quantum papers — `https://openalex.org/A5039798942`
+- **Klas Andersson** — Stockholm University, SE — active 2006–2013 — 9 quantum papers — `https://openalex.org/A5043179707`
+- **Erika Andersson** — KTH, SE — active 1999–2010 — 11 quantum papers — `https://openalex.org/A5045963771`
+- **Magnus Andersson** — Chalmers, SE — active 2006–2010 — 4 quantum papers — `https://openalex.org/A5050271585`
+- **Michael Andersson** — Chalmers, SE — active 2014–2017 — 7 quantum papers — `https://openalex.org/A5054786787`
+- **Thomas Andersson** — Chalmers, SE — active 1976–2012 — 56 quantum papers — `https://openalex.org/A5055150117`
+- **Mats R. Andersson** — Chalmers, SE — active 1993–2018 — 21 quantum papers — `https://openalex.org/A5056662283`
+- **E. Andersson** — Uppsala University, SE — active 2007–2012 — 8 quantum papers — `https://openalex.org/A5063569917`
+- **Tomas Andersson** — Uppsala University, SE — active 2010–2013 — 6 quantum papers — `https://openalex.org/A5066995184`
+- **B. G. Andersson** — Lund, SE — active 1972–2001 — 24 quantum papers — `https://openalex.org/A5070042694`
+- **Mathias H. Andersson** — Stockholm University, SE — active 2000–2003 — 8 quantum papers — `https://openalex.org/A5070553728`
+- **Bodil Andersson** — Lund, SE — active 1977–2001 — 10 quantum papers — `https://openalex.org/A5074858718`
+- **Martin Andersson** — Lund, CN — active 2002–2016 — 18 quantum papers — `https://openalex.org/A5077671600`
+- **Gustav Andersson** — Chalmers, SE — active 2019–2024 — 8 quantum papers — `https://openalex.org/A5086120580`
+- **Dag Andersson** — Chalmers, SE — active 1974–1985 — 4 quantum papers — `https://openalex.org/A5089240711`
+- **Thomas Andersson** — Chalmers, SE — active 1980–2006 — 8 quantum papers — `https://openalex.org/A5089553620`
+- **Per Ola Andersson** — Umeå University, SE — active 1976–2001 — 7 quantum papers — `https://openalex.org/A5090232379`
+- **Per Andersson** — Stockholm University, SE — active 1997–2001 — 48 quantum papers — `https://openalex.org/A5091168544`
+- **Martin Andersson** — Chalmers, SE — active 1999–2023 — 6 quantum papers — `https://openalex.org/A5101398385`
+- **Mikael S. Andersson** — Uppsala University, SE — active 1995–2025 — 7 quantum papers — `https://openalex.org/A5101739070`
+- **Jenny Andersson** — Lund, SE — active 2002–2020 — 4 quantum papers — `https://openalex.org/A5102845695`
+- **Lars Andersson** — KTH, SE — active 1987–2025 — 9 quantum papers — `https://openalex.org/A5102936875`
+- **Bo Andersson** — Lund, SE — active 1964–2023 — 59 quantum papers — `https://openalex.org/A5103932575`
+- **Mats O. Andersson** — Chalmers, SE — active 1990–1996 — 5 quantum papers — `https://openalex.org/A5106132999`
+- **Bertil Andersson** — Lund, SE — active 1977–1992 — 31 quantum papers — `https://openalex.org/A5110020851`
+- **Thorwald G. Andersson** — Chalmers, SE — active 1976–1991 — 6 quantum papers — `https://openalex.org/A5110045808`
+- **T. G. Andersson** — Chalmers, SE — active 1978–2012 — 77 quantum papers — `https://openalex.org/A5110501904`
+- **Ole Andersson** — Stockholm University, SE — active 2013–2021 — 13 quantum papers — `https://openalex.org/A5110527701`
+- **L.-L. Andersson** — Lund, SE — active 2005–2016 — 6 quantum papers — `https://openalex.org/A5111684274`
+- **Eric Andersson** — Chalmers, SE — active 2017–2020 — 7 quantum papers — `https://openalex.org/A5113607064`
+- **Stig Andersson** — Chalmers, SE — active 1984–1994 — 4 quantum papers — `https://openalex.org/A5114251832`
+  
+  Coauthor overlap:
+  - `06141687` vs `10587717`: 0 shared coauthors (of 29/10), jaccard=0.00
+  - `06141687` vs `11972193`: 0 shared coauthors (of 29/33), jaccard=0.00
+  - `06141687` vs `13939054`: 0 shared coauthors (of 29/22), jaccard=0.00
+  - `06141687` vs `19608205`: 0 shared coauthors (of 29/11), jaccard=0.00
+  - `06141687` vs `20128275`: 0 shared coauthors (of 29/6), jaccard=0.00
+  - `06141687` vs `29757698`: 0 shared coauthors (of 29/47), jaccard=0.00
+  - `06141687` vs `33611043`: 0 shared coauthors (of 29/69), jaccard=0.00
+  - `06141687` vs `36240497`: 1 shared coauthors (of 29/9), jaccard=0.03
+  - `06141687` vs `36841805`: 0 shared coauthors (of 29/7), jaccard=0.00
+  - `06141687` vs `39798942`: 0 shared coauthors (of 29/4), jaccard=0.00
+  - `06141687` vs `43179707`: 0 shared coauthors (of 29/31), jaccard=0.00
+  - `06141687` vs `45963771`: 0 shared coauthors (of 29/10), jaccard=0.00
+  - `06141687` vs `50271585`: 0 shared coauthors (of 29/18), jaccard=0.00
+  - `06141687` vs `54786787`: 0 shared coauthors (of 29/19), jaccard=0.00
+  - `06141687` vs `55150117`: 0 shared coauthors (of 29/111), jaccard=0.00
+  - `06141687` vs `56662283`: 0 shared coauthors (of 29/90), jaccard=0.00
+  - `06141687` vs `63569917`: 0 shared coauthors (of 29/40), jaccard=0.00
+  - `06141687` vs `66995184`: 0 shared coauthors (of 29/19), jaccard=0.00
+  - `06141687` vs `70042694`: 0 shared coauthors (of 29/21), jaccard=0.00
+  - `06141687` vs `70553728`: 0 shared coauthors (of 29/26), jaccard=0.00
+  - `06141687` vs `74858718`: 0 shared coauthors (of 29/12), jaccard=0.00
+  - `06141687` vs `77671600`: 1 shared coauthors (of 29/27), jaccard=0.02
+  - `06141687` vs `86120580`: 0 shared coauthors (of 29/16), jaccard=0.00
+  - `06141687` vs `89240711`: 1 shared coauthors (of 29/3), jaccard=0.03
+  - `06141687` vs `89553620`: 5 shared coauthors (of 29/17), jaccard=0.12
+  - `06141687` vs `90232379`: 0 shared coauthors (of 29/9), jaccard=0.00
+  - `06141687` vs `91168544`: 0 shared coauthors (of 29/335), jaccard=0.00
+  - `06141687` vs `01398385`: 0 shared coauthors (of 29/10), jaccard=0.00
+  - `06141687` vs `01739070`: 0 shared coauthors (of 29/33), jaccard=0.00
+  - `06141687` vs `02845695`: 0 shared coauthors (of 29/20), jaccard=0.00
+  - `06141687` vs `02936875`: 0 shared coauthors (of 29/2), jaccard=0.00
+  - `06141687` vs `03932575`: 0 shared coauthors (of 29/68), jaccard=0.00
+  - `06141687` vs `06132999`: 0 shared coauthors (of 29/6), jaccard=0.00
+  - `06141687` vs `10020851`: 0 shared coauthors (of 29/33), jaccard=0.00
+  - `06141687` vs `10045808`: 0 shared coauthors (of 29/14), jaccard=0.00
+  - `06141687` vs `10501904`: 0 shared coauthors (of 29/134), jaccard=0.00
+  - `06141687` vs `10527701`: 0 shared coauthors (of 29/8), jaccard=0.00
+  - `06141687` vs `11684274`: 0 shared coauthors (of 29/128), jaccard=0.00
+  - `06141687` vs `13607064`: 0 shared coauthors (of 29/15), jaccard=0.00
+  - `06141687` vs `14251832`: 1 shared coauthors (of 29/5), jaccard=0.03
+  - `10587717` vs `11972193`: 0 shared coauthors (of 10/33), jaccard=0.00
+  - `10587717` vs `13939054`: 0 shared coauthors (of 10/22), jaccard=0.00
+  - `10587717` vs `19608205`: 0 shared coauthors (of 10/11), jaccard=0.00
+  - `10587717` vs `20128275`: 0 shared coauthors (of 10/6), jaccard=0.00
+  - `10587717` vs `29757698`: 0 shared coauthors (of 10/47), jaccard=0.00
+  - `10587717` vs `33611043`: 0 shared coauthors (of 10/69), jaccard=0.00
+  - `10587717` vs `36240497`: 0 shared coauthors (of 10/9), jaccard=0.00
+  - `10587717` vs `36841805`: 0 shared coauthors (of 10/7), jaccard=0.00
+  - `10587717` vs `39798942`: 0 shared coauthors (of 10/4), jaccard=0.00
+  - `10587717` vs `43179707`: 0 shared coauthors (of 10/31), jaccard=0.00
+  - `10587717` vs `45963771`: 0 shared coauthors (of 10/10), jaccard=0.00
+  - `10587717` vs `50271585`: 0 shared coauthors (of 10/18), jaccard=0.00
+  - `10587717` vs `54786787`: 0 shared coauthors (of 10/19), jaccard=0.00
+  - `10587717` vs `55150117`: 0 shared coauthors (of 10/111), jaccard=0.00
+  - `10587717` vs `56662283`: 0 shared coauthors (of 10/90), jaccard=0.00
+  - `10587717` vs `63569917`: 0 shared coauthors (of 10/40), jaccard=0.00
+  - `10587717` vs `66995184`: 0 shared coauthors (of 10/19), jaccard=0.00
+  - `10587717` vs `70042694`: 0 shared coauthors (of 10/21), jaccard=0.00
+  - `10587717` vs `70553728`: 0 shared coauthors (of 10/26), jaccard=0.00
+  - `10587717` vs `74858718`: 0 shared coauthors (of 10/12), jaccard=0.00
+  - `10587717` vs `77671600`: 0 shared coauthors (of 10/27), jaccard=0.00
+  - `10587717` vs `86120580`: 0 shared coauthors (of 10/16), jaccard=0.00
+  - `10587717` vs `89240711`: 0 shared coauthors (of 10/3), jaccard=0.00
+  - `10587717` vs `89553620`: 0 shared coauthors (of 10/17), jaccard=0.00
+  - `10587717` vs `90232379`: 0 shared coauthors (of 10/9), jaccard=0.00
+  - `10587717` vs `91168544`: 0 shared coauthors (of 10/335), jaccard=0.00
+  - `10587717` vs `01398385`: 0 shared coauthors (of 10/10), jaccard=0.00
+  - `10587717` vs `01739070`: 0 shared coauthors (of 10/33), jaccard=0.00
+  - `10587717` vs `02845695`: 0 shared coauthors (of 10/20), jaccard=0.00
+  - `10587717` vs `02936875`: 0 shared coauthors (of 10/2), jaccard=0.00
+  - `10587717` vs `03932575`: 0 shared coauthors (of 10/68), jaccard=0.00
+  - `10587717` vs `06132999`: 0 shared coauthors (of 10/6), jaccard=0.00
+  - `10587717` vs `10020851`: 0 shared coauthors (of 10/33), jaccard=0.00
+  - `10587717` vs `10045808`: 0 shared coauthors (of 10/14), jaccard=0.00
+  - `10587717` vs `10501904`: 0 shared coauthors (of 10/134), jaccard=0.00
+  - `10587717` vs `10527701`: 0 shared coauthors (of 10/8), jaccard=0.00
+  - `10587717` vs `11684274`: 0 shared coauthors (of 10/128), jaccard=0.00
+  - `10587717` vs `13607064`: 0 shared coauthors (of 10/15), jaccard=0.00
+  - `10587717` vs `14251832`: 0 shared coauthors (of 10/5), jaccard=0.00
+  - `11972193` vs `13939054`: 0 shared coauthors (of 33/22), jaccard=0.00
+  - `11972193` vs `19608205`: 0 shared coauthors (of 33/11), jaccard=0.00
+  - `11972193` vs `20128275`: 0 shared coauthors (of 33/6), jaccard=0.00
+  - `11972193` vs `29757698`: 0 shared coauthors (of 33/47), jaccard=0.00
+  - `11972193` vs `33611043`: 0 shared coauthors (of 33/69), jaccard=0.00
+  - `11972193` vs `36240497`: 0 shared coauthors (of 33/9), jaccard=0.00
+  - `11972193` vs `36841805`: 0 shared coauthors (of 33/7), jaccard=0.00
+  - `11972193` vs `39798942`: 0 shared coauthors (of 33/4), jaccard=0.00
+  - `11972193` vs `43179707`: 0 shared coauthors (of 33/31), jaccard=0.00
+  - `11972193` vs `45963771`: 0 shared coauthors (of 33/10), jaccard=0.00
+  - `11972193` vs `50271585`: 0 shared coauthors (of 33/18), jaccard=0.00
+  - `11972193` vs `54786787`: 0 shared coauthors (of 33/19), jaccard=0.00
+  - `11972193` vs `55150117`: 0 shared coauthors (of 33/111), jaccard=0.00
+  - `11972193` vs `56662283`: 0 shared coauthors (of 33/90), jaccard=0.00
+  - `11972193` vs `63569917`: 0 shared coauthors (of 33/40), jaccard=0.00
+  - `11972193` vs `66995184`: 0 shared coauthors (of 33/19), jaccard=0.00
+  - `11972193` vs `70042694`: 0 shared coauthors (of 33/21), jaccard=0.00
+  - `11972193` vs `70553728`: 0 shared coauthors (of 33/26), jaccard=0.00
+  - `11972193` vs `74858718`: 0 shared coauthors (of 33/12), jaccard=0.00
+  - `11972193` vs `77671600`: 0 shared coauthors (of 33/27), jaccard=0.00
+  - `11972193` vs `86120580`: 0 shared coauthors (of 33/16), jaccard=0.00
+  - `11972193` vs `89240711`: 0 shared coauthors (of 33/3), jaccard=0.00
+  - `11972193` vs `89553620`: 0 shared coauthors (of 33/17), jaccard=0.00
+  - `11972193` vs `90232379`: 0 shared coauthors (of 33/9), jaccard=0.00
+  - `11972193` vs `91168544`: 0 shared coauthors (of 33/335), jaccard=0.00
+  - `11972193` vs `01398385`: 0 shared coauthors (of 33/10), jaccard=0.00
+  - `11972193` vs `01739070`: 0 shared coauthors (of 33/33), jaccard=0.00
+  - `11972193` vs `02845695`: 0 shared coauthors (of 33/20), jaccard=0.00
+  - `11972193` vs `02936875`: 0 shared coauthors (of 33/2), jaccard=0.00
+  - `11972193` vs `03932575`: 0 shared coauthors (of 33/68), jaccard=0.00
+  - `11972193` vs `06132999`: 0 shared coauthors (of 33/6), jaccard=0.00
+  - `11972193` vs `10020851`: 0 shared coauthors (of 33/33), jaccard=0.00
+  - `11972193` vs `10045808`: 0 shared coauthors (of 33/14), jaccard=0.00
+  - `11972193` vs `10501904`: 0 shared coauthors (of 33/134), jaccard=0.00
+  - `11972193` vs `10527701`: 0 shared coauthors (of 33/8), jaccard=0.00
+  - `11972193` vs `11684274`: 0 shared coauthors (of 33/128), jaccard=0.00
+  - `11972193` vs `13607064`: 0 shared coauthors (of 33/15), jaccard=0.00
+  - `11972193` vs `14251832`: 0 shared coauthors (of 33/5), jaccard=0.00
+  - `13939054` vs `19608205`: 0 shared coauthors (of 22/11), jaccard=0.00
+  - `13939054` vs `20128275`: 0 shared coauthors (of 22/6), jaccard=0.00
+  - `13939054` vs `29757698`: 1 shared coauthors (of 22/47), jaccard=0.01
+  - `13939054` vs `33611043`: 0 shared coauthors (of 22/69), jaccard=0.00
+  - `13939054` vs `36240497`: 0 shared coauthors (of 22/9), jaccard=0.00
+  - `13939054` vs `36841805`: 0 shared coauthors (of 22/7), jaccard=0.00
+  - `13939054` vs `39798942`: 0 shared coauthors (of 22/4), jaccard=0.00
+  - `13939054` vs `43179707`: 0 shared coauthors (of 22/31), jaccard=0.00
+  - `13939054` vs `45963771`: 2 shared coauthors (of 22/10), jaccard=0.07
+  - `13939054` vs `50271585`: 0 shared coauthors (of 22/18), jaccard=0.00
+  - `13939054` vs `54786787`: 0 shared coauthors (of 22/19), jaccard=0.00
+  - `13939054` vs `55150117`: 1 shared coauthors (of 22/111), jaccard=0.01
+  - `13939054` vs `56662283`: 0 shared coauthors (of 22/90), jaccard=0.00
+  - `13939054` vs `63569917`: 0 shared coauthors (of 22/40), jaccard=0.00
+  - `13939054` vs `66995184`: 0 shared coauthors (of 22/19), jaccard=0.00
+  - `13939054` vs `70042694`: 0 shared coauthors (of 22/21), jaccard=0.00
+  - `13939054` vs `70553728`: 0 shared coauthors (of 22/26), jaccard=0.00
+  - `13939054` vs `74858718`: 0 shared coauthors (of 22/12), jaccard=0.00
+  - `13939054` vs `77671600`: 0 shared coauthors (of 22/27), jaccard=0.00
+  - `13939054` vs `86120580`: 0 shared coauthors (of 22/16), jaccard=0.00
+  - `13939054` vs `89240711`: 0 shared coauthors (of 22/3), jaccard=0.00
+  - `13939054` vs `89553620`: 0 shared coauthors (of 22/17), jaccard=0.00
+  - `13939054` vs `90232379`: 0 shared coauthors (of 22/9), jaccard=0.00
+  - `13939054` vs `91168544`: 0 shared coauthors (of 22/335), jaccard=0.00
+  - `13939054` vs `01398385`: 0 shared coauthors (of 22/10), jaccard=0.00
+  - `13939054` vs `01739070`: 0 shared coauthors (of 22/33), jaccard=0.00
+  - `13939054` vs `02845695`: 0 shared coauthors (of 22/20), jaccard=0.00
+  - `13939054` vs `02936875`: 0 shared coauthors (of 22/2), jaccard=0.00
+  - `13939054` vs `03932575`: 0 shared coauthors (of 22/68), jaccard=0.00
+  - `13939054` vs `06132999`: 0 shared coauthors (of 22/6), jaccard=0.00
+  - `13939054` vs `10020851`: 0 shared coauthors (of 22/33), jaccard=0.00
+  - `13939054` vs `10045808`: 0 shared coauthors (of 22/14), jaccard=0.00
+  - `13939054` vs `10501904`: 1 shared coauthors (of 22/134), jaccard=0.01
+  - `13939054` vs `10527701`: 0 shared coauthors (of 22/8), jaccard=0.00
+  - `13939054` vs `11684274`: 0 shared coauthors (of 22/128), jaccard=0.00
+  - `13939054` vs `13607064`: 0 shared coauthors (of 22/15), jaccard=0.00
+  - `13939054` vs `14251832`: 0 shared coauthors (of 22/5), jaccard=0.00
+  - `19608205` vs `20128275`: 0 shared coauthors (of 11/6), jaccard=0.00
+  - `19608205` vs `29757698`: 0 shared coauthors (of 11/47), jaccard=0.00
+  - `19608205` vs `33611043`: 0 shared coauthors (of 11/69), jaccard=0.00
+  - `19608205` vs `36240497`: 0 shared coauthors (of 11/9), jaccard=0.00
+  - `19608205` vs `36841805`: 0 shared coauthors (of 11/7), jaccard=0.00
+  - `19608205` vs `39798942`: 0 shared coauthors (of 11/4), jaccard=0.00
+  - `19608205` vs `43179707`: 0 shared coauthors (of 11/31), jaccard=0.00
+  - `19608205` vs `45963771`: 0 shared coauthors (of 11/10), jaccard=0.00
+  - `19608205` vs `50271585`: 0 shared coauthors (of 11/18), jaccard=0.00
+  - `19608205` vs `54786787`: 0 shared coauthors (of 11/19), jaccard=0.00
+  - `19608205` vs `55150117`: 2 shared coauthors (of 11/111), jaccard=0.02
+  - `19608205` vs `56662283`: 0 shared coauthors (of 11/90), jaccard=0.00
+  - `19608205` vs `63569917`: 0 shared coauthors (of 11/40), jaccard=0.00
+  - `19608205` vs `66995184`: 0 shared coauthors (of 11/19), jaccard=0.00
+  - `19608205` vs `70042694`: 0 shared coauthors (of 11/21), jaccard=0.00
+  - `19608205` vs `70553728`: 0 shared coauthors (of 11/26), jaccard=0.00
+  - `19608205` vs `74858718`: 0 shared coauthors (of 11/12), jaccard=0.00
+  - `19608205` vs `77671600`: 0 shared coauthors (of 11/27), jaccard=0.00
+  - `19608205` vs `86120580`: 0 shared coauthors (of 11/16), jaccard=0.00
+  - `19608205` vs `89240711`: 0 shared coauthors (of 11/3), jaccard=0.00
+  - `19608205` vs `89553620`: 0 shared coauthors (of 11/17), jaccard=0.00
+  - `19608205` vs `90232379`: 0 shared coauthors (of 11/9), jaccard=0.00
+  - `19608205` vs `91168544`: 0 shared coauthors (of 11/335), jaccard=0.00
+  - `19608205` vs `01398385`: 0 shared coauthors (of 11/10), jaccard=0.00
+  - `19608205` vs `01739070`: 0 shared coauthors (of 11/33), jaccard=0.00
+  - `19608205` vs `02845695`: 0 shared coauthors (of 11/20), jaccard=0.00
+  - `19608205` vs `02936875`: 0 shared coauthors (of 11/2), jaccard=0.00
+  - `19608205` vs `03932575`: 0 shared coauthors (of 11/68), jaccard=0.00
+  - `19608205` vs `06132999`: 0 shared coauthors (of 11/6), jaccard=0.00
+  - `19608205` vs `10020851`: 0 shared coauthors (of 11/33), jaccard=0.00
+  - `19608205` vs `10045808`: 0 shared coauthors (of 11/14), jaccard=0.00
+  - `19608205` vs `10501904`: 1 shared coauthors (of 11/134), jaccard=0.01
+  - `19608205` vs `10527701`: 0 shared coauthors (of 11/8), jaccard=0.00
+  - `19608205` vs `11684274`: 0 shared coauthors (of 11/128), jaccard=0.00
+  - `19608205` vs `13607064`: 0 shared coauthors (of 11/15), jaccard=0.00
+  - `19608205` vs `14251832`: 0 shared coauthors (of 11/5), jaccard=0.00
+  - `20128275` vs `29757698`: 0 shared coauthors (of 6/47), jaccard=0.00
+  - `20128275` vs `33611043`: 0 shared coauthors (of 6/69), jaccard=0.00
+  - `20128275` vs `36240497`: 0 shared coauthors (of 6/9), jaccard=0.00
+  - `20128275` vs `36841805`: 0 shared coauthors (of 6/7), jaccard=0.00
+  - `20128275` vs `39798942`: 0 shared coauthors (of 6/4), jaccard=0.00
+  - `20128275` vs `43179707`: 0 shared coauthors (of 6/31), jaccard=0.00
+  - `20128275` vs `45963771`: 0 shared coauthors (of 6/10), jaccard=0.00
+  - `20128275` vs `50271585`: 0 shared coauthors (of 6/18), jaccard=0.00
+  - `20128275` vs `54786787`: 0 shared coauthors (of 6/19), jaccard=0.00
+  - `20128275` vs `55150117`: 0 shared coauthors (of 6/111), jaccard=0.00
+  - `20128275` vs `56662283`: 0 shared coauthors (of 6/90), jaccard=0.00
+  - `20128275` vs `63569917`: 0 shared coauthors (of 6/40), jaccard=0.00
+  - `20128275` vs `66995184`: 0 shared coauthors (of 6/19), jaccard=0.00
+  - `20128275` vs `70042694`: 0 shared coauthors (of 6/21), jaccard=0.00
+  - `20128275` vs `70553728`: 0 shared coauthors (of 6/26), jaccard=0.00
+  - `20128275` vs `74858718`: 0 shared coauthors (of 6/12), jaccard=0.00
+  - `20128275` vs `77671600`: 0 shared coauthors (of 6/27), jaccard=0.00
+  - `20128275` vs `86120580`: 0 shared coauthors (of 6/16), jaccard=0.00
+  - `20128275` vs `89240711`: 0 shared coauthors (of 6/3), jaccard=0.00
+  - `20128275` vs `89553620`: 0 shared coauthors (of 6/17), jaccard=0.00
+  - `20128275` vs `90232379`: 0 shared coauthors (of 6/9), jaccard=0.00
+  - `20128275` vs `91168544`: 0 shared coauthors (of 6/335), jaccard=0.00
+  - `20128275` vs `01398385`: 0 shared coauthors (of 6/10), jaccard=0.00
+  - `20128275` vs `01739070`: 0 shared coauthors (of 6/33), jaccard=0.00
+  - `20128275` vs `02845695`: 0 shared coauthors (of 6/20), jaccard=0.00
+  - `20128275` vs `02936875`: 0 shared coauthors (of 6/2), jaccard=0.00
+  - `20128275` vs `03932575`: 0 shared coauthors (of 6/68), jaccard=0.00
+  - `20128275` vs `06132999`: 1 shared coauthors (of 6/6), jaccard=0.09
+  - `20128275` vs `10020851`: 0 shared coauthors (of 6/33), jaccard=0.00
+  - `20128275` vs `10045808`: 0 shared coauthors (of 6/14), jaccard=0.00
+  - `20128275` vs `10501904`: 0 shared coauthors (of 6/134), jaccard=0.00
+  - `20128275` vs `10527701`: 0 shared coauthors (of 6/8), jaccard=0.00
+  - `20128275` vs `11684274`: 0 shared coauthors (of 6/128), jaccard=0.00
+  - `20128275` vs `13607064`: 0 shared coauthors (of 6/15), jaccard=0.00
+  - `20128275` vs `14251832`: 0 shared coauthors (of 6/5), jaccard=0.00
+  - `29757698` vs `33611043`: 0 shared coauthors (of 47/69), jaccard=0.00
+  - `29757698` vs `36240497`: 0 shared coauthors (of 47/9), jaccard=0.00
+  - `29757698` vs `36841805`: 0 shared coauthors (of 47/7), jaccard=0.00
+  - `29757698` vs `39798942`: 0 shared coauthors (of 47/4), jaccard=0.00
+  - `29757698` vs `43179707`: 1 shared coauthors (of 47/31), jaccard=0.01
+  - `29757698` vs `45963771`: 0 shared coauthors (of 47/10), jaccard=0.00
+  - `29757698` vs `50271585`: 1 shared coauthors (of 47/18), jaccard=0.02
+  - `29757698` vs `54786787`: 0 shared coauthors (of 47/19), jaccard=0.00
+  - `29757698` vs `55150117`: 0 shared coauthors (of 47/111), jaccard=0.00
+  - `29757698` vs `56662283`: 0 shared coauthors (of 47/90), jaccard=0.00
+  - `29757698` vs `63569917`: 17 shared coauthors (of 47/40), jaccard=0.24
+  - `29757698` vs `66995184`: 1 shared coauthors (of 47/19), jaccard=0.02
+  - `29757698` vs `70042694`: 0 shared coauthors (of 47/21), jaccard=0.00
+  - `29757698` vs `70553728`: 0 shared coauthors (of 47/26), jaccard=0.00
+  - `29757698` vs `74858718`: 0 shared coauthors (of 47/12), jaccard=0.00
+  - `29757698` vs `77671600`: 0 shared coauthors (of 47/27), jaccard=0.00
+  - `29757698` vs `86120580`: 0 shared coauthors (of 47/16), jaccard=0.00
+  - `29757698` vs `89240711`: 0 shared coauthors (of 47/3), jaccard=0.00
+  - `29757698` vs `89553620`: 0 shared coauthors (of 47/17), jaccard=0.00
+  - `29757698` vs `90232379`: 0 shared coauthors (of 47/9), jaccard=0.00
+  - `29757698` vs `91168544`: 0 shared coauthors (of 47/335), jaccard=0.00
+  - `29757698` vs `01398385`: 0 shared coauthors (of 47/10), jaccard=0.00
+  - `29757698` vs `01739070`: 0 shared coauthors (of 47/33), jaccard=0.00
+  - `29757698` vs `02845695`: 1 shared coauthors (of 47/20), jaccard=0.02
+  - `29757698` vs `02936875`: 0 shared coauthors (of 47/2), jaccard=0.00
+  - `29757698` vs `03932575`: 0 shared coauthors (of 47/68), jaccard=0.00
+  - `29757698` vs `06132999`: 0 shared coauthors (of 47/6), jaccard=0.00
+  - `29757698` vs `10020851`: 0 shared coauthors (of 47/33), jaccard=0.00
+  - `29757698` vs `10045808`: 0 shared coauthors (of 47/14), jaccard=0.00
+  - `29757698` vs `10501904`: 0 shared coauthors (of 47/134), jaccard=0.00
+  - `29757698` vs `10527701`: 0 shared coauthors (of 47/8), jaccard=0.00
+  - `29757698` vs `11684274`: 0 shared coauthors (of 47/128), jaccard=0.00
+  - `29757698` vs `13607064`: 0 shared coauthors (of 47/15), jaccard=0.00
+  - `29757698` vs `14251832`: 0 shared coauthors (of 47/5), jaccard=0.00
+  - `33611043` vs `36240497`: 0 shared coauthors (of 69/9), jaccard=0.00
+  - `33611043` vs `36841805`: 0 shared coauthors (of 69/7), jaccard=0.00
+  - `33611043` vs `39798942`: 0 shared coauthors (of 69/4), jaccard=0.00
+  - `33611043` vs `43179707`: 0 shared coauthors (of 69/31), jaccard=0.00
+  - `33611043` vs `45963771`: 0 shared coauthors (of 69/10), jaccard=0.00
+  - `33611043` vs `50271585`: 0 shared coauthors (of 69/18), jaccard=0.00
+  - `33611043` vs `54786787`: 0 shared coauthors (of 69/19), jaccard=0.00
+  - `33611043` vs `55150117`: 0 shared coauthors (of 69/111), jaccard=0.00
+  - `33611043` vs `56662283`: 0 shared coauthors (of 69/90), jaccard=0.00
+  - `33611043` vs `63569917`: 0 shared coauthors (of 69/40), jaccard=0.00
+  - `33611043` vs `66995184`: 0 shared coauthors (of 69/19), jaccard=0.00
+  - `33611043` vs `70042694`: 0 shared coauthors (of 69/21), jaccard=0.00
+  - `33611043` vs `70553728`: 1 shared coauthors (of 69/26), jaccard=0.01
+  - `33611043` vs `74858718`: 0 shared coauthors (of 69/12), jaccard=0.00
+  - `33611043` vs `77671600`: 0 shared coauthors (of 69/27), jaccard=0.00
+  - `33611043` vs `86120580`: 0 shared coauthors (of 69/16), jaccard=0.00
+  - `33611043` vs `89240711`: 0 shared coauthors (of 69/3), jaccard=0.00
+  - `33611043` vs `89553620`: 0 shared coauthors (of 69/17), jaccard=0.00
+  - `33611043` vs `90232379`: 0 shared coauthors (of 69/9), jaccard=0.00
+  - `33611043` vs `91168544`: 1 shared coauthors (of 69/335), jaccard=0.00
+  - `33611043` vs `01398385`: 0 shared coauthors (of 69/10), jaccard=0.00
+  - `33611043` vs `01739070`: 0 shared coauthors (of 69/33), jaccard=0.00
+  - `33611043` vs `02845695`: 0 shared coauthors (of 69/20), jaccard=0.00
+  - `33611043` vs `02936875`: 0 shared coauthors (of 69/2), jaccard=0.00
+  - `33611043` vs `03932575`: 0 shared coauthors (of 69/68), jaccard=0.00
+  - `33611043` vs `06132999`: 0 shared coauthors (of 69/6), jaccard=0.00
+  - `33611043` vs `10020851`: 0 shared coauthors (of 69/33), jaccard=0.00
+  - `33611043` vs `10045808`: 0 shared coauthors (of 69/14), jaccard=0.00
+  - `33611043` vs `10501904`: 0 shared coauthors (of 69/134), jaccard=0.00
+  - `33611043` vs `10527701`: 0 shared coauthors (of 69/8), jaccard=0.00
+  - `33611043` vs `11684274`: 0 shared coauthors (of 69/128), jaccard=0.00
+  - `33611043` vs `13607064`: 0 shared coauthors (of 69/15), jaccard=0.00
+  - `33611043` vs `14251832`: 0 shared coauthors (of 69/5), jaccard=0.00
+  - `36240497` vs `36841805`: 0 shared coauthors (of 9/7), jaccard=0.00
+  - `36240497` vs `39798942`: 0 shared coauthors (of 9/4), jaccard=0.00
+  - `36240497` vs `43179707`: 0 shared coauthors (of 9/31), jaccard=0.00
+  - `36240497` vs `45963771`: 0 shared coauthors (of 9/10), jaccard=0.00
+  - `36240497` vs `50271585`: 0 shared coauthors (of 9/18), jaccard=0.00
+  - `36240497` vs `54786787`: 0 shared coauthors (of 9/19), jaccard=0.00
+  - `36240497` vs `55150117`: 0 shared coauthors (of 9/111), jaccard=0.00
+  - `36240497` vs `56662283`: 0 shared coauthors (of 9/90), jaccard=0.00
+  - `36240497` vs `63569917`: 0 shared coauthors (of 9/40), jaccard=0.00
+  - `36240497` vs `66995184`: 0 shared coauthors (of 9/19), jaccard=0.00
+  - `36240497` vs `70042694`: 0 shared coauthors (of 9/21), jaccard=0.00
+  - `36240497` vs `70553728`: 0 shared coauthors (of 9/26), jaccard=0.00
+  - `36240497` vs `74858718`: 0 shared coauthors (of 9/12), jaccard=0.00
+  - `36240497` vs `77671600`: 0 shared coauthors (of 9/27), jaccard=0.00
+  - `36240497` vs `86120580`: 0 shared coauthors (of 9/16), jaccard=0.00
+  - `36240497` vs `89240711`: 0 shared coauthors (of 9/3), jaccard=0.00
+  - `36240497` vs `89553620`: 0 shared coauthors (of 9/17), jaccard=0.00
+  - `36240497` vs `90232379`: 0 shared coauthors (of 9/9), jaccard=0.00
+  - `36240497` vs `91168544`: 0 shared coauthors (of 9/335), jaccard=0.00
+  - `36240497` vs `01398385`: 0 shared coauthors (of 9/10), jaccard=0.00
+  - `36240497` vs `01739070`: 0 shared coauthors (of 9/33), jaccard=0.00
+  - `36240497` vs `02845695`: 0 shared coauthors (of 9/20), jaccard=0.00
+  - `36240497` vs `02936875`: 0 shared coauthors (of 9/2), jaccard=0.00
+  - `36240497` vs `03932575`: 0 shared coauthors (of 9/68), jaccard=0.00
+  - `36240497` vs `06132999`: 0 shared coauthors (of 9/6), jaccard=0.00
+  - `36240497` vs `10020851`: 0 shared coauthors (of 9/33), jaccard=0.00
+  - `36240497` vs `10045808`: 0 shared coauthors (of 9/14), jaccard=0.00
+  - `36240497` vs `10501904`: 0 shared coauthors (of 9/134), jaccard=0.00
+  - `36240497` vs `10527701`: 0 shared coauthors (of 9/8), jaccard=0.00
+  - `36240497` vs `11684274`: 0 shared coauthors (of 9/128), jaccard=0.00
+  - `36240497` vs `13607064`: 0 shared coauthors (of 9/15), jaccard=0.00
+  - `36240497` vs `14251832`: 0 shared coauthors (of 9/5), jaccard=0.00
+  - `36841805` vs `39798942`: 0 shared coauthors (of 7/4), jaccard=0.00
+  - `36841805` vs `43179707`: 0 shared coauthors (of 7/31), jaccard=0.00
+  - `36841805` vs `45963771`: 0 shared coauthors (of 7/10), jaccard=0.00
+  - `36841805` vs `50271585`: 0 shared coauthors (of 7/18), jaccard=0.00
+  - `36841805` vs `54786787`: 0 shared coauthors (of 7/19), jaccard=0.00
+  - `36841805` vs `55150117`: 0 shared coauthors (of 7/111), jaccard=0.00
+  - `36841805` vs `56662283`: 0 shared coauthors (of 7/90), jaccard=0.00
+  - `36841805` vs `63569917`: 0 shared coauthors (of 7/40), jaccard=0.00
+  - `36841805` vs `66995184`: 0 shared coauthors (of 7/19), jaccard=0.00
+  - `36841805` vs `70042694`: 0 shared coauthors (of 7/21), jaccard=0.00
+  - `36841805` vs `70553728`: 0 shared coauthors (of 7/26), jaccard=0.00
+  - `36841805` vs `74858718`: 0 shared coauthors (of 7/12), jaccard=0.00
+  - `36841805` vs `77671600`: 0 shared coauthors (of 7/27), jaccard=0.00
+  - `36841805` vs `86120580`: 0 shared coauthors (of 7/16), jaccard=0.00
+  - `36841805` vs `89240711`: 0 shared coauthors (of 7/3), jaccard=0.00
+  - `36841805` vs `89553620`: 0 shared coauthors (of 7/17), jaccard=0.00
+  - `36841805` vs `90232379`: 0 shared coauthors (of 7/9), jaccard=0.00
+  - `36841805` vs `91168544`: 0 shared coauthors (of 7/335), jaccard=0.00
+  - `36841805` vs `01398385`: 0 shared coauthors (of 7/10), jaccard=0.00
+  - `36841805` vs `01739070`: 0 shared coauthors (of 7/33), jaccard=0.00
+  - `36841805` vs `02845695`: 0 shared coauthors (of 7/20), jaccard=0.00
+  - `36841805` vs `02936875`: 0 shared coauthors (of 7/2), jaccard=0.00
+  - `36841805` vs `03932575`: 0 shared coauthors (of 7/68), jaccard=0.00
+  - `36841805` vs `06132999`: 0 shared coauthors (of 7/6), jaccard=0.00
+  - `36841805` vs `10020851`: 0 shared coauthors (of 7/33), jaccard=0.00
+  - `36841805` vs `10045808`: 0 shared coauthors (of 7/14), jaccard=0.00
+  - `36841805` vs `10501904`: 0 shared coauthors (of 7/134), jaccard=0.00
+  - `36841805` vs `10527701`: 0 shared coauthors (of 7/8), jaccard=0.00
+  - `36841805` vs `11684274`: 0 shared coauthors (of 7/128), jaccard=0.00
+  - `36841805` vs `13607064`: 0 shared coauthors (of 7/15), jaccard=0.00
+  - `36841805` vs `14251832`: 0 shared coauthors (of 7/5), jaccard=0.00
+  - `39798942` vs `43179707`: 0 shared coauthors (of 4/31), jaccard=0.00
+  - `39798942` vs `45963771`: 0 shared coauthors (of 4/10), jaccard=0.00
+  - `39798942` vs `50271585`: 0 shared coauthors (of 4/18), jaccard=0.00
+  - `39798942` vs `54786787`: 0 shared coauthors (of 4/19), jaccard=0.00
+  - `39798942` vs `55150117`: 0 shared coauthors (of 4/111), jaccard=0.00
+  - `39798942` vs `56662283`: 0 shared coauthors (of 4/90), jaccard=0.00
+  - `39798942` vs `63569917`: 0 shared coauthors (of 4/40), jaccard=0.00
+  - `39798942` vs `66995184`: 0 shared coauthors (of 4/19), jaccard=0.00
+  - `39798942` vs `70042694`: 4 shared coauthors (of 4/21), jaccard=0.19
+  - `39798942` vs `70553728`: 0 shared coauthors (of 4/26), jaccard=0.00
+  - `39798942` vs `74858718`: 2 shared coauthors (of 4/12), jaccard=0.14
+  - `39798942` vs `77671600`: 0 shared coauthors (of 4/27), jaccard=0.00
+  - `39798942` vs `86120580`: 0 shared coauthors (of 4/16), jaccard=0.00
+  - `39798942` vs `89240711`: 0 shared coauthors (of 4/3), jaccard=0.00
+  - `39798942` vs `89553620`: 0 shared coauthors (of 4/17), jaccard=0.00
+  - `39798942` vs `90232379`: 0 shared coauthors (of 4/9), jaccard=0.00
+  - `39798942` vs `91168544`: 0 shared coauthors (of 4/335), jaccard=0.00
+  - `39798942` vs `01398385`: 0 shared coauthors (of 4/10), jaccard=0.00
+  - `39798942` vs `01739070`: 0 shared coauthors (of 4/33), jaccard=0.00
+  - `39798942` vs `02845695`: 0 shared coauthors (of 4/20), jaccard=0.00
+  - `39798942` vs `02936875`: 0 shared coauthors (of 4/2), jaccard=0.00
+  - `39798942` vs `03932575`: 1 shared coauthors (of 4/68), jaccard=0.01
+  - `39798942` vs `06132999`: 0 shared coauthors (of 4/6), jaccard=0.00
+  - `39798942` vs `10020851`: 0 shared coauthors (of 4/33), jaccard=0.00
+  - `39798942` vs `10045808`: 0 shared coauthors (of 4/14), jaccard=0.00
+  - `39798942` vs `10501904`: 0 shared coauthors (of 4/134), jaccard=0.00
+  - `39798942` vs `10527701`: 0 shared coauthors (of 4/8), jaccard=0.00
+  - `39798942` vs `11684274`: 0 shared coauthors (of 4/128), jaccard=0.00
+  - `39798942` vs `13607064`: 0 shared coauthors (of 4/15), jaccard=0.00
+  - `39798942` vs `14251832`: 0 shared coauthors (of 4/5), jaccard=0.00
+  - `43179707` vs `45963771`: 0 shared coauthors (of 31/10), jaccard=0.00
+  - `43179707` vs `50271585`: 1 shared coauthors (of 31/18), jaccard=0.02
+  - `43179707` vs `54786787`: 0 shared coauthors (of 31/19), jaccard=0.00
+  - `43179707` vs `55150117`: 0 shared coauthors (of 31/111), jaccard=0.00
+  - `43179707` vs `56662283`: 0 shared coauthors (of 31/90), jaccard=0.00
+  - `43179707` vs `63569917`: 0 shared coauthors (of 31/40), jaccard=0.00
+  - `43179707` vs `66995184`: 0 shared coauthors (of 31/19), jaccard=0.00
+  - `43179707` vs `70042694`: 0 shared coauthors (of 31/21), jaccard=0.00
+  - `43179707` vs `70553728`: 0 shared coauthors (of 31/26), jaccard=0.00
+  - `43179707` vs `74858718`: 0 shared coauthors (of 31/12), jaccard=0.00
+  - `43179707` vs `77671600`: 0 shared coauthors (of 31/27), jaccard=0.00
+  - `43179707` vs `86120580`: 0 shared coauthors (of 31/16), jaccard=0.00
+  - `43179707` vs `89240711`: 0 shared coauthors (of 31/3), jaccard=0.00
+  - `43179707` vs `89553620`: 0 shared coauthors (of 31/17), jaccard=0.00
+  - `43179707` vs `90232379`: 0 shared coauthors (of 31/9), jaccard=0.00
+  - `43179707` vs `91168544`: 0 shared coauthors (of 31/335), jaccard=0.00
+  - `43179707` vs `01398385`: 0 shared coauthors (of 31/10), jaccard=0.00
+  - `43179707` vs `01739070`: 0 shared coauthors (of 31/33), jaccard=0.00
+  - `43179707` vs `02845695`: 0 shared coauthors (of 31/20), jaccard=0.00
+  - `43179707` vs `02936875`: 0 shared coauthors (of 31/2), jaccard=0.00
+  - `43179707` vs `03932575`: 0 shared coauthors (of 31/68), jaccard=0.00
+  - `43179707` vs `06132999`: 0 shared coauthors (of 31/6), jaccard=0.00
+  - `43179707` vs `10020851`: 0 shared coauthors (of 31/33), jaccard=0.00
+  - `43179707` vs `10045808`: 0 shared coauthors (of 31/14), jaccard=0.00
+  - `43179707` vs `10501904`: 0 shared coauthors (of 31/134), jaccard=0.00
+  - `43179707` vs `10527701`: 0 shared coauthors (of 31/8), jaccard=0.00
+  - `43179707` vs `11684274`: 0 shared coauthors (of 31/128), jaccard=0.00
+  - `43179707` vs `13607064`: 0 shared coauthors (of 31/15), jaccard=0.00
+  - `43179707` vs `14251832`: 0 shared coauthors (of 31/5), jaccard=0.00
+  - `45963771` vs `50271585`: 0 shared coauthors (of 10/18), jaccard=0.00
+  - `45963771` vs `54786787`: 0 shared coauthors (of 10/19), jaccard=0.00
+  - `45963771` vs `55150117`: 0 shared coauthors (of 10/111), jaccard=0.00
+  - `45963771` vs `56662283`: 0 shared coauthors (of 10/90), jaccard=0.00
+  - `45963771` vs `63569917`: 0 shared coauthors (of 10/40), jaccard=0.00
+  - `45963771` vs `66995184`: 0 shared coauthors (of 10/19), jaccard=0.00
+  - `45963771` vs `70042694`: 0 shared coauthors (of 10/21), jaccard=0.00
+  - `45963771` vs `70553728`: 0 shared coauthors (of 10/26), jaccard=0.00
+  - `45963771` vs `74858718`: 0 shared coauthors (of 10/12), jaccard=0.00
+  - `45963771` vs `77671600`: 0 shared coauthors (of 10/27), jaccard=0.00
+  - `45963771` vs `86120580`: 0 shared coauthors (of 10/16), jaccard=0.00
+  - `45963771` vs `89240711`: 0 shared coauthors (of 10/3), jaccard=0.00
+  - `45963771` vs `89553620`: 0 shared coauthors (of 10/17), jaccard=0.00
+  - `45963771` vs `90232379`: 0 shared coauthors (of 10/9), jaccard=0.00
+  - `45963771` vs `91168544`: 0 shared coauthors (of 10/335), jaccard=0.00
+  - `45963771` vs `01398385`: 0 shared coauthors (of 10/10), jaccard=0.00
+  - `45963771` vs `01739070`: 0 shared coauthors (of 10/33), jaccard=0.00
+  - `45963771` vs `02845695`: 0 shared coauthors (of 10/20), jaccard=0.00
+  - `45963771` vs `02936875`: 0 shared coauthors (of 10/2), jaccard=0.00
+  - `45963771` vs `03932575`: 0 shared coauthors (of 10/68), jaccard=0.00
+  - `45963771` vs `06132999`: 0 shared coauthors (of 10/6), jaccard=0.00
+  - `45963771` vs `10020851`: 0 shared coauthors (of 10/33), jaccard=0.00
+  - `45963771` vs `10045808`: 0 shared coauthors (of 10/14), jaccard=0.00
+  - `45963771` vs `10501904`: 0 shared coauthors (of 10/134), jaccard=0.00
+  - `45963771` vs `10527701`: 0 shared coauthors (of 10/8), jaccard=0.00
+  - `45963771` vs `11684274`: 0 shared coauthors (of 10/128), jaccard=0.00
+  - `45963771` vs `13607064`: 0 shared coauthors (of 10/15), jaccard=0.00
+  - `45963771` vs `14251832`: 0 shared coauthors (of 10/5), jaccard=0.00
+  - `50271585` vs `54786787`: 0 shared coauthors (of 18/19), jaccard=0.00
+  - `50271585` vs `55150117`: 0 shared coauthors (of 18/111), jaccard=0.00
+  - `50271585` vs `56662283`: 0 shared coauthors (of 18/90), jaccard=0.00
+  - `50271585` vs `63569917`: 0 shared coauthors (of 18/40), jaccard=0.00
+  - `50271585` vs `66995184`: 0 shared coauthors (of 18/19), jaccard=0.00
+  - `50271585` vs `70042694`: 0 shared coauthors (of 18/21), jaccard=0.00
+  - `50271585` vs `70553728`: 0 shared coauthors (of 18/26), jaccard=0.00
+  - `50271585` vs `74858718`: 0 shared coauthors (of 18/12), jaccard=0.00
+  - `50271585` vs `77671600`: 0 shared coauthors (of 18/27), jaccard=0.00
+  - `50271585` vs `86120580`: 0 shared coauthors (of 18/16), jaccard=0.00
+  - `50271585` vs `89240711`: 0 shared coauthors (of 18/3), jaccard=0.00
+  - `50271585` vs `89553620`: 0 shared coauthors (of 18/17), jaccard=0.00
+  - `50271585` vs `90232379`: 0 shared coauthors (of 18/9), jaccard=0.00
+  - `50271585` vs `91168544`: 0 shared coauthors (of 18/335), jaccard=0.00
+  - `50271585` vs `01398385`: 0 shared coauthors (of 18/10), jaccard=0.00
+  - `50271585` vs `01739070`: 0 shared coauthors (of 18/33), jaccard=0.00
+  - `50271585` vs `02845695`: 0 shared coauthors (of 18/20), jaccard=0.00
+  - `50271585` vs `02936875`: 0 shared coauthors (of 18/2), jaccard=0.00
+  - `50271585` vs `03932575`: 0 shared coauthors (of 18/68), jaccard=0.00
+  - `50271585` vs `06132999`: 0 shared coauthors (of 18/6), jaccard=0.00
+  - `50271585` vs `10020851`: 0 shared coauthors (of 18/33), jaccard=0.00
+  - `50271585` vs `10045808`: 0 shared coauthors (of 18/14), jaccard=0.00
+  - `50271585` vs `10501904`: 0 shared coauthors (of 18/134), jaccard=0.00
+  - `50271585` vs `10527701`: 0 shared coauthors (of 18/8), jaccard=0.00
+  - `50271585` vs `11684274`: 0 shared coauthors (of 18/128), jaccard=0.00
+  - `50271585` vs `13607064`: 0 shared coauthors (of 18/15), jaccard=0.00
+  - `50271585` vs `14251832`: 0 shared coauthors (of 18/5), jaccard=0.00
+  - `54786787` vs `55150117`: 0 shared coauthors (of 19/111), jaccard=0.00
+  - `54786787` vs `56662283`: 5 shared coauthors (of 19/90), jaccard=0.05
+  - `54786787` vs `63569917`: 0 shared coauthors (of 19/40), jaccard=0.00
+  - `54786787` vs `66995184`: 0 shared coauthors (of 19/19), jaccard=0.00
+  - `54786787` vs `70042694`: 0 shared coauthors (of 19/21), jaccard=0.00
+  - `54786787` vs `70553728`: 0 shared coauthors (of 19/26), jaccard=0.00
+  - `54786787` vs `74858718`: 0 shared coauthors (of 19/12), jaccard=0.00
+  - `54786787` vs `77671600`: 0 shared coauthors (of 19/27), jaccard=0.00
+  - `54786787` vs `86120580`: 0 shared coauthors (of 19/16), jaccard=0.00
+  - `54786787` vs `89240711`: 0 shared coauthors (of 19/3), jaccard=0.00
+  - `54786787` vs `89553620`: 0 shared coauthors (of 19/17), jaccard=0.00
+  - `54786787` vs `90232379`: 0 shared coauthors (of 19/9), jaccard=0.00
+  - `54786787` vs `91168544`: 0 shared coauthors (of 19/335), jaccard=0.00
+  - `54786787` vs `01398385`: 0 shared coauthors (of 19/10), jaccard=0.00
+  - `54786787` vs `01739070`: 0 shared coauthors (of 19/33), jaccard=0.00
+  - `54786787` vs `02845695`: 0 shared coauthors (of 19/20), jaccard=0.00
+  - `54786787` vs `02936875`: 0 shared coauthors (of 19/2), jaccard=0.00
+  - `54786787` vs `03932575`: 0 shared coauthors (of 19/68), jaccard=0.00
+  - `54786787` vs `06132999`: 0 shared coauthors (of 19/6), jaccard=0.00
+  - `54786787` vs `10020851`: 0 shared coauthors (of 19/33), jaccard=0.00
+  - `54786787` vs `10045808`: 0 shared coauthors (of 19/14), jaccard=0.00
+  - `54786787` vs `10501904`: 0 shared coauthors (of 19/134), jaccard=0.00
+  - `54786787` vs `10527701`: 0 shared coauthors (of 19/8), jaccard=0.00
+  - `54786787` vs `11684274`: 0 shared coauthors (of 19/128), jaccard=0.00
+  - `54786787` vs `13607064`: 0 shared coauthors (of 19/15), jaccard=0.00
+  - `54786787` vs `14251832`: 0 shared coauthors (of 19/5), jaccard=0.00
+  - `55150117` vs `56662283`: 0 shared coauthors (of 111/90), jaccard=0.00
+  - `55150117` vs `63569917`: 0 shared coauthors (of 111/40), jaccard=0.00
+  - `55150117` vs `66995184`: 0 shared coauthors (of 111/19), jaccard=0.00
+  - `55150117` vs `70042694`: 0 shared coauthors (of 111/21), jaccard=0.00
+  - `55150117` vs `70553728`: 0 shared coauthors (of 111/26), jaccard=0.00
+  - `55150117` vs `74858718`: 0 shared coauthors (of 111/12), jaccard=0.00
+  - `55150117` vs `77671600`: 0 shared coauthors (of 111/27), jaccard=0.00
+  - `55150117` vs `86120580`: 0 shared coauthors (of 111/16), jaccard=0.00
+  - `55150117` vs `89240711`: 0 shared coauthors (of 111/3), jaccard=0.00
+  - `55150117` vs `89553620`: 5 shared coauthors (of 111/17), jaccard=0.04
+  - `55150117` vs `90232379`: 0 shared coauthors (of 111/9), jaccard=0.00
+  - `55150117` vs `91168544`: 0 shared coauthors (of 111/335), jaccard=0.00
+  - `55150117` vs `01398385`: 0 shared coauthors (of 111/10), jaccard=0.00
+  - `55150117` vs `01739070`: 0 shared coauthors (of 111/33), jaccard=0.00
+  - `55150117` vs `02845695`: 0 shared coauthors (of 111/20), jaccard=0.00
+  - `55150117` vs `02936875`: 0 shared coauthors (of 111/2), jaccard=0.00
+  - `55150117` vs `03932575`: 0 shared coauthors (of 111/68), jaccard=0.00
+  - `55150117` vs `06132999`: 0 shared coauthors (of 111/6), jaccard=0.00
+  - `55150117` vs `10020851`: 0 shared coauthors (of 111/33), jaccard=0.00
+  - `55150117` vs `10045808`: 4 shared coauthors (of 111/14), jaccard=0.03
+  - `55150117` vs `10501904`: 55 shared coauthors (of 111/134), jaccard=0.29
+  - `55150117` vs `10527701`: 0 shared coauthors (of 111/8), jaccard=0.00
+  - `55150117` vs `11684274`: 0 shared coauthors (of 111/128), jaccard=0.00
+  - `55150117` vs `13607064`: 0 shared coauthors (of 111/15), jaccard=0.00
+  - `55150117` vs `14251832`: 0 shared coauthors (of 111/5), jaccard=0.00
+  - `56662283` vs `63569917`: 0 shared coauthors (of 90/40), jaccard=0.00
+  - `56662283` vs `66995184`: 0 shared coauthors (of 90/19), jaccard=0.00
+  - `56662283` vs `70042694`: 0 shared coauthors (of 90/21), jaccard=0.00
+  - `56662283` vs `70553728`: 0 shared coauthors (of 90/26), jaccard=0.00
+  - `56662283` vs `74858718`: 0 shared coauthors (of 90/12), jaccard=0.00
+  - `56662283` vs `77671600`: 0 shared coauthors (of 90/27), jaccard=0.00
+  - `56662283` vs `86120580`: 0 shared coauthors (of 90/16), jaccard=0.00
+  - `56662283` vs `89240711`: 0 shared coauthors (of 90/3), jaccard=0.00
+  - `56662283` vs `89553620`: 0 shared coauthors (of 90/17), jaccard=0.00
+  - `56662283` vs `90232379`: 0 shared coauthors (of 90/9), jaccard=0.00
+  - `56662283` vs `91168544`: 1 shared coauthors (of 90/335), jaccard=0.00
+  - `56662283` vs `01398385`: 0 shared coauthors (of 90/10), jaccard=0.00
+  - `56662283` vs `01739070`: 0 shared coauthors (of 90/33), jaccard=0.00
+  - `56662283` vs `02845695`: 0 shared coauthors (of 90/20), jaccard=0.00
+  - `56662283` vs `02936875`: 0 shared coauthors (of 90/2), jaccard=0.00
+  - `56662283` vs `03932575`: 0 shared coauthors (of 90/68), jaccard=0.00
+  - `56662283` vs `06132999`: 0 shared coauthors (of 90/6), jaccard=0.00
+  - `56662283` vs `10020851`: 1 shared coauthors (of 90/33), jaccard=0.01
+  - `56662283` vs `10045808`: 0 shared coauthors (of 90/14), jaccard=0.00
+  - `56662283` vs `10501904`: 0 shared coauthors (of 90/134), jaccard=0.00
+  - `56662283` vs `10527701`: 0 shared coauthors (of 90/8), jaccard=0.00
+  - `56662283` vs `11684274`: 0 shared coauthors (of 90/128), jaccard=0.00
+  - `56662283` vs `13607064`: 0 shared coauthors (of 90/15), jaccard=0.00
+  - `56662283` vs `14251832`: 0 shared coauthors (of 90/5), jaccard=0.00
+  - `63569917` vs `66995184`: 1 shared coauthors (of 40/19), jaccard=0.02
+  - `63569917` vs `70042694`: 0 shared coauthors (of 40/21), jaccard=0.00
+  - `63569917` vs `70553728`: 0 shared coauthors (of 40/26), jaccard=0.00
+  - `63569917` vs `74858718`: 0 shared coauthors (of 40/12), jaccard=0.00
+  - `63569917` vs `77671600`: 0 shared coauthors (of 40/27), jaccard=0.00
+  - `63569917` vs `86120580`: 0 shared coauthors (of 40/16), jaccard=0.00
+  - `63569917` vs `89240711`: 0 shared coauthors (of 40/3), jaccard=0.00
+  - `63569917` vs `89553620`: 0 shared coauthors (of 40/17), jaccard=0.00
+  - `63569917` vs `90232379`: 0 shared coauthors (of 40/9), jaccard=0.00
+  - `63569917` vs `91168544`: 0 shared coauthors (of 40/335), jaccard=0.00
+  - `63569917` vs `01398385`: 0 shared coauthors (of 40/10), jaccard=0.00
+  - `63569917` vs `01739070`: 0 shared coauthors (of 40/33), jaccard=0.00
+  - `63569917` vs `02845695`: 1 shared coauthors (of 40/20), jaccard=0.02
+  - `63569917` vs `02936875`: 0 shared coauthors (of 40/2), jaccard=0.00
+  - `63569917` vs `03932575`: 0 shared coauthors (of 40/68), jaccard=0.00
+  - `63569917` vs `06132999`: 0 shared coauthors (of 40/6), jaccard=0.00
+  - `63569917` vs `10020851`: 0 shared coauthors (of 40/33), jaccard=0.00
+  - `63569917` vs `10045808`: 0 shared coauthors (of 40/14), jaccard=0.00
+  - `63569917` vs `10501904`: 0 shared coauthors (of 40/134), jaccard=0.00
+  - `63569917` vs `10527701`: 0 shared coauthors (of 40/8), jaccard=0.00
+  - `63569917` vs `11684274`: 0 shared coauthors (of 40/128), jaccard=0.00
+  - `63569917` vs `13607064`: 0 shared coauthors (of 40/15), jaccard=0.00
+  - `63569917` vs `14251832`: 0 shared coauthors (of 40/5), jaccard=0.00
+  - `66995184` vs `70042694`: 0 shared coauthors (of 19/21), jaccard=0.00
+  - `66995184` vs `70553728`: 0 shared coauthors (of 19/26), jaccard=0.00
+  - `66995184` vs `74858718`: 0 shared coauthors (of 19/12), jaccard=0.00
+  - `66995184` vs `77671600`: 0 shared coauthors (of 19/27), jaccard=0.00
+  - `66995184` vs `86120580`: 0 shared coauthors (of 19/16), jaccard=0.00
+  - `66995184` vs `89240711`: 0 shared coauthors (of 19/3), jaccard=0.00
+  - `66995184` vs `89553620`: 0 shared coauthors (of 19/17), jaccard=0.00
+  - `66995184` vs `90232379`: 0 shared coauthors (of 19/9), jaccard=0.00
+  - `66995184` vs `91168544`: 0 shared coauthors (of 19/335), jaccard=0.00
+  - `66995184` vs `01398385`: 0 shared coauthors (of 19/10), jaccard=0.00
+  - `66995184` vs `01739070`: 0 shared coauthors (of 19/33), jaccard=0.00
+  - `66995184` vs `02845695`: 2 shared coauthors (of 19/20), jaccard=0.05
+  - `66995184` vs `02936875`: 0 shared coauthors (of 19/2), jaccard=0.00
+  - `66995184` vs `03932575`: 0 shared coauthors (of 19/68), jaccard=0.00
+  - `66995184` vs `06132999`: 0 shared coauthors (of 19/6), jaccard=0.00
+  - `66995184` vs `10020851`: 0 shared coauthors (of 19/33), jaccard=0.00
+  - `66995184` vs `10045808`: 0 shared coauthors (of 19/14), jaccard=0.00
+  - `66995184` vs `10501904`: 0 shared coauthors (of 19/134), jaccard=0.00
+  - `66995184` vs `10527701`: 0 shared coauthors (of 19/8), jaccard=0.00
+  - `66995184` vs `11684274`: 0 shared coauthors (of 19/128), jaccard=0.00
+  - `66995184` vs `13607064`: 0 shared coauthors (of 19/15), jaccard=0.00
+  - `66995184` vs `14251832`: 0 shared coauthors (of 19/5), jaccard=0.00
+  - `70042694` vs `70553728`: 0 shared coauthors (of 21/26), jaccard=0.00
+  - `70042694` vs `74858718`: 7 shared coauthors (of 21/12), jaccard=0.27
+  - `70042694` vs `77671600`: 0 shared coauthors (of 21/27), jaccard=0.00
+  - `70042694` vs `86120580`: 0 shared coauthors (of 21/16), jaccard=0.00
+  - `70042694` vs `89240711`: 0 shared coauthors (of 21/3), jaccard=0.00
+  - `70042694` vs `89553620`: 0 shared coauthors (of 21/17), jaccard=0.00
+  - `70042694` vs `90232379`: 0 shared coauthors (of 21/9), jaccard=0.00
+  - `70042694` vs `91168544`: 0 shared coauthors (of 21/335), jaccard=0.00
+  - `70042694` vs `01398385`: 0 shared coauthors (of 21/10), jaccard=0.00
+  - `70042694` vs `01739070`: 0 shared coauthors (of 21/33), jaccard=0.00
+  - `70042694` vs `02845695`: 0 shared coauthors (of 21/20), jaccard=0.00
+  - `70042694` vs `02936875`: 0 shared coauthors (of 21/2), jaccard=0.00
+  - `70042694` vs `03932575`: 7 shared coauthors (of 21/68), jaccard=0.09
+  - `70042694` vs `06132999`: 0 shared coauthors (of 21/6), jaccard=0.00
+  - `70042694` vs `10020851`: 0 shared coauthors (of 21/33), jaccard=0.00
+  - `70042694` vs `10045808`: 0 shared coauthors (of 21/14), jaccard=0.00
+  - `70042694` vs `10501904`: 0 shared coauthors (of 21/134), jaccard=0.00
+  - `70042694` vs `10527701`: 0 shared coauthors (of 21/8), jaccard=0.00
+  - `70042694` vs `11684274`: 0 shared coauthors (of 21/128), jaccard=0.00
+  - `70042694` vs `13607064`: 0 shared coauthors (of 21/15), jaccard=0.00
+  - `70042694` vs `14251832`: 0 shared coauthors (of 21/5), jaccard=0.00
+  - `70553728` vs `74858718`: 0 shared coauthors (of 26/12), jaccard=0.00
+  - `70553728` vs `77671600`: 0 shared coauthors (of 26/27), jaccard=0.00
+  - `70553728` vs `86120580`: 0 shared coauthors (of 26/16), jaccard=0.00
+  - `70553728` vs `89240711`: 0 shared coauthors (of 26/3), jaccard=0.00
+  - `70553728` vs `89553620`: 0 shared coauthors (of 26/17), jaccard=0.00
+  - `70553728` vs `90232379`: 0 shared coauthors (of 26/9), jaccard=0.00
+  - `70553728` vs `91168544`: 0 shared coauthors (of 26/335), jaccard=0.00
+  - `70553728` vs `01398385`: 0 shared coauthors (of 26/10), jaccard=0.00
+  - `70553728` vs `01739070`: 0 shared coauthors (of 26/33), jaccard=0.00
+  - `70553728` vs `02845695`: 0 shared coauthors (of 26/20), jaccard=0.00
+  - `70553728` vs `02936875`: 0 shared coauthors (of 26/2), jaccard=0.00
+  - `70553728` vs `03932575`: 0 shared coauthors (of 26/68), jaccard=0.00
+  - `70553728` vs `06132999`: 0 shared coauthors (of 26/6), jaccard=0.00
+  - `70553728` vs `10020851`: 0 shared coauthors (of 26/33), jaccard=0.00
+  - `70553728` vs `10045808`: 0 shared coauthors (of 26/14), jaccard=0.00
+  - `70553728` vs `10501904`: 0 shared coauthors (of 26/134), jaccard=0.00
+  - `70553728` vs `10527701`: 0 shared coauthors (of 26/8), jaccard=0.00
+  - `70553728` vs `11684274`: 0 shared coauthors (of 26/128), jaccard=0.00
+  - `70553728` vs `13607064`: 0 shared coauthors (of 26/15), jaccard=0.00
+  - `70553728` vs `14251832`: 0 shared coauthors (of 26/5), jaccard=0.00
+  - `74858718` vs `77671600`: 0 shared coauthors (of 12/27), jaccard=0.00
+  - `74858718` vs `86120580`: 0 shared coauthors (of 12/16), jaccard=0.00
+  - `74858718` vs `89240711`: 0 shared coauthors (of 12/3), jaccard=0.00
+  - `74858718` vs `89553620`: 0 shared coauthors (of 12/17), jaccard=0.00
+  - `74858718` vs `90232379`: 0 shared coauthors (of 12/9), jaccard=0.00
+  - `74858718` vs `91168544`: 0 shared coauthors (of 12/335), jaccard=0.00
+  - `74858718` vs `01398385`: 0 shared coauthors (of 12/10), jaccard=0.00
+  - `74858718` vs `01739070`: 0 shared coauthors (of 12/33), jaccard=0.00
+  - `74858718` vs `02845695`: 0 shared coauthors (of 12/20), jaccard=0.00
+  - `74858718` vs `02936875`: 0 shared coauthors (of 12/2), jaccard=0.00
+  - `74858718` vs `03932575`: 8 shared coauthors (of 12/68), jaccard=0.11
+  - `74858718` vs `06132999`: 0 shared coauthors (of 12/6), jaccard=0.00
+  - `74858718` vs `10020851`: 0 shared coauthors (of 12/33), jaccard=0.00
+  - `74858718` vs `10045808`: 0 shared coauthors (of 12/14), jaccard=0.00
+  - `74858718` vs `10501904`: 0 shared coauthors (of 12/134), jaccard=0.00
+  - `74858718` vs `10527701`: 0 shared coauthors (of 12/8), jaccard=0.00
+  - `74858718` vs `11684274`: 0 shared coauthors (of 12/128), jaccard=0.00
+  - `74858718` vs `13607064`: 0 shared coauthors (of 12/15), jaccard=0.00
+  - `74858718` vs `14251832`: 0 shared coauthors (of 12/5), jaccard=0.00
+  - `77671600` vs `86120580`: 0 shared coauthors (of 27/16), jaccard=0.00
+  - `77671600` vs `89240711`: 0 shared coauthors (of 27/3), jaccard=0.00
+  - `77671600` vs `89553620`: 0 shared coauthors (of 27/17), jaccard=0.00
+  - `77671600` vs `90232379`: 0 shared coauthors (of 27/9), jaccard=0.00
+  - `77671600` vs `91168544`: 0 shared coauthors (of 27/335), jaccard=0.00
+  - `77671600` vs `01398385`: 0 shared coauthors (of 27/10), jaccard=0.00
+  - `77671600` vs `01739070`: 0 shared coauthors (of 27/33), jaccard=0.00
+  - `77671600` vs `02845695`: 0 shared coauthors (of 27/20), jaccard=0.00
+  - `77671600` vs `02936875`: 0 shared coauthors (of 27/2), jaccard=0.00
+  - `77671600` vs `03932575`: 0 shared coauthors (of 27/68), jaccard=0.00
+  - `77671600` vs `06132999`: 0 shared coauthors (of 27/6), jaccard=0.00
+  - `77671600` vs `10020851`: 0 shared coauthors (of 27/33), jaccard=0.00
+  - `77671600` vs `10045808`: 0 shared coauthors (of 27/14), jaccard=0.00
+  - `77671600` vs `10501904`: 0 shared coauthors (of 27/134), jaccard=0.00
+  - `77671600` vs `10527701`: 0 shared coauthors (of 27/8), jaccard=0.00
+  - `77671600` vs `11684274`: 0 shared coauthors (of 27/128), jaccard=0.00
+  - `77671600` vs `13607064`: 0 shared coauthors (of 27/15), jaccard=0.00
+  - `77671600` vs `14251832`: 0 shared coauthors (of 27/5), jaccard=0.00
+  - `86120580` vs `89240711`: 0 shared coauthors (of 16/3), jaccard=0.00
+  - `86120580` vs `89553620`: 0 shared coauthors (of 16/17), jaccard=0.00
+  - `86120580` vs `90232379`: 0 shared coauthors (of 16/9), jaccard=0.00
+  - `86120580` vs `91168544`: 0 shared coauthors (of 16/335), jaccard=0.00
+  - `86120580` vs `01398385`: 0 shared coauthors (of 16/10), jaccard=0.00
+  - `86120580` vs `01739070`: 0 shared coauthors (of 16/33), jaccard=0.00
+  - `86120580` vs `02845695`: 0 shared coauthors (of 16/20), jaccard=0.00
+  - `86120580` vs `02936875`: 0 shared coauthors (of 16/2), jaccard=0.00
+  - `86120580` vs `03932575`: 0 shared coauthors (of 16/68), jaccard=0.00
+  - `86120580` vs `06132999`: 0 shared coauthors (of 16/6), jaccard=0.00
+  - `86120580` vs `10020851`: 0 shared coauthors (of 16/33), jaccard=0.00
+  - `86120580` vs `10045808`: 0 shared coauthors (of 16/14), jaccard=0.00
+  - `86120580` vs `10501904`: 0 shared coauthors (of 16/134), jaccard=0.00
+  - `86120580` vs `10527701`: 0 shared coauthors (of 16/8), jaccard=0.00
+  - `86120580` vs `11684274`: 0 shared coauthors (of 16/128), jaccard=0.00
+  - `86120580` vs `13607064`: 0 shared coauthors (of 16/15), jaccard=0.00
+  - `86120580` vs `14251832`: 0 shared coauthors (of 16/5), jaccard=0.00
+  - `89240711` vs `89553620`: 0 shared coauthors (of 3/17), jaccard=0.00
+  - `89240711` vs `90232379`: 0 shared coauthors (of 3/9), jaccard=0.00
+  - `89240711` vs `91168544`: 0 shared coauthors (of 3/335), jaccard=0.00
+  - `89240711` vs `01398385`: 0 shared coauthors (of 3/10), jaccard=0.00
+  - `89240711` vs `01739070`: 0 shared coauthors (of 3/33), jaccard=0.00
+  - `89240711` vs `02845695`: 0 shared coauthors (of 3/20), jaccard=0.00
+  - `89240711` vs `02936875`: 0 shared coauthors (of 3/2), jaccard=0.00
+  - `89240711` vs `03932575`: 0 shared coauthors (of 3/68), jaccard=0.00
+  - `89240711` vs `06132999`: 0 shared coauthors (of 3/6), jaccard=0.00
+  - `89240711` vs `10020851`: 0 shared coauthors (of 3/33), jaccard=0.00
+  - `89240711` vs `10045808`: 0 shared coauthors (of 3/14), jaccard=0.00
+  - `89240711` vs `10501904`: 0 shared coauthors (of 3/134), jaccard=0.00
+  - `89240711` vs `10527701`: 0 shared coauthors (of 3/8), jaccard=0.00
+  - `89240711` vs `11684274`: 0 shared coauthors (of 3/128), jaccard=0.00
+  - `89240711` vs `13607064`: 0 shared coauthors (of 3/15), jaccard=0.00
+  - `89240711` vs `14251832`: 0 shared coauthors (of 3/5), jaccard=0.00
+  - `89553620` vs `90232379`: 0 shared coauthors (of 17/9), jaccard=0.00
+  - `89553620` vs `91168544`: 0 shared coauthors (of 17/335), jaccard=0.00
+  - `89553620` vs `01398385`: 0 shared coauthors (of 17/10), jaccard=0.00
+  - `89553620` vs `01739070`: 0 shared coauthors (of 17/33), jaccard=0.00
+  - `89553620` vs `02845695`: 0 shared coauthors (of 17/20), jaccard=0.00
+  - `89553620` vs `02936875`: 0 shared coauthors (of 17/2), jaccard=0.00
+  - `89553620` vs `03932575`: 0 shared coauthors (of 17/68), jaccard=0.00
+  - `89553620` vs `06132999`: 0 shared coauthors (of 17/6), jaccard=0.00
+  - `89553620` vs `10020851`: 0 shared coauthors (of 17/33), jaccard=0.00
+  - `89553620` vs `10045808`: 1 shared coauthors (of 17/14), jaccard=0.03
+  - `89553620` vs `10501904`: 5 shared coauthors (of 17/134), jaccard=0.03
+  - `89553620` vs `10527701`: 0 shared coauthors (of 17/8), jaccard=0.00
+  - `89553620` vs `11684274`: 0 shared coauthors (of 17/128), jaccard=0.00
+  - `89553620` vs `13607064`: 0 shared coauthors (of 17/15), jaccard=0.00
+  - `89553620` vs `14251832`: 0 shared coauthors (of 17/5), jaccard=0.00
+  - `90232379` vs `91168544`: 0 shared coauthors (of 9/335), jaccard=0.00
+  - `90232379` vs `01398385`: 0 shared coauthors (of 9/10), jaccard=0.00
+  - `90232379` vs `01739070`: 0 shared coauthors (of 9/33), jaccard=0.00
+  - `90232379` vs `02845695`: 0 shared coauthors (of 9/20), jaccard=0.00
+  - `90232379` vs `02936875`: 0 shared coauthors (of 9/2), jaccard=0.00
+  - `90232379` vs `03932575`: 0 shared coauthors (of 9/68), jaccard=0.00
+  - `90232379` vs `06132999`: 0 shared coauthors (of 9/6), jaccard=0.00
+  - `90232379` vs `10020851`: 1 shared coauthors (of 9/33), jaccard=0.02
+  - `90232379` vs `10045808`: 0 shared coauthors (of 9/14), jaccard=0.00
+  - `90232379` vs `10501904`: 0 shared coauthors (of 9/134), jaccard=0.00
+  - `90232379` vs `10527701`: 0 shared coauthors (of 9/8), jaccard=0.00
+  - `90232379` vs `11684274`: 0 shared coauthors (of 9/128), jaccard=0.00
+  - `90232379` vs `13607064`: 0 shared coauthors (of 9/15), jaccard=0.00
+  - `90232379` vs `14251832`: 0 shared coauthors (of 9/5), jaccard=0.00
+  - `91168544` vs `01398385`: 0 shared coauthors (of 335/10), jaccard=0.00
+  - `91168544` vs `01739070`: 0 shared coauthors (of 335/33), jaccard=0.00
+  - `91168544` vs `02845695`: 0 shared coauthors (of 335/20), jaccard=0.00
+  - `91168544` vs `02936875`: 0 shared coauthors (of 335/2), jaccard=0.00
+  - `91168544` vs `03932575`: 0 shared coauthors (of 335/68), jaccard=0.00
+  - `91168544` vs `06132999`: 0 shared coauthors (of 335/6), jaccard=0.00
+  - `91168544` vs `10020851`: 0 shared coauthors (of 335/33), jaccard=0.00
+  - `91168544` vs `10045808`: 0 shared coauthors (of 335/14), jaccard=0.00
+  - `91168544` vs `10501904`: 0 shared coauthors (of 335/134), jaccard=0.00
+  - `91168544` vs `10527701`: 0 shared coauthors (of 335/8), jaccard=0.00
+  - `91168544` vs `11684274`: 0 shared coauthors (of 335/128), jaccard=0.00
+  - `91168544` vs `13607064`: 0 shared coauthors (of 335/15), jaccard=0.00
+  - `91168544` vs `14251832`: 0 shared coauthors (of 335/5), jaccard=0.00
+  - `01398385` vs `01739070`: 0 shared coauthors (of 10/33), jaccard=0.00
+  - `01398385` vs `02845695`: 0 shared coauthors (of 10/20), jaccard=0.00
+  - `01398385` vs `02936875`: 0 shared coauthors (of 10/2), jaccard=0.00
+  - `01398385` vs `03932575`: 0 shared coauthors (of 10/68), jaccard=0.00
+  - `01398385` vs `06132999`: 0 shared coauthors (of 10/6), jaccard=0.00
+  - `01398385` vs `10020851`: 0 shared coauthors (of 10/33), jaccard=0.00
+  - `01398385` vs `10045808`: 0 shared coauthors (of 10/14), jaccard=0.00
+  - `01398385` vs `10501904`: 0 shared coauthors (of 10/134), jaccard=0.00
+  - `01398385` vs `10527701`: 0 shared coauthors (of 10/8), jaccard=0.00
+  - `01398385` vs `11684274`: 0 shared coauthors (of 10/128), jaccard=0.00
+  - `01398385` vs `13607064`: 0 shared coauthors (of 10/15), jaccard=0.00
+  - `01398385` vs `14251832`: 0 shared coauthors (of 10/5), jaccard=0.00
+  - `01739070` vs `02845695`: 0 shared coauthors (of 33/20), jaccard=0.00
+  - `01739070` vs `02936875`: 0 shared coauthors (of 33/2), jaccard=0.00
+  - `01739070` vs `03932575`: 0 shared coauthors (of 33/68), jaccard=0.00
+  - `01739070` vs `06132999`: 0 shared coauthors (of 33/6), jaccard=0.00
+  - `01739070` vs `10020851`: 0 shared coauthors (of 33/33), jaccard=0.00
+  - `01739070` vs `10045808`: 0 shared coauthors (of 33/14), jaccard=0.00
+  - `01739070` vs `10501904`: 0 shared coauthors (of 33/134), jaccard=0.00
+  - `01739070` vs `10527701`: 0 shared coauthors (of 33/8), jaccard=0.00
+  - `01739070` vs `11684274`: 0 shared coauthors (of 33/128), jaccard=0.00
+  - `01739070` vs `13607064`: 0 shared coauthors (of 33/15), jaccard=0.00
+  - `01739070` vs `14251832`: 0 shared coauthors (of 33/5), jaccard=0.00
+  - `02845695` vs `02936875`: 0 shared coauthors (of 20/2), jaccard=0.00
+  - `02845695` vs `03932575`: 0 shared coauthors (of 20/68), jaccard=0.00
+  - `02845695` vs `06132999`: 0 shared coauthors (of 20/6), jaccard=0.00
+  - `02845695` vs `10020851`: 0 shared coauthors (of 20/33), jaccard=0.00
+  - `02845695` vs `10045808`: 0 shared coauthors (of 20/14), jaccard=0.00
+  - `02845695` vs `10501904`: 0 shared coauthors (of 20/134), jaccard=0.00
+  - `02845695` vs `10527701`: 0 shared coauthors (of 20/8), jaccard=0.00
+  - `02845695` vs `11684274`: 0 shared coauthors (of 20/128), jaccard=0.00
+  - `02845695` vs `13607064`: 0 shared coauthors (of 20/15), jaccard=0.00
+  - `02845695` vs `14251832`: 0 shared coauthors (of 20/5), jaccard=0.00
+  - `02936875` vs `03932575`: 0 shared coauthors (of 2/68), jaccard=0.00
+  - `02936875` vs `06132999`: 0 shared coauthors (of 2/6), jaccard=0.00
+  - `02936875` vs `10020851`: 0 shared coauthors (of 2/33), jaccard=0.00
+  - `02936875` vs `10045808`: 0 shared coauthors (of 2/14), jaccard=0.00
+  - `02936875` vs `10501904`: 0 shared coauthors (of 2/134), jaccard=0.00
+  - `02936875` vs `10527701`: 0 shared coauthors (of 2/8), jaccard=0.00
+  - `02936875` vs `11684274`: 0 shared coauthors (of 2/128), jaccard=0.00
+  - `02936875` vs `13607064`: 0 shared coauthors (of 2/15), jaccard=0.00
+  - `02936875` vs `14251832`: 0 shared coauthors (of 2/5), jaccard=0.00
+  - `03932575` vs `06132999`: 0 shared coauthors (of 68/6), jaccard=0.00
+  - `03932575` vs `10020851`: 0 shared coauthors (of 68/33), jaccard=0.00
+  - `03932575` vs `10045808`: 0 shared coauthors (of 68/14), jaccard=0.00
+  - `03932575` vs `10501904`: 0 shared coauthors (of 68/134), jaccard=0.00
+  - `03932575` vs `10527701`: 0 shared coauthors (of 68/8), jaccard=0.00
+  - `03932575` vs `11684274`: 0 shared coauthors (of 68/128), jaccard=0.00
+  - `03932575` vs `13607064`: 0 shared coauthors (of 68/15), jaccard=0.00
+  - `03932575` vs `14251832`: 0 shared coauthors (of 68/5), jaccard=0.00
+  - `06132999` vs `10020851`: 0 shared coauthors (of 6/33), jaccard=0.00
+  - `06132999` vs `10045808`: 0 shared coauthors (of 6/14), jaccard=0.00
+  - `06132999` vs `10501904`: 1 shared coauthors (of 6/134), jaccard=0.01
+  - `06132999` vs `10527701`: 0 shared coauthors (of 6/8), jaccard=0.00
+  - `06132999` vs `11684274`: 0 shared coauthors (of 6/128), jaccard=0.00
+  - `06132999` vs `13607064`: 0 shared coauthors (of 6/15), jaccard=0.00
+  - `06132999` vs `14251832`: 0 shared coauthors (of 6/5), jaccard=0.00
+  - `10020851` vs `10045808`: 0 shared coauthors (of 33/14), jaccard=0.00
+  - `10020851` vs `10501904`: 0 shared coauthors (of 33/134), jaccard=0.00
+  - `10020851` vs `10527701`: 0 shared coauthors (of 33/8), jaccard=0.00
+  - `10020851` vs `11684274`: 0 shared coauthors (of 33/128), jaccard=0.00
+  - `10020851` vs `13607064`: 0 shared coauthors (of 33/15), jaccard=0.00
+  - `10020851` vs `14251832`: 0 shared coauthors (of 33/5), jaccard=0.00
+  - `10045808` vs `10501904`: 9 shared coauthors (of 14/134), jaccard=0.06
+  - `10045808` vs `10527701`: 0 shared coauthors (of 14/8), jaccard=0.00
+  - `10045808` vs `11684274`: 0 shared coauthors (of 14/128), jaccard=0.00
+  - `10045808` vs `13607064`: 0 shared coauthors (of 14/15), jaccard=0.00
+  - `10045808` vs `14251832`: 0 shared coauthors (of 14/5), jaccard=0.00
+  - `10501904` vs `10527701`: 0 shared coauthors (of 134/8), jaccard=0.00
+  - `10501904` vs `11684274`: 0 shared coauthors (of 134/128), jaccard=0.00
+  - `10501904` vs `13607064`: 0 shared coauthors (of 134/15), jaccard=0.00
+  - `10501904` vs `14251832`: 0 shared coauthors (of 134/5), jaccard=0.00
+  - `10527701` vs `11684274`: 0 shared coauthors (of 8/128), jaccard=0.00
+  - `10527701` vs `13607064`: 0 shared coauthors (of 8/15), jaccard=0.00
+  - `10527701` vs `14251832`: 0 shared coauthors (of 8/5), jaccard=0.00
+  - `11684274` vs `13607064`: 0 shared coauthors (of 128/15), jaccard=0.00
+  - `11684274` vs `14251832`: 0 shared coauthors (of 128/5), jaccard=0.00
+  - `13607064` vs `14251832`: 0 shared coauthors (of 15/5), jaccard=0.00
+
+### 35. Bo Jönsson — best match_probability 0.999 (14 records)
+
+- **Bo Jönsson** — Lund, SE — active 1979–2003 — 7 quantum papers — `https://openalex.org/A5004251967`
+- **Fredrik Jönsson** — KTH, SE — active 2000–2014 — 6 quantum papers — `https://openalex.org/A5005349875`
+- **Per Jönsson** — Lund, SE — active 1992–2023 — 41 quantum papers — `https://openalex.org/A5015919640`
+- **Mattias Jönsson** — KTH, SE — active 1998–2023 — 8 quantum papers — `https://openalex.org/A5023036695`
+- **Ulf Jönsson** — KTH, SE — active 2000–2009 — 5 quantum papers — `https://openalex.org/A5027929452`
+- **Per Jönsson** — KTH, SE — active 1998–2006 — 6 quantum papers — `https://openalex.org/A5086299815`
+- **Leif Jönsson** — Lund, SE — active 1988–2007 — 5 quantum papers — `https://openalex.org/A5104357143`
+- **Bengt Jönsson** — Lund, SE — active 1982–2002 — 10 quantum papers — `https://openalex.org/A5105777750`
+- **L. Jönsson** — Lund, SE — active 2011–2013 — 6 quantum papers — `https://openalex.org/A5105833447`
+- **L. Jönsson** — Lund, SE — active 1973–2013 — 60 quantum papers — `https://openalex.org/A5107833573`
+- **Jan Åke Jönsson** — Lund, SE — active 1990–1993 — 4 quantum papers — `https://openalex.org/A5108409696`
+- **J. Jönsson** — Lund, SE — active 1990–1994 — 9 quantum papers — `https://openalex.org/A5108523787`
+- **Bo Jönsson** — Lund, SE — active 1982–2016 — 18 quantum papers — `https://openalex.org/A5111582365`
+- **Mats Jönsson** — KTH, SE — active 1996–2020 — 7 quantum papers — `https://openalex.org/A5114259957`
+  
+  Coauthor overlap:
+  - `04251967` vs `05349875`: 0 shared coauthors (of 16/2), jaccard=0.00
+  - `04251967` vs `15919640`: 0 shared coauthors (of 16/123), jaccard=0.00
+  - `04251967` vs `23036695`: 0 shared coauthors (of 16/1), jaccard=0.00
+  - `04251967` vs `27929452`: 0 shared coauthors (of 16/0), jaccard=0.00
+  - `04251967` vs `86299815`: 0 shared coauthors (of 16/11), jaccard=0.00
+  - `04251967` vs `04357143`: 0 shared coauthors (of 16/4), jaccard=0.00
+  - `04251967` vs `05777750`: 2 shared coauthors (of 16/17), jaccard=0.06
+  - `04251967` vs `05833447`: 0 shared coauthors (of 16/182), jaccard=0.00
+  - `04251967` vs `07833573`: 0 shared coauthors (of 16/603), jaccard=0.00
+  - `04251967` vs `08409696`: 0 shared coauthors (of 16/3), jaccard=0.00
+  - `04251967` vs `08523787`: 0 shared coauthors (of 16/5), jaccard=0.00
+  - `04251967` vs `11582365`: 3 shared coauthors (of 16/19), jaccard=0.09
+  - `04251967` vs `14259957`: 0 shared coauthors (of 16/7), jaccard=0.00
+  - `05349875` vs `15919640`: 0 shared coauthors (of 2/123), jaccard=0.00
+  - `05349875` vs `23036695`: 0 shared coauthors (of 2/1), jaccard=0.00
+  - `05349875` vs `27929452`: 0 shared coauthors (of 2/0), jaccard=0.00
+  - `05349875` vs `86299815`: 0 shared coauthors (of 2/11), jaccard=0.00
+  - `05349875` vs `04357143`: 0 shared coauthors (of 2/4), jaccard=0.00
+  - `05349875` vs `05777750`: 0 shared coauthors (of 2/17), jaccard=0.00
+  - `05349875` vs `05833447`: 0 shared coauthors (of 2/182), jaccard=0.00
+  - `05349875` vs `07833573`: 0 shared coauthors (of 2/603), jaccard=0.00
+  - `05349875` vs `08409696`: 0 shared coauthors (of 2/3), jaccard=0.00
+  - `05349875` vs `08523787`: 0 shared coauthors (of 2/5), jaccard=0.00
+  - `05349875` vs `11582365`: 0 shared coauthors (of 2/19), jaccard=0.00
+  - `05349875` vs `14259957`: 0 shared coauthors (of 2/7), jaccard=0.00
+  - `15919640` vs `23036695`: 1 shared coauthors (of 123/1), jaccard=0.01
+  - `15919640` vs `27929452`: 0 shared coauthors (of 123/0), jaccard=0.00
+  - `15919640` vs `86299815`: 1 shared coauthors (of 123/11), jaccard=0.01
+  - `15919640` vs `04357143`: 0 shared coauthors (of 123/4), jaccard=0.00
+  - `15919640` vs `05777750`: 0 shared coauthors (of 123/17), jaccard=0.00
+  - `15919640` vs `05833447`: 0 shared coauthors (of 123/182), jaccard=0.00
+  - `15919640` vs `07833573`: 0 shared coauthors (of 123/603), jaccard=0.00
+  - `15919640` vs `08409696`: 1 shared coauthors (of 123/3), jaccard=0.01
+  - `15919640` vs `08523787`: 1 shared coauthors (of 123/5), jaccard=0.01
+  - `15919640` vs `11582365`: 0 shared coauthors (of 123/19), jaccard=0.00
+  - `15919640` vs `14259957`: 0 shared coauthors (of 123/7), jaccard=0.00
+  - `23036695` vs `27929452`: 0 shared coauthors (of 1/0), jaccard=0.00
+  - `23036695` vs `86299815`: 0 shared coauthors (of 1/11), jaccard=0.00
+  - `23036695` vs `04357143`: 0 shared coauthors (of 1/4), jaccard=0.00
+  - `23036695` vs `05777750`: 0 shared coauthors (of 1/17), jaccard=0.00
+  - `23036695` vs `05833447`: 0 shared coauthors (of 1/182), jaccard=0.00
+  - `23036695` vs `07833573`: 0 shared coauthors (of 1/603), jaccard=0.00
+  - `23036695` vs `08409696`: 0 shared coauthors (of 1/3), jaccard=0.00
+  - `23036695` vs `08523787`: 0 shared coauthors (of 1/5), jaccard=0.00
+  - `23036695` vs `11582365`: 0 shared coauthors (of 1/19), jaccard=0.00
+  - `23036695` vs `14259957`: 0 shared coauthors (of 1/7), jaccard=0.00
+  - `27929452` vs `86299815`: 0 shared coauthors (of 0/11), jaccard=0.00
+  - `27929452` vs `04357143`: 0 shared coauthors (of 0/4), jaccard=0.00
+  - `27929452` vs `05777750`: 0 shared coauthors (of 0/17), jaccard=0.00
+  - `27929452` vs `05833447`: 0 shared coauthors (of 0/182), jaccard=0.00
+  - `27929452` vs `07833573`: 0 shared coauthors (of 0/603), jaccard=0.00
+  - `27929452` vs `08409696`: 0 shared coauthors (of 0/3), jaccard=0.00
+  - `27929452` vs `08523787`: 0 shared coauthors (of 0/5), jaccard=0.00
+  - `27929452` vs `11582365`: 0 shared coauthors (of 0/19), jaccard=0.00
+  - `27929452` vs `14259957`: 0 shared coauthors (of 0/7), jaccard=0.00
+  - `86299815` vs `04357143`: 0 shared coauthors (of 11/4), jaccard=0.00
+  - `86299815` vs `05777750`: 0 shared coauthors (of 11/17), jaccard=0.00
+  - `86299815` vs `05833447`: 0 shared coauthors (of 11/182), jaccard=0.00
+  - `86299815` vs `07833573`: 0 shared coauthors (of 11/603), jaccard=0.00
+  - `86299815` vs `08409696`: 0 shared coauthors (of 11/3), jaccard=0.00
+  - `86299815` vs `08523787`: 0 shared coauthors (of 11/5), jaccard=0.00
+  - `86299815` vs `11582365`: 0 shared coauthors (of 11/19), jaccard=0.00
+  - `86299815` vs `14259957`: 0 shared coauthors (of 11/7), jaccard=0.00
+  - `04357143` vs `05777750`: 0 shared coauthors (of 4/17), jaccard=0.00
+  - `04357143` vs `05833447`: 1 shared coauthors (of 4/182), jaccard=0.01
+  - `04357143` vs `07833573`: 3 shared coauthors (of 4/603), jaccard=0.00
+  - `04357143` vs `08409696`: 0 shared coauthors (of 4/3), jaccard=0.00
+  - `04357143` vs `08523787`: 0 shared coauthors (of 4/5), jaccard=0.00
+  - `04357143` vs `11582365`: 0 shared coauthors (of 4/19), jaccard=0.00
+  - `04357143` vs `14259957`: 0 shared coauthors (of 4/7), jaccard=0.00
+  - `05777750` vs `05833447`: 0 shared coauthors (of 17/182), jaccard=0.00
+  - `05777750` vs `07833573`: 0 shared coauthors (of 17/603), jaccard=0.00
+  - `05777750` vs `08409696`: 0 shared coauthors (of 17/3), jaccard=0.00
+  - `05777750` vs `08523787`: 0 shared coauthors (of 17/5), jaccard=0.00
+  - `05777750` vs `11582365`: 1 shared coauthors (of 17/19), jaccard=0.03
+  - `05777750` vs `14259957`: 0 shared coauthors (of 17/7), jaccard=0.00
+  - `05833447` vs `07833573`: 130 shared coauthors (of 182/603), jaccard=0.20
+  - `05833447` vs `08409696`: 0 shared coauthors (of 182/3), jaccard=0.00
+  - `05833447` vs `08523787`: 0 shared coauthors (of 182/5), jaccard=0.00
+  - `05833447` vs `11582365`: 0 shared coauthors (of 182/19), jaccard=0.00
+  - `05833447` vs `14259957`: 0 shared coauthors (of 182/7), jaccard=0.00
+  - `07833573` vs `08409696`: 0 shared coauthors (of 603/3), jaccard=0.00
+  - `07833573` vs `08523787`: 0 shared coauthors (of 603/5), jaccard=0.00
+  - `07833573` vs `11582365`: 0 shared coauthors (of 603/19), jaccard=0.00
+  - `07833573` vs `14259957`: 0 shared coauthors (of 603/7), jaccard=0.00
+  - `08409696` vs `08523787`: 3 shared coauthors (of 3/5), jaccard=0.60
+  - `08409696` vs `11582365`: 0 shared coauthors (of 3/19), jaccard=0.00
+  - `08409696` vs `14259957`: 0 shared coauthors (of 3/7), jaccard=0.00
+  - `08523787` vs `11582365`: 0 shared coauthors (of 5/19), jaccard=0.00
+  - `08523787` vs `14259957`: 0 shared coauthors (of 5/7), jaccard=0.00
+  - `11582365` vs `14259957`: 0 shared coauthors (of 19/7), jaccard=0.00
+
+### 36. P. K. Shukla — best match_probability 0.999 (5 records)
+
+- **P. K. Shukla** — Umeå University, DE — active 2001–2010 — 12 quantum papers — `https://openalex.org/A5016091075`
+- **P. K. Shukla** — Umeå University, SE — active 1971–2008 — 5 quantum papers — `https://openalex.org/A5029129073`
+- **P. K. Shukla** — Umeå University, DE — active 1987–2012 — 25 quantum papers — `https://openalex.org/A5069117090`
+- **P. K. Shukla** — Umeå University, DE — active 2004–2008 — 7 quantum papers — `https://openalex.org/A5104388129`
+- **P. K. Shukla** — Umeå University, DE — active 1973–2012 — 147 quantum papers — `https://openalex.org/A5111919364`
+  
+  Coauthor overlap:
+  - `16091075` vs `29129073`: 3 shared coauthors (of 11/8), jaccard=0.19
+  - `16091075` vs `69117090`: 8 shared coauthors (of 11/21), jaccard=0.33
+  - `16091075` vs `04388129`: 6 shared coauthors (of 11/10), jaccard=0.40
+  - `16091075` vs `11919364`: 10 shared coauthors (of 11/86), jaccard=0.11
+  - `29129073` vs `69117090`: 3 shared coauthors (of 8/21), jaccard=0.12
+  - `29129073` vs `04388129`: 3 shared coauthors (of 8/10), jaccard=0.20
+  - `29129073` vs `11919364`: 5 shared coauthors (of 8/86), jaccard=0.06
+  - `69117090` vs `04388129`: 5 shared coauthors (of 21/10), jaccard=0.19
+  - `69117090` vs `11919364`: 15 shared coauthors (of 21/86), jaccard=0.16
+  - `04388129` vs `11919364`: 7 shared coauthors (of 10/86), jaccard=0.08
+
+### 37. P. Adlarson — best match_probability 0.999 (3 records)
+
+- **P. Adlarson** — Uppsala University, SE — active 2025–2026 — 5 quantum papers — `https://openalex.org/A5044940348`
+- **P. Adlarson** — Uppsala University, SE — active 2024–2026 — 13 quantum papers — `https://openalex.org/A5058529056`
+- **P. Adlarson** — Uppsala University, SE — active 2011–2026 — 239 quantum papers — `https://openalex.org/A5077139969`
+  
+  Coauthor overlap:
+  - `44940348` vs `58529056`: 191 shared coauthors (of 303/734), jaccard=0.23
+  - `44940348` vs `77139969`: 245 shared coauthors (of 303/2235), jaccard=0.11
+  - `58529056` vs `77139969`: 622 shared coauthors (of 734/2235), jaccard=0.27
+
+### 38. B. Åsman — best match_probability 0.999 (2 records)
+
+- **B. Åsman** — Stockholm University, SE — active 1992–2012 — 8 quantum papers — `https://openalex.org/A5106396595`
+- **B. Åsman** — Stockholm University, SE — active 1981–2012 — 162 quantum papers — `https://openalex.org/A5107824863`
+  
+  Coauthor overlap:
+  - `06396595` vs `07824863`: 352 shared coauthors (of 435/881), jaccard=0.37
+
+### 39. Lars Nordström — best match_probability 0.999 (2 records)
+
+- **Lars Nordström** — Uppsala University, SE — active 1999–2023 — 6 quantum papers — `https://openalex.org/A5049280139`
+- **Lars Nordström** — Uppsala University, SE — active 1990–2023 — 54 quantum papers — `https://openalex.org/A5080250221`
+  
+  Coauthor overlap:
+  - `49280139` vs `80250221`: 13 shared coauthors (of 20/130), jaccard=0.09
+
+### 40. G. Eigen — best match_probability 0.999 (2 records)
+
+- **G. Eigen** — University of Bergen (UiB), NO — active 1997–2020 — 37 quantum papers — `https://openalex.org/A5077178294`
+- **G. Eigen** — University of Bergen (UiB), NO — active 2006–2011 — 16 quantum papers — `https://openalex.org/A5107838594`
+  
+  Coauthor overlap:
+  - `77178294` vs `07838594`: 105 shared coauthors (of 778/138), jaccard=0.13

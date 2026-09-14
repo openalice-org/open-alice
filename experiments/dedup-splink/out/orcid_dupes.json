@@ -1,0 +1,62 @@
+[
+  {
+    "orcid": "https://orcid.org/0000-0003-4158-3583",
+    "people": [
+      {
+        "id": "https://openalex.org/A5037069204",
+        "name": "Ivy Peng",
+        "university": "KTH"
+      },
+      {
+        "id": "https://openalex.org/A5122360044",
+        "name": "Ivy Peng",
+        "university": "KTH"
+      }
+    ]
+  },
+  {
+    "orcid": "https://orcid.org/0000-0002-1335-4022",
+    "people": [
+      {
+        "id": "https://openalex.org/A5087194862",
+        "name": "A. L’Huillier",
+        "university": "Lund"
+      },
+      {
+        "id": "https://openalex.org/A5076185911",
+        "name": "Ivan Sytcevich",
+        "university": "Lund"
+      }
+    ]
+  },
+  {
+    "orcid": "https://orcid.org/0000-0003-3529-5171",
+    "people": [
+      {
+        "id": "https://openalex.org/A5077178294",
+        "name": "G. Eigen",
+        "university": "University of Bergen (UiB)"
+      },
+      {
+        "id": "https://openalex.org/A5107838594",
+        "name": "G. Eigen",
+        "university": "University of Bergen (UiB)"
+      }
+    ]
+  },
+  {
+    "orcid": "https://orcid.org/0000-0002-6764-4789",
+    "people": [
+      {
+        "id": "https://openalex.org/A5120644337",
+        "name": "J.R. Hansen",
+        "university": "University of Copenhagen"
+      },
+      {
+        "id": "https://openalex.org/A5013845636",
+        "name": "P. H. Hansen",
+        "university": "University of Copenhagen"
+      }
+    ]
+  }
+]
