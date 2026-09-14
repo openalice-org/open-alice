@@ -2,6 +2,14 @@
 non-primary record in a FUSE cluster into its suggested_primary_id and drop
 the rest. REJECT/REVIEW rows are left untouched (this only acts on FUSE).
 
+Hard veto: a FUSE cluster whose members carry 2+ DIFFERENT non-null ORCIDs
+is skipped outright, regardless of verdict. ORCID is a verified personal
+identifier, so that's proof of multiple distinct real people (typically the
+same common-surname small research community sharing enough coauthors to
+trip the jaccard threshold — Andersson, Nielsen, Hansen, Zhang, etc.), not
+one person split across records. Found the hard way: 43 of the first 151
+FUSE clusters merged this way turned out to have conflicting ORCIDs.
+
 Field-merge rules (each chosen because the underlying per-record fields were
 computed over a DISJOINT subset of the same real person's papers — OpenAlex
 split their profile, it didn't duplicate their papers — so most stats are
@@ -64,6 +72,7 @@ by_id = {p["id"]: p for p in people}
 
 drop_ids: set[str] = set()
 n_merged_people = 0
+skipped_orcid_conflict: list[tuple[str, list[str]]] = []
 
 for _, row in fuse_rows.iterrows():
     ids = [i.strip() for i in row["ids"].split("|")]
@@ -77,6 +86,16 @@ for _, row in fuse_rows.iterrows():
 
     primary = by_id[primary_id]
     members = [by_id[i] for i in ids]
+
+    # Hard veto: two or more DIFFERENT non-null ORCIDs among the cluster's
+    # members is proof of multiple distinct real people (ORCID is a verified
+    # personal identifier) — overrides the coauthor-jaccard verdict no
+    # matter how high, since jaccard alone can't distinguish "same person"
+    # from "same lab / same common surname's small research community".
+    distinct_orcids = {m["orcid"] for m in members if m.get("orcid")}
+    if len(distinct_orcids) > 1:
+        skipped_orcid_conflict.append((row["names"], sorted(distinct_orcids)))
+        continue
 
     def sum_field(key: str) -> int:
         return sum(int(m.get(key) or 0) for m in members)
@@ -197,4 +216,7 @@ data.setdefault("meta", {})["n_people"] = len(new_people)
 
 VIZ.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
 print(f"merged {n_merged_people} records into their primaries; {len(people)} -> {len(new_people)} people")
+print(f"skipped {len(skipped_orcid_conflict)} FUSE clusters on the ORCID-conflict veto:")
+for names, orcids in skipped_orcid_conflict:
+    print(f"  - {names}  ({len(orcids)} distinct ORCIDs)")
 print(f"wrote {VIZ}")
