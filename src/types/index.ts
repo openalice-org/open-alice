@@ -34,6 +34,10 @@ export interface Person {
    * possibly empty even when `total_patents` > 0 (a handful of counted
    * patents have no matched per-record detail). */
   patents?: PatentRecord[];
+  /** OpenAlex ids folded into this record by the splink dedup experiment
+   * (experiments/dedup-splink) — the same real person had been split across
+   * several OpenAlex author profiles. Present only on a merged record. */
+  merged_from?: string[];
 }
 
 export interface PatentRecord {
