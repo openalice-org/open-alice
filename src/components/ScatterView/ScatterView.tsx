@@ -268,6 +268,11 @@ export default function ScatterView({ dataset, people }: ScatterViewProps) {
     id: string;
     r: number;
     dominantDomain: DomainKey;
+    // Set for someone straddling two domains (see boundaryPairOf) — their
+    // own focus becomes the midpoint of both foci instead of just their
+    // (near-arbitrary) argmax domain, so they settle between the two
+    // clusters they actually belong to rather than snapping fully into one.
+    boundaryPair: [DomainKey, DomainKey] | null;
   }
 
   const [clusterPositions, setClusterPositions] = useState<Map<
@@ -290,7 +295,14 @@ export default function ScatterView({ dataset, people }: ScatterViewProps) {
       const dom = dominantDomainOf(p);
       if (!dom) continue; // no share data: excluded from the sim entirely
       const { cx, cy } = seed.projectOf(p);
-      nodes.push({ id: p.id, x: cx, y: cy, r: seed.radiusScale(p) * CLUSTER_COLLIDE_BOOST, dominantDomain: dom });
+      nodes.push({
+        id: p.id,
+        x: cx,
+        y: cy,
+        r: seed.radiusScale(p) * CLUSTER_COLLIDE_BOOST,
+        dominantDomain: dom,
+        boundaryPair: boundaryPairOf(p),
+      });
     }
 
     const centers = seed.vennCenters;
@@ -319,12 +331,24 @@ export default function ScatterView({ dataset, people }: ScatterViewProps) {
       setClusterPositions(new Map(nodes.map((n) => [n.id, { x: n.x ?? 0, y: n.y ?? 0 }])));
     };
 
+    // A boundary person's own focus is the midpoint of BOTH domains they
+    // straddle, not just whichever one happened to win the (near-tied)
+    // argmax — otherwise they snap fully into one lobe and read as
+    // misplaced relative to their actual (mixed) domain mix.
+    const focusOf = (n: ClusterNode): { x: number; y: number } => {
+      if (n.boundaryPair) {
+        const [a, b] = n.boundaryPair;
+        return { x: (foci[a].x + foci[b].x) / 2, y: (foci[a].y + foci[b].y) / 2 };
+      }
+      return foci[n.dominantDomain];
+    };
+
     const sim = forceSimulation<ClusterNode>(nodes)
       .alpha(0.7)
       .alphaDecay(0.05)
       .velocityDecay(0.62)
-      .force("x", forceX<ClusterNode>((n) => foci[n.dominantDomain].x).strength(0.12))
-      .force("y", forceY<ClusterNode>((n) => foci[n.dominantDomain].y).strength(0.12))
+      .force("x", forceX<ClusterNode>((n) => focusOf(n).x).strength(0.12))
+      .force("y", forceY<ClusterNode>((n) => focusOf(n).y).strength(0.12))
       // centering pull kept WEAKER than the domain foci so the three-lobe
       // shape survives.
       .force("cx", forceX<ClusterNode>(() => centroid.x).strength(0.03))
