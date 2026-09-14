@@ -53,7 +53,7 @@ function AppInner() {
   return (
     <div className="app-root">
       {state.mapMode === "taxonomy" ? (
-        <TaxonomyView />
+        <TaxonomyView paperCounts={windowedPaperCounts} />
       ) : state.mapMode === "geo" ? (
         <GeoView people={timeFilteredPeople} paperCounts={windowedPaperCounts} />
       ) : state.mapMode === "list" ? (

@@ -22,27 +22,32 @@ function viewAllowed(key: MapMode, scope: string): boolean {
 
 // Emphasis: how a point's radius is weighted. Meaningless once Boxplot is
 // on screen (aggregate box glyphs, no individual points to size), so it
-// locks alongside that.
-const EMPHASIS: { key: "quantum_h_index" | "quantum_patents" | "constant"; label: string }[] = [
+// locks alongside that. Patent activity dropped from here — it's its own
+// dedicated Axes/Domains config option instead (a satellite-node force
+// view reads better than a mere size bump).
+const EMPHASIS: { key: "quantum_h_index" | "constant"; label: string }[] = [
   { key: "quantum_h_index", label: "Corpus influence" },
-  { key: "quantum_patents", label: "Patent activity" },
   { key: "constant", label: "Equal weight" },
 ];
 
 // Domains' own config: which of the three domain lenses is on screen. Each
 // maps onto the shared aggMode slot; "none" is the plain per-point view.
-// Domain mix / Primary domain only read at a single university — too many
-// people to make sense of at Nordics/country scope, so Density is the only
-// one still enabled there (see aggForScope in AppState for the matching
-// auto-fallback when scope widens out from under one of them).
+// Domain mix / Primary domain / Patents only read at a single university —
+// too many people to make sense of at Nordics/country scope, so Density is
+// the only one still enabled there (see aggForScope in AppState for the
+// matching auto-fallback when scope widens out from under one of them).
+// Patents reuses Domain mix's own ternary positions as its anchors, hides
+// everyone without a patent, and orbits satellite nodes around each holder
+// (see ScatterView's patentsActive).
 const DOMAIN_CONFIG: { key: AggMode; label: string }[] = [
   { key: "hexdensity", label: "Density" },
   { key: "none", label: "Domain mix" },
   { key: "clusters", label: "Primary domain" },
+  { key: "patents", label: "Patents" },
 ];
 
 function domainConfigAllowed(key: AggMode, scope: string): boolean {
-  if (key === "none" || key === "clusters") return !isGeoScope(scope);
+  if (key === "none" || key === "clusters" || key === "patents") return !isGeoScope(scope);
   return true;
 }
 

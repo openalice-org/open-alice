@@ -34,15 +34,6 @@
   border-bottom-color: var(--ink-faint);
 }
 
-.inst-pick i {
-  font-size: 12px;
-  transition: transform 0.15s;
-}
-
-.inst-pick.open i {
-  transform: rotate(180deg);
-}
-
 /* surface (background/blur/border/shadow) comes from .glass-panel, applied
    alongside this class in Colophon.tsx — this just carries layout. */
 .inst-menu {

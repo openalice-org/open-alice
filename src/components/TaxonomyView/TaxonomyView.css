@@ -112,12 +112,26 @@
 }
 
 .tax-roster-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
   font-family: var(--serif);
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ink-dim);
+}
+
+/* Labels what the roster row's right-hand number means (quantum papers) —
+   sits above .tax-roster-row .sub, which it visually aligns with. */
+.tax-roster-head-sub {
+  font-family: var(--sans);
+  font-weight: 400;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
 }
 
 .tax-roster-search {

@@ -6,7 +6,7 @@ import { scaleSqrt } from "d3-scale";
 import { max } from "d3-array";
 import { useAppState } from "../../state/AppState";
 import { useTaxonomyDataset } from "../../hooks/useTaxonomyDataset";
-import type { TaxPerson } from "../../types";
+import type { PaperCounts, TaxPerson } from "../../types";
 import { fmtInt } from "../../lib/format";
 import { filterByTimeWindow } from "../../lib/people";
 import { countryOfScope, NORDICS_SCOPE } from "../../lib/institutions";
@@ -102,7 +102,17 @@ function UniversityCard({
   );
 }
 
-export default function TaxonomyView() {
+interface TaxonomyViewProps {
+  /** Distinct-paper counts (see PaperCounts' doc) — used to show a
+   * university's real paper total on the country/Nordics wheel's roster
+   * instead of summing each person's own quantum_papers, which double-
+   * counts any paper co-authored by two people at the same university.
+   * Optional: a dataset built before paper_counts_geo.json existed falls
+   * back to the summed (over-)count for that one university. */
+  paperCounts?: PaperCounts | null;
+}
+
+export default function TaxonomyView({ paperCounts }: TaxonomyViewProps = {}) {
   const { state, dispatch } = useAppState();
   const { data, loading, error } = useTaxonomyDataset();
 
@@ -249,11 +259,20 @@ export default function TaxonomyView() {
       const uni = p.university || p.institution || "Unknown";
       const g = m.get(uni) ?? { people: 0, papers: 0 };
       g.people += 1;
+      // Summed per-person quantum_papers double-counts any paper coauthored
+      // by two people at the same university — overridden below with the
+      // real distinct count when paper_counts_geo.json has one.
       g.papers += +(p.quantum_papers || 0);
       m.set(uni, g);
     });
+    if (paperCounts?.by_institution) {
+      m.forEach((g, uni) => {
+        const distinct = paperCounts.by_institution[uni];
+        if (distinct != null) g.papers = distinct;
+      });
+    }
     return m;
-  }, [isCountryWheel, scopedPeople]);
+  }, [isCountryWheel, scopedPeople, paperCounts]);
 
   // The full paper-mosaic tile set (+ island boundary outlines) for every
   // occupied arc. Memoized on layout/scope inputs only — NOT on hover state
@@ -460,7 +479,10 @@ export default function TaxonomyView() {
 
       {data && !loading && !error && (
         <div className="tax-roster glass-panel">
-          <div className="tax-roster-head">{isCountryWheel ? "Universities" : "Researchers"}</div>
+          <div className="tax-roster-head">
+            <span>{isCountryWheel ? "Universities" : "Researchers"}</span>
+            <span className="tax-roster-head-sub">papers</span>
+          </div>
           <input
             type="text"
             className="tax-roster-search"

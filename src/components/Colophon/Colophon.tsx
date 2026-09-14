@@ -12,14 +12,8 @@ import {
   universityCountryMap,
 } from "../../lib/institutions";
 import { fmtInt } from "../../lib/format";
-import { filterByTimeWindow } from "../../lib/people";
+import { filterByTimeWindow, timeWindowCutoff } from "../../lib/people";
 import "./Colophon.css";
-
-const TIME_WINDOW_LABELS: Record<TimeWindow, string> = {
-  all: "All corpus",
-  last5: "Last 5 years",
-  last10: "Last 10 years",
-};
 
 interface ColophonProps {
   people: Person[];
@@ -79,6 +73,24 @@ export default function Colophon({ people, paperCounts }: ColophonProps) {
     setTimeOpen(false);
   }
 
+  // "All corpus" reads as "Since <oldest year>" — the earliest first_year
+  // across the WHOLE dataset (people is unscoped, the full corpus App.tsx
+  // passes in), not just the current scope, so the label doesn't shift as
+  // you change university/country. last5/last10 reuse the exact cutoff
+  // year filterByTimeWindow itself filters on, so the label never drifts
+  // out of sync with what's actually included.
+  const timeWindowLabels = useMemo<Record<TimeWindow, string>>(() => {
+    let oldestYear: number | null = null;
+    for (const p of people) {
+      if (p.first_year != null && (oldestYear == null || p.first_year < oldestYear)) oldestYear = p.first_year;
+    }
+    return {
+      all: oldestYear != null ? `Since ${oldestYear}` : "All corpus",
+      last5: `Since ${timeWindowCutoff("last5")}`,
+      last10: `Since ${timeWindowCutoff("last10")}`,
+    };
+  }, [people]);
+
   const scopedPeople = useMemo(() => {
     return filterByTimeWindow(peopleForScope(people, state.scope, uniCountry), state.timeWindow);
   }, [people, state.scope, uniCountry, state.timeWindow]);
@@ -96,7 +108,7 @@ export default function Colophon({ people, paperCounts }: ColophonProps) {
   return (
     <div className="colophon" ref={rootRef}>
         <div className="brand">
-          Quantum <span>@</span>{" "}
+          Quantum <span>/</span>{" "}
           <span
             className={"inst-pick" + (open ? " open" : "")}
             tabIndex={0}
@@ -111,7 +123,6 @@ export default function Colophon({ people, paperCounts }: ColophonProps) {
             }}
           >
             <span>{labelForScope(state.scope)}</span>
-            <i className="ph-light ph-caret-up" />
           </span>
           {open && (
             <div className="inst-menu glass-panel" role="listbox" onClick={(e) => e.stopPropagation()}>
@@ -173,7 +184,7 @@ export default function Colophon({ people, paperCounts }: ColophonProps) {
               )}
             </div>
           )}
-          <span> @ </span>
+          <span> / </span>
           <span
             className={"inst-pick" + (timeOpen ? " open" : "")}
             tabIndex={0}
@@ -187,12 +198,11 @@ export default function Colophon({ people, paperCounts }: ColophonProps) {
               else openTimeMenu();
             }}
           >
-            <span>{TIME_WINDOW_LABELS[state.timeWindow]}</span>
-            <i className="ph-light ph-caret-up" />
+            <span>{timeWindowLabels[state.timeWindow]}</span>
           </span>
           {timeOpen && (
             <div className="inst-menu glass-panel" role="listbox" onClick={(e) => e.stopPropagation()}>
-              {(Object.keys(TIME_WINDOW_LABELS) as TimeWindow[]).map((w) => (
+              {(Object.keys(timeWindowLabels) as TimeWindow[]).map((w) => (
                 <div
                   key={w}
                   className={"inst-opt inst-all" + (state.timeWindow === w ? " active" : "")}
@@ -201,7 +211,7 @@ export default function Colophon({ people, paperCounts }: ColophonProps) {
                   onClick={() => pickTime(w)}
                 >
                   <i className={"ph-light inst-check " + (state.timeWindow === w ? "ph-check-square" : "ph-square")} />
-                  {TIME_WINDOW_LABELS[w]}
+                  {timeWindowLabels[w]}
                 </div>
               ))}
             </div>
