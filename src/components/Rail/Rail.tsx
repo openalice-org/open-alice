@@ -61,7 +61,7 @@ const CARTESIAN_CONFIG: { key: AggMode; label: string }[] = [
 ];
 
 function cartesianConfigAllowed(key: AggMode, scope: string): boolean {
-  if (key === "none") return !isGeoScope(scope);
+  if (key === "none" || key === "patents") return !isGeoScope(scope);
   return true;
 }
 
