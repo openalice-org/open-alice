@@ -65,6 +65,10 @@ function cartesianConfigAllowed(key: AggMode, scope: string): boolean {
   return true;
 }
 
+// Shown on a disabled config option's "?" badge — the native title tooltip
+// alone has too long a hover delay to feel responsive in this pill.
+const SCOPE_LOCK_HINT = "Only available at a single university — pick one first";
+
 // Geo's own config: which magnitude sizes a node's resting circle. All three
 // are always available — unlike Domains/Axes, Geo's node set (countries or
 // universities) doesn't change shape with scope, so there's no equivalent
@@ -250,16 +254,18 @@ export default function Rail({ people }: RailProps) {
               {DOMAIN_CONFIG.map((o) => {
                 const allowed = domainConfigAllowed(o.key, state.scope);
                 return (
-                  <button
-                    key={o.key}
-                    type="button"
-                    disabled={!allowed}
-                    title={allowed ? undefined : "Pick a university first"}
-                    className={"config-btn" + (o.key === state.aggMode ? " active" : "") + (allowed ? "" : " disabled")}
-                    onClick={() => allowed && dispatch({ type: "SET_AGG", mode: o.key })}
-                  >
-                    {o.label}
-                  </button>
+                  <span key={o.key} className={"config-hint" + (allowed ? "" : " locked")}>
+                    <button
+                      type="button"
+                      disabled={!allowed}
+                      title={allowed ? undefined : SCOPE_LOCK_HINT}
+                      className={"config-btn" + (o.key === state.aggMode ? " active" : "") + (allowed ? "" : " disabled")}
+                      onClick={() => allowed && dispatch({ type: "SET_AGG", mode: o.key })}
+                    >
+                      {o.label}
+                    </button>
+                    {!allowed && <i className="ph-light ph-question config-hint-icon" data-tip={SCOPE_LOCK_HINT} />}
+                  </span>
                 );
               })}
             </Popout>
@@ -269,16 +275,18 @@ export default function Rail({ people }: RailProps) {
               {CARTESIAN_CONFIG.map((o) => {
                 const allowed = cartesianConfigAllowed(o.key, state.scope);
                 return (
-                  <button
-                    key={o.key}
-                    type="button"
-                    disabled={!allowed}
-                    title={allowed ? undefined : "Pick a university first"}
-                    className={"config-btn" + (o.key === state.aggMode ? " active" : "") + (allowed ? "" : " disabled")}
-                    onClick={() => allowed && dispatch({ type: "SET_AGG", mode: o.key })}
-                  >
-                    {o.label}
-                  </button>
+                  <span key={o.key} className={"config-hint" + (allowed ? "" : " locked")}>
+                    <button
+                      type="button"
+                      disabled={!allowed}
+                      title={allowed ? undefined : SCOPE_LOCK_HINT}
+                      className={"config-btn" + (o.key === state.aggMode ? " active" : "") + (allowed ? "" : " disabled")}
+                      onClick={() => allowed && dispatch({ type: "SET_AGG", mode: o.key })}
+                    >
+                      {o.label}
+                    </button>
+                    {!allowed && <i className="ph-light ph-question config-hint-icon" data-tip={SCOPE_LOCK_HINT} />}
+                  </span>
                 );
               })}
               {state.aggMode === "boxplot" && (
