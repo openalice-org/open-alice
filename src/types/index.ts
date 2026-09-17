@@ -155,3 +155,19 @@ export interface TaxonomyDataset {
   taxonomy: TaxNode;
   people: TaxPerson[];
 }
+
+// ---- Cross-person linking data (patents co-invention, collaborations) -----
+// Mirrors the shape of public/data/patent_links.json and
+// public/data/collaborations.json. Both are optional/soft-fail datasets.
+
+/** epo_id -> other tracked people who share that same patent (only patents
+ * with 2+ known tracked inventors are present at all). */
+export type PatentLinks = Record<string, { id: string; name: string }[]>;
+
+export interface CollaborationEntry {
+  top_coauthors: { id: string; name: string; papers: number }[];
+  top_institutions: { name: string; papers: number }[];
+}
+
+/** person openalex id -> their top quantum-corpus collaborators. */
+export type Collaborations = Record<string, CollaborationEntry>;

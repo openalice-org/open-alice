@@ -1,5 +1,6 @@
 import { useState } from "react";
-import type { Person } from "../../types";
+import { useAppState } from "../../state/AppState";
+import type { Collaborations, Person, PatentLinks } from "../../types";
 import PatentsDialog from "../PatentsDialog/PatentsDialog";
 import "./Tooltip.css";
 
@@ -9,20 +10,28 @@ interface TooltipProps {
   y: number;
   pinned: boolean;
   onClose?: () => void;
+  patentLinks?: PatentLinks | null;
+  collaborations?: Collaborations | null;
 }
 
 function clamp(v: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, v));
 }
 
-export default function Tooltip({ person, x, y, pinned, onClose }: TooltipProps) {
+export default function Tooltip({ person, x, y, pinned, onClose, patentLinks, collaborations }: TooltipProps) {
   const [patentsOpen, setPatentsOpen] = useState(false);
+  const { dispatch } = useAppState();
   const width = 280;
   const left = clamp(x + 16, 8, window.innerWidth - width - 8);
   const top = clamp(y + 16, 8, window.innerHeight - 260);
 
   const hIndex = person.quantum_h_index ?? person.h_index ?? "?";
   const globalH = person.global_h_index ?? "Not available";
+
+  const collab = collaborations?.[person.id];
+  const topCoauthors = collab?.top_coauthors?.slice(0, 4) ?? [];
+  const topInstitutions = collab?.top_institutions?.slice(0, 3) ?? [];
+  const hasCollab = topCoauthors.length > 0 || topInstitutions.length > 0;
 
   return (
     <div
@@ -72,6 +81,34 @@ export default function Tooltip({ person, x, y, pinned, onClose }: TooltipProps)
         </b>
       </div>
       {person.topic && <div className="pill">{person.topic}</div>}
+      {hasCollab && (
+        <div className="collab-section">
+          <div className="collab-heading">Top collaborators (quantum)</div>
+          {topCoauthors.length > 0 && (
+            <div className="collab-row">
+              {topCoauthors.map((c) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  className="collab-chip collab-chip-btn"
+                  onClick={() => dispatch({ type: "SET_PINNED", id: c.id })}
+                >
+                  {c.name} <span className="collab-count">{c.papers}</span>
+                </button>
+              ))}
+            </div>
+          )}
+          {topInstitutions.length > 0 && (
+            <div className="collab-row">
+              {topInstitutions.map((inst) => (
+                <span key={inst.name} className="collab-chip">
+                  {inst.name} <span className="collab-count">{inst.papers}</span>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
       {person.total_patents > 0 && (
         <button className="tip-link tip-link-btn" type="button" onClick={() => setPatentsOpen(true)}>
           Author patents ↗
@@ -82,7 +119,9 @@ export default function Tooltip({ person, x, y, pinned, onClose }: TooltipProps)
           OpenAlex ↗
         </a>
       )}
-      {patentsOpen && <PatentsDialog person={person} onClose={() => setPatentsOpen(false)} />}
+      {patentsOpen && (
+        <PatentsDialog person={person} onClose={() => setPatentsOpen(false)} patentLinks={patentLinks} />
+      )}
     </div>
   );
 }

@@ -87,6 +87,59 @@
   text-decoration: underline;
 }
 
+.collab-section {
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.collab-heading {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-dim);
+  margin-bottom: 4px;
+}
+
+.collab-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.collab-row:last-child {
+  margin-bottom: 0;
+}
+
+.collab-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--line-soft);
+  color: var(--ink-dim);
+}
+
+.collab-chip-btn,
+button.collab-chip {
+  appearance: none;
+  border: 0;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.collab-chip-btn:hover {
+  color: var(--ink);
+}
+
+.collab-count {
+  font-weight: 600;
+  color: var(--ink);
+}
+
 .tooltip .tip-link-btn {
   appearance: none;
   border: 0;

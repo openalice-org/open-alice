@@ -18,7 +18,7 @@ import {
 import { useAppState } from "../../state/AppState";
 import { isGeoScope } from "../../lib/institutions";
 import { matchesPersonSearch } from "../../lib/people";
-import type { Dataset, GlassesMode, Person } from "../../types";
+import type { Collaborations, Dataset, GlassesMode, Person, PatentLinks } from "../../types";
 import {
   hasShares,
   ternaryUnit,
@@ -37,6 +37,8 @@ import "./ScatterView.css";
 interface ScatterViewProps {
   dataset: Dataset;
   people: Person[]; // already scoped to the current institution
+  patentLinks?: PatentLinks | null;
+  collaborations?: Collaborations | null;
 }
 
 const MARGIN = 90;
@@ -87,7 +89,7 @@ const BOUNDARY_PAIRS: [DomainKey, DomainKey][] = [
   ["communication", "computing"],
 ];
 
-export default function ScatterView({ dataset, people }: ScatterViewProps) {
+export default function ScatterView({ dataset, people, patentLinks, collaborations }: ScatterViewProps) {
   const { state, dispatch } = useAppState();
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -993,10 +995,21 @@ export default function ScatterView({ dataset, people }: ScatterViewProps) {
             y={size.height / 2 - 100}
             pinned
             onClose={unpin}
+            patentLinks={patentLinks}
+            collaborations={collaborations}
           />
         ) : (
           hoveredPerson &&
-          hoverScreen && <Tooltip person={hoveredPerson} x={hoverScreen.x} y={hoverScreen.y} pinned={false} />
+          hoverScreen && (
+            <Tooltip
+              person={hoveredPerson}
+              x={hoverScreen.x}
+              y={hoverScreen.y}
+              pinned={false}
+              patentLinks={patentLinks}
+              collaborations={collaborations}
+            />
+          )
         ))}
 
       {hoveredPatent && (

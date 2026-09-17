@@ -12,7 +12,7 @@ import TableView from "./components/TableView/TableView";
 import "./App.css";
 
 function AppInner() {
-  const { dataset, paperCounts, loading, error } = useDataset();
+  const { dataset, paperCounts, patentLinks, collaborations, loading, error } = useDataset();
   const { state } = useAppState();
 
   const universityCountries = useMemo(() => (dataset ? universityCountryMap(dataset.people) : new Map<string, string>()), [dataset]);
@@ -53,13 +53,13 @@ function AppInner() {
   return (
     <div className="app-root">
       {state.mapMode === "taxonomy" ? (
-        <TaxonomyView paperCounts={windowedPaperCounts} />
+        <TaxonomyView paperCounts={windowedPaperCounts} patentLinks={patentLinks} collaborations={collaborations} />
       ) : state.mapMode === "geo" ? (
         <GeoView people={timeFilteredPeople} paperCounts={windowedPaperCounts} />
       ) : state.mapMode === "list" ? (
         <TableView people={visiblePeople} />
       ) : (
-        <ScatterView dataset={dataset} people={visiblePeople} />
+        <ScatterView dataset={dataset} people={visiblePeople} patentLinks={patentLinks} collaborations={collaborations} />
       )}
 
       <Rail people={dataset.people} />
