@@ -6,6 +6,10 @@
   justify-content: center;
 }
 
+.geo-view.has-panel {
+  padding-right: 380px;
+}
+
 .geo-svg {
   width: min(100%, 1100px);
   height: min(100%, 780px);
