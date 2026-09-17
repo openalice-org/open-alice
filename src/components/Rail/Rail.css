@@ -58,30 +58,6 @@
   position: static;
 }
 
-/* History back button: its own small floating bubble, separate from the
-   View/Emphasis panel — pops one entry off the app's undo stack
-   (region/lens/emphasis/config, see AppState's history). */
-.rail-history {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 15px;
-  color: var(--ink-dim);
-  cursor: pointer;
-  transition: color 0.15s, opacity 0.15s;
-}
-
-.rail-history:hover {
-  color: var(--ink);
-}
-
-.rail-history.disabled {
-  display: none;
-}
-
 .rail-btn {
   width: 40px;
   height: 40px;
