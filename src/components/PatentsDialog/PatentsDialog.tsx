@@ -8,6 +8,23 @@ interface PatentsDialogProps {
   person: Person;
   onClose: () => void;
   patentLinks?: PatentLinks | null;
+  knownPersonIds?: Set<string>;
+}
+
+/** Dedupes a list of {id, name} entries by name (case-sensitive exact
+ * match), keeping the first occurrence — the same real person sometimes
+ * has two different OpenAlex ids in the source data, which otherwise shows
+ * up as visually duplicate co-inventor entries even though the (unique)
+ * ids keep React happy. */
+function dedupeByName<T extends { name: string }>(items: T[]): T[] {
+  const seen = new Set<string>();
+  const out: T[] = [];
+  for (const item of items) {
+    if (seen.has(item.name)) continue;
+    seen.add(item.name);
+    out.push(item);
+  }
+  return out;
 }
 
 /** Modal listing a person's own SE-inventor/uni-applicant filtered patents
@@ -16,7 +33,7 @@ interface PatentsDialogProps {
  * Portaled to document.body (same reasoning as Rail's Popout: a nested
  * backdrop-filter under an ancestor that already has one samples the
  * ancestor's blurred output instead of the real page). */
-export default function PatentsDialog({ person, onClose, patentLinks }: PatentsDialogProps) {
+export default function PatentsDialog({ person, onClose, patentLinks, knownPersonIds }: PatentsDialogProps) {
   const { dispatch } = useAppState();
 
   useEffect(() => {
@@ -51,8 +68,10 @@ export default function PatentsDialog({ person, onClose, patentLinks }: PatentsD
         <div className="patents-dialog-list">
           {patents.length ? (
             patents.map((p) => {
-              const coInventors = (patentLinks?.[p.epo_id] ?? []).filter(
-                (other) => other.id !== person.id && other.name !== person.name,
+              const coInventors = dedupeByName(
+                (patentLinks?.[p.epo_id] ?? []).filter(
+                  (other) => other.id !== person.id && other.name !== person.name,
+                ),
               );
               return (
                 <div className="patent-row" key={p.epo_id}>
@@ -68,13 +87,17 @@ export default function PatentsDialog({ person, onClose, patentLinks }: PatentsD
                       Also invented by:{" "}
                       {coInventors.map((other, i) => (
                         <span key={other.id}>
-                          <button
-                            type="button"
-                            className="patent-co-inventor-btn"
-                            onClick={() => goToPerson(other.id)}
-                          >
-                            {other.name}
-                          </button>
+                          {!knownPersonIds || knownPersonIds.has(other.id) ? (
+                            <button
+                              type="button"
+                              className="patent-co-inventor-btn"
+                              onClick={() => goToPerson(other.id)}
+                            >
+                              {other.name}
+                            </button>
+                          ) : (
+                            <span className="patent-co-inventor-plain">{other.name}</span>
+                          )}
                           {i < coInventors.length - 1 ? ", " : ""}
                         </span>
                       ))}

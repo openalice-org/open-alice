@@ -206,7 +206,7 @@ export default function Rail({ people }: RailProps) {
 
       <div className="panel panel-rail rail-right glass-panel">
         <div className={"rail-row config" + (configLocked ? " locked" : "")} title="Config" ref={configRowRef}>
-          {openMenu === "config" && (
+          {openMenu === "config" && !configLocked && (
             <Popout anchorRef={configRowRef} side="left" align="center" className="config-buttons">
               <span className="config-label">Emphasis</span>
               {EMPHASIS.map((l) => (

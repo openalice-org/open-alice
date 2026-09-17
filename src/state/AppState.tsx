@@ -33,6 +33,33 @@ type ConfigByMode = Partial<Record<MapMode, ViewConfig>>;
 
 const VIEW_CONFIG_STORAGE_KEY = "openalice.viewConfig";
 
+// Whitelists for the four persisted enum fields — a stale/corrupted
+// localStorage entry (e.g. from a renamed enum value in a future build)
+// should be dropped rather than flowing straight into state unchecked.
+const VALID_GLASSES_MODES: readonly GlassesMode[] = ["constant", "quantum_h_index", "global_h_index"];
+const VALID_AGG_MODES: readonly AggMode[] = ["none", "boxplot", "hexdensity", "clusters", "patents"];
+const VALID_BOX_ORIENTS: readonly BoxOrient[] = ["h", "v"];
+const VALID_GEO_SIZE_METRICS: readonly GeoSizeMetric[] = ["papers", "people", "citations"];
+
+function sanitizeViewConfig(raw: unknown): ViewConfig | undefined {
+  if (!raw || typeof raw !== "object") return undefined;
+  const candidate = raw as Partial<Record<keyof ViewConfig, unknown>>;
+  const out: Partial<ViewConfig> = {};
+  if (VALID_GLASSES_MODES.includes(candidate.glassesMode as GlassesMode)) {
+    out.glassesMode = candidate.glassesMode as GlassesMode;
+  }
+  if (VALID_AGG_MODES.includes(candidate.aggMode as AggMode)) {
+    out.aggMode = candidate.aggMode as AggMode;
+  }
+  if (VALID_BOX_ORIENTS.includes(candidate.boxOrient as BoxOrient)) {
+    out.boxOrient = candidate.boxOrient as BoxOrient;
+  }
+  if (VALID_GEO_SIZE_METRICS.includes(candidate.geoSizeMetric as GeoSizeMetric)) {
+    out.geoSizeMetric = candidate.geoSizeMetric as GeoSizeMetric;
+  }
+  return out as ViewConfig;
+}
+
 function configOf(state: AppState): ViewConfig {
   return {
     glassesMode: state.glassesMode,
@@ -48,7 +75,13 @@ function loadConfigByMode(): ConfigByMode {
     const raw = window.localStorage.getItem(VIEW_CONFIG_STORAGE_KEY);
     if (!raw) return {};
     const parsed = JSON.parse(raw);
-    return parsed && typeof parsed === "object" ? (parsed as ConfigByMode) : {};
+    if (!parsed || typeof parsed !== "object") return {};
+    const out: ConfigByMode = {};
+    for (const [mode, config] of Object.entries(parsed as Record<string, unknown>)) {
+      const sanitized = sanitizeViewConfig(config);
+      if (sanitized) out[mode as MapMode] = sanitized;
+    }
+    return out;
   } catch {
     return {};
   }
@@ -164,12 +197,16 @@ function reducer(state: AppState, action: Action): AppState {
       aggMode = aggForScope(action.mode, aggMode, scope);
       // Restore whatever display config was last used for the view being
       // switched to, so hopping between views (and back) doesn't lose
-      // per-view settings.
+      // per-view settings. The restored aggMode must pass through the same
+      // guards as the live-state value above — localStorage can hold a
+      // value that's no longer valid for this mode/scope combo.
       const saved = loadConfigByMode()[action.mode];
+      const restoredAgg = saved?.aggMode ?? aggMode;
+      aggMode = aggForScope(action.mode, aggModeAllowed(restoredAgg, action.mode) ? restoredAgg : "none", scope);
       return {
         ...state,
         mapMode: action.mode,
-        aggMode: saved?.aggMode ?? aggMode,
+        aggMode,
         glassesMode: saved?.glassesMode ?? state.glassesMode,
         boxOrient: saved?.boxOrient ?? state.boxOrient,
         geoSizeMetric: saved?.geoSizeMetric ?? state.geoSizeMetric,

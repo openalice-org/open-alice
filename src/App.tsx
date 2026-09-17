@@ -34,6 +34,14 @@ function AppInner() {
     [paperCounts, state.timeWindow],
   );
 
+  // The full set of person ids actually present in the loaded dataset —
+  // used by Tooltip/PatentsDialog to decide whether a coauthor chip or
+  // co-inventor link is a valid SET_PINNED target. collaborations.json and
+  // patent_links.json can reference ids (other institutions, or ids absent
+  // from people_viz.json entirely) that ScatterView/TaxonomyView can never
+  // resolve a pin against, which otherwise makes the click silently no-op.
+  const knownPersonIds = useMemo(() => new Set(dataset?.people.map((p) => p.id) ?? []), [dataset]);
+
   if (loading) {
     return (
       <div className="boot-screen">
@@ -53,13 +61,24 @@ function AppInner() {
   return (
     <div className="app-root">
       {state.mapMode === "taxonomy" ? (
-        <TaxonomyView paperCounts={windowedPaperCounts} patentLinks={patentLinks} collaborations={collaborations} />
+        <TaxonomyView
+          paperCounts={windowedPaperCounts}
+          patentLinks={patentLinks}
+          collaborations={collaborations}
+          knownPersonIds={knownPersonIds}
+        />
       ) : state.mapMode === "geo" ? (
         <GeoView people={timeFilteredPeople} paperCounts={windowedPaperCounts} />
       ) : state.mapMode === "list" ? (
         <TableView people={visiblePeople} />
       ) : (
-        <ScatterView dataset={dataset} people={visiblePeople} patentLinks={patentLinks} collaborations={collaborations} />
+        <ScatterView
+          dataset={dataset}
+          people={visiblePeople}
+          patentLinks={patentLinks}
+          collaborations={collaborations}
+          knownPersonIds={knownPersonIds}
+        />
       )}
 
       <Rail people={dataset.people} />

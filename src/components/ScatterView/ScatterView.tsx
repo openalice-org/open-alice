@@ -39,6 +39,7 @@ interface ScatterViewProps {
   people: Person[]; // already scoped to the current institution
   patentLinks?: PatentLinks | null;
   collaborations?: Collaborations | null;
+  knownPersonIds?: Set<string>;
 }
 
 const MARGIN = 90;
@@ -89,7 +90,7 @@ const BOUNDARY_PAIRS: [DomainKey, DomainKey][] = [
   ["communication", "computing"],
 ];
 
-export default function ScatterView({ dataset, people, patentLinks, collaborations }: ScatterViewProps) {
+export default function ScatterView({ dataset, people, patentLinks, collaborations, knownPersonIds }: ScatterViewProps) {
   const { state, dispatch } = useAppState();
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -997,6 +998,7 @@ export default function ScatterView({ dataset, people, patentLinks, collaboratio
             onClose={unpin}
             patentLinks={patentLinks}
             collaborations={collaborations}
+            knownPersonIds={knownPersonIds}
           />
         ) : (
           hoveredPerson &&
@@ -1008,6 +1010,7 @@ export default function ScatterView({ dataset, people, patentLinks, collaboratio
               pinned={false}
               patentLinks={patentLinks}
               collaborations={collaborations}
+              knownPersonIds={knownPersonIds}
             />
           )
         ))}

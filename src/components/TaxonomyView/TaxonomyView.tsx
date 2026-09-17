@@ -112,9 +112,15 @@ interface TaxonomyViewProps {
   paperCounts?: PaperCounts | null;
   patentLinks?: PatentLinks | null;
   collaborations?: Collaborations | null;
+  knownPersonIds?: Set<string>;
 }
 
-export default function TaxonomyView({ paperCounts, patentLinks, collaborations }: TaxonomyViewProps = {}) {
+export default function TaxonomyView({
+  paperCounts,
+  patentLinks,
+  collaborations,
+  knownPersonIds,
+}: TaxonomyViewProps = {}) {
   const { state, dispatch } = useAppState();
   const { data, loading, error } = useTaxonomyDataset();
 
@@ -541,6 +547,7 @@ export default function TaxonomyView({ paperCounts, patentLinks, collaborations 
             onClose={unpin}
             patentLinks={patentLinks}
             collaborations={collaborations}
+            knownPersonIds={knownPersonIds}
           />
         ) : (
           hoverScreen && (
@@ -551,6 +558,7 @@ export default function TaxonomyView({ paperCounts, patentLinks, collaborations 
               pinned={false}
               patentLinks={patentLinks}
               collaborations={collaborations}
+              knownPersonIds={knownPersonIds}
             />
           )
         ))}

@@ -47,37 +47,32 @@ export function useDataset(): UseDatasetResult {
         return;
       }
 
-      try {
-        const res = await fetch(PAPER_COUNTS_URL);
-        if (res.ok) {
-          const counts: PaperCounts = await res.json();
-          if (!cancelled) setPaperCounts(counts);
-        }
-      } catch {
-        // optional file — soft fail, paperCounts stays null
-      }
-
-      try {
-        const res = await fetch(PATENT_LINKS_URL);
-        if (res.ok) {
-          const links: PatentLinks = await res.json();
-          if (!cancelled) setPatentLinks(links);
-        }
-      } catch {
-        // optional file — soft fail, patentLinks stays null
-      }
-
-      try {
-        const res = await fetch(COLLABORATIONS_URL);
-        if (res.ok) {
-          const collabs: Collaborations = await res.json();
-          if (!cancelled) setCollaborations(collabs);
-        }
-      } catch {
-        // optional file — soft fail, collaborations stays null
-      }
-
+      // These three are optional and can be large (collaborations.json is
+      // ~13MB) — fetch them concurrently but don't let them block first
+      // paint. Each soft-fails to null independently and populates its own
+      // state whenever it resolves.
       if (!cancelled) setLoading(false);
+
+      Promise.allSettled([
+        fetch(PAPER_COUNTS_URL)
+          .then((res) => (res.ok ? (res.json() as Promise<PaperCounts>) : null))
+          .then((counts) => {
+            if (!cancelled && counts) setPaperCounts(counts);
+          }),
+        fetch(PATENT_LINKS_URL)
+          .then((res) => (res.ok ? (res.json() as Promise<PatentLinks>) : null))
+          .then((links) => {
+            if (!cancelled && links) setPatentLinks(links);
+          }),
+        fetch(COLLABORATIONS_URL)
+          .then((res) => (res.ok ? (res.json() as Promise<Collaborations>) : null))
+          .then((collabs) => {
+            if (!cancelled && collabs) setCollaborations(collabs);
+          }),
+      ]).catch(() => {
+        // individual fetches already soft-fail via .then guards above;
+        // this catch only guards against an unexpected rejection escaping.
+      });
     }
 
     boot();

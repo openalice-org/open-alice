@@ -12,13 +12,39 @@ interface TooltipProps {
   onClose?: () => void;
   patentLinks?: PatentLinks | null;
   collaborations?: Collaborations | null;
+  knownPersonIds?: Set<string>;
 }
 
 function clamp(v: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, v));
 }
 
-export default function Tooltip({ person, x, y, pinned, onClose, patentLinks, collaborations }: TooltipProps) {
+/** Dedupes a list of {id, name} entries by name (case-sensitive exact
+ * match), keeping the first occurrence — the same real person sometimes
+ * has two different OpenAlex ids in the source data, which otherwise shows
+ * up as visually duplicate rows even though the (unique) ids keep React
+ * happy. */
+function dedupeByName<T extends { name: string }>(items: T[]): T[] {
+  const seen = new Set<string>();
+  const out: T[] = [];
+  for (const item of items) {
+    if (seen.has(item.name)) continue;
+    seen.add(item.name);
+    out.push(item);
+  }
+  return out;
+}
+
+export default function Tooltip({
+  person,
+  x,
+  y,
+  pinned,
+  onClose,
+  patentLinks,
+  collaborations,
+  knownPersonIds,
+}: TooltipProps) {
   const [patentsOpen, setPatentsOpen] = useState(false);
   const { dispatch } = useAppState();
   const width = 280;
@@ -29,7 +55,9 @@ export default function Tooltip({ person, x, y, pinned, onClose, patentLinks, co
   const globalH = person.global_h_index ?? "Not available";
 
   const collab = collaborations?.[person.id];
-  const topCoauthors = collab?.top_coauthors?.slice(0, 4) ?? [];
+  const topCoauthors = dedupeByName(
+    (collab?.top_coauthors ?? []).filter((other) => other.id !== person.id && other.name !== person.name),
+  ).slice(0, 4);
   const topInstitutions = collab?.top_institutions?.slice(0, 3) ?? [];
   const hasCollab = topCoauthors.length > 0 || topInstitutions.length > 0;
 
@@ -86,16 +114,22 @@ export default function Tooltip({ person, x, y, pinned, onClose, patentLinks, co
           <div className="collab-heading">Top collaborators (quantum)</div>
           {topCoauthors.length > 0 && (
             <div className="collab-row">
-              {topCoauthors.map((c) => (
-                <button
-                  key={c.id}
-                  type="button"
-                  className="collab-chip collab-chip-btn"
-                  onClick={() => dispatch({ type: "SET_PINNED", id: c.id })}
-                >
-                  {c.name} <span className="collab-count">{c.papers}</span>
-                </button>
-              ))}
+              {topCoauthors.map((c) =>
+                !knownPersonIds || knownPersonIds.has(c.id) ? (
+                  <button
+                    key={c.id}
+                    type="button"
+                    className="collab-chip collab-chip-btn"
+                    onClick={() => dispatch({ type: "SET_PINNED", id: c.id })}
+                  >
+                    {c.name} <span className="collab-count">{c.papers}</span>
+                  </button>
+                ) : (
+                  <span key={c.id} className="collab-chip">
+                    {c.name} <span className="collab-count">{c.papers}</span>
+                  </span>
+                ),
+              )}
             </div>
           )}
           {topInstitutions.length > 0 && (
@@ -120,7 +154,12 @@ export default function Tooltip({ person, x, y, pinned, onClose, patentLinks, co
         </a>
       )}
       {patentsOpen && (
-        <PatentsDialog person={person} onClose={() => setPatentsOpen(false)} patentLinks={patentLinks} />
+        <PatentsDialog
+          person={person}
+          onClose={() => setPatentsOpen(false)}
+          patentLinks={patentLinks}
+          knownPersonIds={knownPersonIds}
+        />
       )}
     </div>
   );
