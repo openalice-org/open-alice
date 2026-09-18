@@ -1000,8 +1000,10 @@ export default function ScatterView({ dataset, people, patentLinks, collaboratio
             collaborations={collaborations}
             knownPersonIds={knownPersonIds}
             onPinPerson={(id) => {
-              const p = people.find((pp) => pp.id === id) ?? dataset.people.find((pp) => pp.id === id);
-              if (p) pinAndZoom(p);
+              const p = dataset.people.find((pp) => pp.id === id);
+              if (!p) return;
+              if (p.university !== state.scope) dispatch({ type: "SET_SCOPE", scope: p.university });
+              pinAndZoom(p);
             }}
           />
         ) : (
@@ -1016,8 +1018,10 @@ export default function ScatterView({ dataset, people, patentLinks, collaboratio
               collaborations={collaborations}
               knownPersonIds={knownPersonIds}
               onPinPerson={(id) => {
-                const p = people.find((pp) => pp.id === id) ?? dataset.people.find((pp) => pp.id === id);
-                if (p) pinAndZoom(p);
+                const p = dataset.people.find((pp) => pp.id === id);
+                if (!p) return;
+                if (p.university !== state.scope) dispatch({ type: "SET_SCOPE", scope: p.university });
+                pinAndZoom(p);
               }}
             />
           )
