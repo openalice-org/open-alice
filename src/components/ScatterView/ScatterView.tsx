@@ -556,20 +556,28 @@ export default function ScatterView({ dataset, people, patentLinks, collaboratio
         sx += cx;
         sy += cy;
       });
-      const agg = aggregateGeo(members);
-      // Argmax over the group's paper-weighted domain-mix, same selection
-      // dominantDomainOf uses per-person — coloured with the same vivid
-      // per-domain palette the rest of Domains uses for consistency.
-      const shares = agg.slices;
-      const dom = (["sensing", "communication", "computing"] as const).reduce((best, k) =>
-        shares[k] > shares[best] ? k : best,
-      );
+      // Domain coloring only makes sense in Domains view; Axes (cartesian)
+      // keeps the same neutral "var(--point)" fill regular points use there.
+      let fill = "var(--point)";
+      if (state.mapMode === "domains") {
+        const agg = aggregateGeo(members);
+        // Argmax over the group's paper-weighted domain-mix, same selection
+        // dominantDomainOf uses per-person — coloured with the same vivid
+        // per-domain palette the rest of Domains uses for consistency.
+        const shares = agg.slices;
+        if (shares.sensing + shares.communication + shares.computing > 0) {
+          const dom = (["sensing", "communication", "computing"] as const).reduce((best, k) =>
+            shares[k] > shares[best] ? k : best,
+          );
+          fill = DOMAIN_COLORS_PRIMARY[dom];
+        }
+      }
       return {
         university,
         cx: sx / members.length,
         cy: sy / members.length,
         count: members.length,
-        fill: DOMAIN_COLORS_PRIMARY[dom],
+        fill,
       };
     });
     return groups;
@@ -1120,7 +1128,7 @@ export default function ScatterView({ dataset, people, patentLinks, collaboratio
         </div>
       )}
 
-      {hoveredUni && (
+      {universitiesActive && hoveredUni && (
         <div className="pat-tooltip" style={{ left: hoveredUni.x + 14, top: hoveredUni.y + 14 }}>
           {hoveredUni.university} · {hoveredUni.count} {hoveredUni.count === 1 ? "person" : "people"}
         </div>

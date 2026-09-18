@@ -148,12 +148,16 @@ function nextMapMode(mode: MapMode, scope: string): MapMode {
 // Domain mix/Primary domain (Domains) and People (Axes) only make sense once
 // scoped down to a single university — at Nordics/country scope there are
 // too many people for a raw per-point view to read, so landing on a bigger
-// scope while one's active falls back to that view's aggregate option
-// (Density for Domains, Boxplot for Axes) instead.
+// scope while one's active falls back to the Universities aggregate instead.
 function aggForScope(mapMode: MapMode, agg: AggMode, scope: string): AggMode {
+  // "universities" is only meaningful at a broad (Nordics/country) scope —
+  // drilling into a single university via a bubble click (or restoring it
+  // from localStorage at a narrow scope) must fall back to a per-person view
+  // instead of leaving one giant degenerate bubble on screen.
+  if (agg === "universities" && !isGeoScope(scope)) return "none";
   if (!isGeoScope(scope)) return agg;
-  if (mapMode === "domains" && (agg === "none" || agg === "clusters" || agg === "patents")) return "hexdensity";
-  if (mapMode === "cartesian" && agg === "none") return "boxplot";
+  if (mapMode === "domains" && (agg === "none" || agg === "clusters" || agg === "patents")) return "universities";
+  if (mapMode === "cartesian" && (agg === "none" || agg === "patents")) return "universities";
   return agg;
 }
 
