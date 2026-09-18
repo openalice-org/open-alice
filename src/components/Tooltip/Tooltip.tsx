@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useAppState } from "../../state/AppState";
 import type { Collaborations, Person, PatentLinks } from "../../types";
 import PatentsDialog from "../PatentsDialog/PatentsDialog";
 import "./Tooltip.css";
@@ -13,6 +12,7 @@ interface TooltipProps {
   patentLinks?: PatentLinks | null;
   collaborations?: Collaborations | null;
   knownPersonIds?: Set<string>;
+  onPinPerson?: (id: string) => void;
 }
 
 function clamp(v: number, min: number, max: number): number {
@@ -44,9 +44,9 @@ export default function Tooltip({
   patentLinks,
   collaborations,
   knownPersonIds,
+  onPinPerson,
 }: TooltipProps) {
   const [patentsOpen, setPatentsOpen] = useState(false);
-  const { dispatch } = useAppState();
   const width = 280;
   const left = clamp(x + 16, 8, window.innerWidth - width - 8);
   const top = clamp(y + 16, 8, window.innerHeight - 260);
@@ -115,12 +115,12 @@ export default function Tooltip({
           {topCoauthors.length > 0 && (
             <div className="collab-row">
               {topCoauthors.map((c) =>
-                !knownPersonIds || knownPersonIds.has(c.id) ? (
+                onPinPerson && (!knownPersonIds || knownPersonIds.has(c.id)) ? (
                   <button
                     key={c.id}
                     type="button"
                     className="collab-chip collab-chip-btn"
-                    onClick={() => dispatch({ type: "SET_PINNED", id: c.id })}
+                    onClick={() => onPinPerson(c.id)}
                   >
                     {c.name} <span className="collab-count">{c.papers}</span>
                   </button>

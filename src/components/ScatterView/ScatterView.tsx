@@ -999,6 +999,10 @@ export default function ScatterView({ dataset, people, patentLinks, collaboratio
             patentLinks={patentLinks}
             collaborations={collaborations}
             knownPersonIds={knownPersonIds}
+            onPinPerson={(id) => {
+              const p = people.find((pp) => pp.id === id) ?? dataset.people.find((pp) => pp.id === id);
+              if (p) pinAndZoom(p);
+            }}
           />
         ) : (
           hoveredPerson &&
@@ -1011,6 +1015,10 @@ export default function ScatterView({ dataset, people, patentLinks, collaboratio
               patentLinks={patentLinks}
               collaborations={collaborations}
               knownPersonIds={knownPersonIds}
+              onPinPerson={(id) => {
+                const p = people.find((pp) => pp.id === id) ?? dataset.people.find((pp) => pp.id === id);
+                if (p) pinAndZoom(p);
+              }}
             />
           )
         ))}
