@@ -31,6 +31,7 @@ import {
 } from "../../lib/ternary";
 import { BOX_ROWS, BOX_COLS, computeBoxBins, boxGeom } from "../../lib/boxplot";
 import { hexRadius, hexbinCells, hexagonPath, hexAlpha, cssRgbToTuple } from "../../lib/hexbin";
+import { aggregateGeo } from "../../lib/geoAggregate";
 import Tooltip from "../Tooltip/Tooltip";
 import "./ScatterView.css";
 
@@ -520,6 +521,69 @@ export default function ScatterView({ dataset, people, patentLinks, collaboratio
     // at sim creation — same resize-tracking reasoning as the cluster sim.
   }, [patentsActive, holders, size.width, size.height]);
 
+  // ---- Universities aggregation: Cartesian or Domains (see aggModeAllowed).
+  // Groups the current `people` by university and draws one bubble per
+  // group instead of one point per person — mirrors GeoView's byUni/uniAgg/
+  // rUni pattern (group -> aggregateGeo for the domain-mix rollup -> a
+  // fresh count-based sqrt scale for radius), but positioned at the mean of
+  // each member's already-projected screen position for the CURRENT
+  // mapMode (projectOf), so it works for both Cartesian and Domains without
+  // separate math per mode.
+  const universitiesActive =
+    state.aggMode === "universities" && (state.mapMode === "cartesian" || state.mapMode === "domains");
+
+  interface UniBubble {
+    university: string;
+    cx: number;
+    cy: number;
+    count: number;
+    fill: string;
+  }
+
+  const uniBubbles = useMemo<UniBubble[]>(() => {
+    if (!universitiesActive) return [];
+    const byUni = new Map<string, Person[]>();
+    people.forEach((p) => {
+      if (state.mapMode === "domains" && !hasShares(p)) return;
+      if (!byUni.has(p.university)) byUni.set(p.university, []);
+      byUni.get(p.university)!.push(p);
+    });
+    const groups = Array.from(byUni.entries()).map(([university, members]) => {
+      let sx = 0;
+      let sy = 0;
+      members.forEach((p) => {
+        const { cx, cy } = projectOf(p);
+        sx += cx;
+        sy += cy;
+      });
+      const agg = aggregateGeo(members);
+      // Argmax over the group's paper-weighted domain-mix, same selection
+      // dominantDomainOf uses per-person — coloured with the same vivid
+      // per-domain palette the rest of Domains uses for consistency.
+      const shares = agg.slices;
+      const dom = (["sensing", "communication", "computing"] as const).reduce((best, k) =>
+        shares[k] > shares[best] ? k : best,
+      );
+      return {
+        university,
+        cx: sx / members.length,
+        cy: sy / members.length,
+        count: members.length,
+        fill: DOMAIN_COLORS_PRIMARY[dom],
+      };
+    });
+    return groups;
+  }, [universitiesActive, people, state.mapMode, projectOf]);
+
+  const uniRadiusScale = useMemo(() => {
+    const maxCount = max(uniBubbles, (g) => g.count) ?? 1;
+    return scaleSqrt().domain([0, maxCount]).range([4, 26]);
+  }, [uniBubbles]);
+
+  const [hoveredUni, setHoveredUni] = useState<{ university: string; count: number; x: number; y: number } | null>(
+    null,
+  );
+
   // Pinning a person (a click) doesn't touch hoveredId — without this, the
   // patent highlight/dim goes dark the moment you pin someone, exactly when
   // you'd want it to stay put and let you inspect their satellites at
@@ -560,7 +624,7 @@ export default function ScatterView({ dataset, people, patentLinks, collaboratio
   // are too many people for the reveal to stay legible, so it's pinned at
   // hexFade=1 (hex fully opaque, points fully hidden — see the opacity math
   // below, NOT 0, which would make the hex layer itself invisible instead).
-  const showPoints = !boxplotActive && !clustersActive;
+  const showPoints = !boxplotActive && !clustersActive && !universitiesActive;
   // Patents keeps the point layer (unlike Boxplot/Clusters, which replace it
   // outright) but narrows it to holders — everyone else fades out, same as
   // the vanilla app's non-holder fade.
@@ -836,6 +900,29 @@ export default function ScatterView({ dataset, people, patentLinks, collaboratio
             </g>
           )}
 
+          {universitiesActive && (
+            <g className="agg-universities">
+              {uniBubbles.map((g) => (
+                <circle
+                  key={g.university}
+                  cx={g.cx}
+                  cy={g.cy}
+                  r={uniRadiusScale(g.count) / transform.k}
+                  fill={g.fill}
+                  fillOpacity={0.75}
+                  className="point"
+                  onMouseEnter={(e) => setHoveredUni({ university: g.university, count: g.count, x: e.clientX, y: e.clientY })}
+                  onMouseMove={(e) => setHoveredUni((h) => (h ? { ...h, x: e.clientX, y: e.clientY } : h))}
+                  onMouseLeave={() => setHoveredUni(null)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    dispatch({ type: "SET_SCOPE", scope: g.university });
+                  }}
+                />
+              ))}
+            </g>
+          )}
+
           {boxBins && (
             <g className="agg-boxplot">
               {boxBins.map((bin) => {
@@ -1030,6 +1117,12 @@ export default function ScatterView({ dataset, people, patentLinks, collaboratio
       {hoveredPatent && (
         <div className="pat-tooltip" style={{ left: hoveredPatent.x + 14, top: hoveredPatent.y + 14 }}>
           {hoveredPatent.title || "Untitled patent"}
+        </div>
+      )}
+
+      {hoveredUni && (
+        <div className="pat-tooltip" style={{ left: hoveredUni.x + 14, top: hoveredUni.y + 14 }}>
+          {hoveredUni.university} · {hoveredUni.count} {hoveredUni.count === 1 ? "person" : "people"}
         </div>
       )}
     </div>

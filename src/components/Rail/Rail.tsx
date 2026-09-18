@@ -44,9 +44,15 @@ const DOMAIN_CONFIG: { key: AggMode; label: string }[] = [
   { key: "none", label: "Domain mix" },
   { key: "clusters", label: "Primary domain" },
   { key: "patents", label: "Patents" },
+  { key: "universities", label: "Universities" },
 ];
 
 function domainConfigAllowed(key: AggMode, scope: string): boolean {
+  // Universities is the opposite of the per-person modes below: it's only
+  // meaningful once there's more than one university on screen (Nordics/
+  // country scope) — at a single-university scope it'd collapse to one
+  // bubble containing everyone.
+  if (key === "universities") return isGeoScope(scope);
   if (key === "none" || key === "clusters" || key === "patents") return !isGeoScope(scope);
   return true;
 }
@@ -58,9 +64,13 @@ const CARTESIAN_CONFIG: { key: AggMode; label: string }[] = [
   { key: "none", label: "People" },
   { key: "boxplot", label: "Boxes" },
   { key: "patents", label: "Patents" },
+  { key: "universities", label: "Universities" },
 ];
 
 function cartesianConfigAllowed(key: AggMode, scope: string): boolean {
+  // Universities is only meaningful at broad (Nordics/country) scope — the
+  // opposite gate from the per-person "People"/"Patents" options below.
+  if (key === "universities") return isGeoScope(scope);
   if (key === "none" || key === "patents") return !isGeoScope(scope);
   return true;
 }
