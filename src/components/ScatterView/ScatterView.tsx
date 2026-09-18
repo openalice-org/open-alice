@@ -74,6 +74,42 @@ function hexFadeOpacity(k: number): number {
 const CLUSTER_R_BOOST = 1.5;
 const CLUSTER_COLLIDE_BOOST = 2.1;
 
+// ---- Quantum-only jitter (Axes/cartesian mode only) ----------------------
+// A large share of "quantum-only" people (every one of their papers is
+// quantum-tagged) share the EXACT same x/y coordinate — one coordinate has
+// 57 people stacked on top of each other — which only matters in cartesian
+// mode since Domains projects a different, unaffected ternary position.
+// Deterministic (seeded by the stable person.id) so a given person always
+// jitters to the same spot on every render/zoom/pan — no visible jumping.
+const QUANTUM_JITTER_MAGNITUDE = 0.02; // data-space units, domain is ~[-1,1]
+
+/** Basic FNV-1a-style string hash -> unsigned 32-bit int. */
+function hashStringFNV1a(str: string): number {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return h >>> 0;
+}
+
+/** Two independent pseudo-random floats in [-1, 1], pure function of `id` —
+ * salted differently per axis so x/y offsets aren't correlated. */
+function jitterOffsetsOf(id: string): { dx: number; dy: number } {
+  const hx = hashStringFNV1a(`${id}|x`);
+  const hy = hashStringFNV1a(`${id}|y`);
+  return {
+    dx: ((hx % 20000) / 10000 - 1) * QUANTUM_JITTER_MAGNITUDE,
+    dy: ((hy % 20000) / 10000 - 1) * QUANTUM_JITTER_MAGNITUDE,
+  };
+}
+
+/** All of this person's papers are quantum-tagged — the population that
+ * collides onto shared coordinates in cartesian mode (see jitter above). */
+function isQuantumOnly(p: Person): boolean {
+  return p.total_papers > 0 && p.total_papers === p.quantum_papers;
+}
+
 // Rail's Emphasis dropdown owns the real label list — duplicated as a
 // 2-entry lookup here rather than importing from Rail.tsx, since the legend
 // only ever needs to echo the current one back as plain text.
@@ -217,6 +253,16 @@ export default function ScatterView({ dataset, people, patentLinks, collaboratio
       if (state.mapMode === "domains" && hasShares(p)) {
         const { ux, uy } = ternaryUnit(p);
         return { cx: triX(ux), cy: triY(uy) };
+      }
+      // Nudge quantum-only people apart so a stack of dozens sharing an
+      // identical raw coordinate reads as a small cluster instead of one
+      // point (see QUANTUM_JITTER_MAGNITUDE doc above) — cartesian only,
+      // and only the plotted position; xScale/yScale's domain (above) is
+      // computed from the un-jittered raw x/y so the jitter can't distort
+      // the axis extent.
+      if (state.mapMode === "cartesian" && isQuantumOnly(p)) {
+        const { dx, dy } = jitterOffsetsOf(p.id);
+        return { cx: xScale(p.x + dx), cy: yScale(p.y + dy) };
       }
       return { cx: xScale(p.x), cy: yScale(p.y) };
     },
