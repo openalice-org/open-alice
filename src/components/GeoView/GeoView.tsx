@@ -582,7 +582,7 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
   const panelR = 44;
 
   return (
-    <div className="geo-view">
+    <div className={"geo-view" + (panelAgg ? " has-panel" : "")}>
       <svg viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} className="geo-svg">
         {!countryScope
           ? COUNTRY_ORDER.map((cc) => (

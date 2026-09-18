@@ -69,6 +69,10 @@ function cartesianConfigAllowed(key: AggMode, scope: string): boolean {
 // alone has too long a hover delay to feel responsive in this pill.
 const SCOPE_LOCK_HINT = "Only available at a single university — pick one first";
 
+// Shown on the Emphasis buttons when they're locked (outside Axes/Domains,
+// or while Boxplot's aggregate glyphs are on screen).
+const EMPHASIS_LOCK_HINT = "Only applies to the Axes and Domains views";
+
 // Geo's own config: which magnitude sizes a node's resting circle. All three
 // are always available — unlike Domains/Axes, Geo's node set (countries or
 // universities) doesn't change shape with scope, so there's no equivalent
@@ -123,7 +127,7 @@ interface RailProps {
 
 export default function Rail({ people }: RailProps) {
   const { state, dispatch } = useAppState();
-  const [openMenu, setOpenMenu] = useState<"view" | "emphasis" | "config" | null>(null);
+  const [openMenu, setOpenMenu] = useState<"view" | "config" | null>("config");
   const uniCountry = useMemo(() => universityCountryMap(people), [people]);
 
   // Geo has no per-university zoom of its own — landing on it from a
@@ -137,7 +141,6 @@ export default function Rail({ people }: RailProps) {
   }
   const rootRef = useRef<HTMLDivElement>(null);
   const viewRowRef = useRef<HTMLDivElement>(null);
-  const emphasisRowRef = useRef<HTMLDivElement>(null);
   const configRowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -158,7 +161,6 @@ export default function Rail({ people }: RailProps) {
   const configLocked = !onScatterView && state.mapMode !== "geo";
 
   const viewLabel = VIEWS.find((v) => v.key === state.mapMode)?.label ?? "";
-  const emphasisLabel = EMPHASIS.find((l) => l.key === state.glassesMode)?.label ?? "";
 
   return (
     <>
@@ -199,132 +201,111 @@ export default function Rail({ people }: RailProps) {
           )}
         </div>
 
-        <div className={"rail-row lens" + (emphasisLocked ? " locked" : "")} title="Emphasis" ref={emphasisRowRef}>
-          <span className="mode">{emphasisLabel}</span>
-          <div
-            className="rail-btn"
-            onClick={(e) => {
-              e.stopPropagation();
-              setOpenMenu(openMenu === "emphasis" ? null : "emphasis");
-            }}
-          >
-            <i className="ph-light ph-stack" />
-          </div>
-          {openMenu === "emphasis" && (
-            <Popout anchorRef={emphasisRowRef} side="right" align="top" className="menu">
-              <div className="menu-head">Emphasis</div>
-              {EMPHASIS.map((l) => (
-                <div
-                  key={l.key}
-                  className={"menu-opt" + (l.key === state.glassesMode ? " active" : "")}
-                  onClick={() => {
-                    dispatch({ type: "SET_GLASSES", mode: l.key });
-                    setOpenMenu(null);
-                  }}
-                >
-                  {l.label}
-                </div>
-              ))}
-            </Popout>
-          )}
-        </div>
-
       </div>
-
-        <div
-          className={"rail-history glass-panel" + (state.history.length ? "" : " disabled")}
-          title={
-            state.history.length
-              ? `Back — ${state.history.length} step${state.history.length === 1 ? "" : "s"} in history`
-              : "No history yet"
-          }
-          onClick={(e) => {
-            e.stopPropagation();
-            if (state.history.length) dispatch({ type: "GO_BACK" });
-          }}
-        >
-          <i className="ph-light ph-arrow-u-up-left" />
-        </div>
       </div>
 
       <div className="panel panel-rail rail-right glass-panel">
         <div className={"rail-row config" + (configLocked ? " locked" : "")} title="Config" ref={configRowRef}>
-          {openMenu === "config" && state.mapMode === "domains" && (
+          {openMenu === "config" && !configLocked && (
             <Popout anchorRef={configRowRef} side="left" align="center" className="config-buttons">
-              {DOMAIN_CONFIG.map((o) => {
-                const allowed = domainConfigAllowed(o.key, state.scope);
-                return (
-                  <span key={o.key} className={"config-hint" + (allowed ? "" : " locked")}>
-                    <button
-                      type="button"
-                      disabled={!allowed}
-                      title={allowed ? undefined : SCOPE_LOCK_HINT}
-                      className={"config-btn" + (o.key === state.aggMode ? " active" : "") + (allowed ? "" : " disabled")}
-                      onClick={() => allowed && dispatch({ type: "SET_AGG", mode: o.key })}
-                    >
-                      {o.label}
-                    </button>
-                    {!allowed && <i className="ph-light ph-question config-hint-icon" data-tip={SCOPE_LOCK_HINT} />}
-                  </span>
-                );
-              })}
-            </Popout>
-          )}
-          {openMenu === "config" && state.mapMode === "cartesian" && (
-            <Popout anchorRef={configRowRef} side="left" align="center" className="config-buttons">
-              {CARTESIAN_CONFIG.map((o) => {
-                const allowed = cartesianConfigAllowed(o.key, state.scope);
-                return (
-                  <span key={o.key} className={"config-hint" + (allowed ? "" : " locked")}>
-                    <button
-                      type="button"
-                      disabled={!allowed}
-                      title={allowed ? undefined : SCOPE_LOCK_HINT}
-                      className={"config-btn" + (o.key === state.aggMode ? " active" : "") + (allowed ? "" : " disabled")}
-                      onClick={() => allowed && dispatch({ type: "SET_AGG", mode: o.key })}
-                    >
-                      {o.label}
-                    </button>
-                    {!allowed && <i className="ph-light ph-question config-hint-icon" data-tip={SCOPE_LOCK_HINT} />}
-                  </span>
-                );
-              })}
-              {state.aggMode === "boxplot" && (
+              <span className="config-label">Emphasis</span>
+              {EMPHASIS.map((l) => (
+                <span key={l.key} className={"config-hint" + (emphasisLocked ? " locked" : "")}>
+                  <button
+                    type="button"
+                    disabled={emphasisLocked}
+                    title={emphasisLocked ? EMPHASIS_LOCK_HINT : undefined}
+                    className={"config-btn" + (l.key === state.glassesMode ? " active" : "") + (emphasisLocked ? " disabled" : "")}
+                    onClick={() => !emphasisLocked && dispatch({ type: "SET_GLASSES", mode: l.key })}
+                  >
+                    {l.label}
+                  </button>
+                </span>
+              ))}
+
+              {state.mapMode === "domains" && (
                 <>
                   <span className="config-sep">|</span>
-                  <button
-                    type="button"
-                    className={"config-btn" + (state.boxOrient === "v" ? " active" : "")}
-                    title="Bin along X"
-                    onClick={() => dispatch({ type: "SET_BOX_ORIENT", orient: "v" })}
-                  >
-                    X
-                  </button>
-                  <button
-                    type="button"
-                    className={"config-btn" + (state.boxOrient === "h" ? " active" : "")}
-                    title="Bin along Y"
-                    onClick={() => dispatch({ type: "SET_BOX_ORIENT", orient: "h" })}
-                  >
-                    Y
-                  </button>
+                  {DOMAIN_CONFIG.map((o) => {
+                    const allowed = domainConfigAllowed(o.key, state.scope);
+                    return (
+                      <span key={o.key} className={"config-hint" + (allowed ? "" : " locked")}>
+                        <button
+                          type="button"
+                          disabled={!allowed}
+                          title={allowed ? undefined : SCOPE_LOCK_HINT}
+                          className={"config-btn" + (o.key === state.aggMode ? " active" : "") + (allowed ? "" : " disabled")}
+                          onClick={() => allowed && dispatch({ type: "SET_AGG", mode: o.key })}
+                        >
+                          {o.label}
+                        </button>
+                        {!allowed && <i className="ph-light ph-question config-hint-icon" data-tip={SCOPE_LOCK_HINT} />}
+                      </span>
+                    );
+                  })}
                 </>
               )}
-            </Popout>
-          )}
-          {openMenu === "config" && state.mapMode === "geo" && (
-            <Popout anchorRef={configRowRef} side="left" align="center" className="config-buttons">
-              <span className="config-label">Size by</span>
-              {GEO_CONFIG.map((o) => (
-                <button
-                  key={o.key}
-                  type="button"
-                  className={"config-btn" + (o.key === state.geoSizeMetric ? " active" : "")}
-                  onClick={() => dispatch({ type: "SET_GEO_SIZE_METRIC", metric: o.key })}
-                >
-                  {o.label}
-                </button>
-              ))}
+
+              {state.mapMode === "cartesian" && (
+                <>
+                  <span className="config-sep">|</span>
+                  {CARTESIAN_CONFIG.map((o) => {
+                    const allowed = cartesianConfigAllowed(o.key, state.scope);
+                    return (
+                      <span key={o.key} className={"config-hint" + (allowed ? "" : " locked")}>
+                        <button
+                          type="button"
+                          disabled={!allowed}
+                          title={allowed ? undefined : SCOPE_LOCK_HINT}
+                          className={"config-btn" + (o.key === state.aggMode ? " active" : "") + (allowed ? "" : " disabled")}
+                          onClick={() => allowed && dispatch({ type: "SET_AGG", mode: o.key })}
+                        >
+                          {o.label}
+                        </button>
+                        {!allowed && <i className="ph-light ph-question config-hint-icon" data-tip={SCOPE_LOCK_HINT} />}
+                      </span>
+                    );
+                  })}
+                  {state.aggMode === "boxplot" && (
+                    <>
+                      <span className="config-sep">|</span>
+                      <button
+                        type="button"
+                        className={"config-btn" + (state.boxOrient === "v" ? " active" : "")}
+                        title="Bin along X"
+                        onClick={() => dispatch({ type: "SET_BOX_ORIENT", orient: "v" })}
+                      >
+                        X
+                      </button>
+                      <button
+                        type="button"
+                        className={"config-btn" + (state.boxOrient === "h" ? " active" : "")}
+                        title="Bin along Y"
+                        onClick={() => dispatch({ type: "SET_BOX_ORIENT", orient: "h" })}
+                      >
+                        Y
+                      </button>
+                    </>
+                  )}
+                </>
+              )}
+
+              {state.mapMode === "geo" && (
+                <>
+                  <span className="config-sep">|</span>
+                  <span className="config-label">Size by</span>
+                  {GEO_CONFIG.map((o) => (
+                    <button
+                      key={o.key}
+                      type="button"
+                      className={"config-btn" + (o.key === state.geoSizeMetric ? " active" : "")}
+                      onClick={() => dispatch({ type: "SET_GEO_SIZE_METRIC", metric: o.key })}
+                    >
+                      {o.label}
+                    </button>
+                  ))}
+                </>
+              )}
             </Popout>
           )}
           <div

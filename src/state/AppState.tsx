@@ -4,22 +4,6 @@ import { NORDICS_SCOPE, isGeoScope } from "../lib/institutions";
 import { taxScopeAllowed } from "../lib/taxonomy";
 import { aggModeAllowed } from "../lib/aggMode";
 
-const HISTORY_LIMIT = 100;
-
-// One entry per region (scope), lens (mapMode), emphasis (glassesMode), or
-// configuration (aggMode/boxOrient) change — a full undo stack, not just a
-// single "previous" slot, so the rail's Back button can walk all the way
-// back through a session (see the History bubble in Rail.tsx).
-interface ViewSnapshot {
-  scope: string;
-  mapMode: MapMode;
-  glassesMode: GlassesMode;
-  aggMode: AggMode;
-  boxOrient: BoxOrient;
-  geoSizeMetric: GeoSizeMetric;
-  timeWindow: TimeWindow;
-}
-
 export interface AppState {
   scope: string; // institution name | "country:XX" | "Nordics"
   glassesMode: GlassesMode;
@@ -31,22 +15,109 @@ export interface AppState {
   search: string;
   searchOpen: boolean;
   pinnedPersonId: string | null;
-  history: ViewSnapshot[]; // stack; GO_BACK pops the top entry
 }
 
-const initialState: AppState = {
-  scope: NORDICS_SCOPE,
-  glassesMode: "quantum_h_index",
-  mapMode: "geo",
-  aggMode: "none",
-  boxOrient: "h",
-  geoSizeMetric: "papers",
-  timeWindow: "all",
-  search: "",
-  searchOpen: false,
-  pinnedPersonId: null,
-  history: [],
-};
+// The cog popout's mode-specific display config (glassesMode/aggMode/
+// boxOrient/geoSizeMetric) is remembered per mapMode in localStorage, so
+// switching views and coming back — or reloading the page — restores
+// whatever was last set for that view. Deliberately NOT persisted: scope,
+// search, pinned person, or which rail menu is open.
+interface ViewConfig {
+  glassesMode: GlassesMode;
+  aggMode: AggMode;
+  boxOrient: BoxOrient;
+  geoSizeMetric: GeoSizeMetric;
+}
+
+type ConfigByMode = Partial<Record<MapMode, ViewConfig>>;
+
+const VIEW_CONFIG_STORAGE_KEY = "openalice.viewConfig";
+
+// Whitelists for the four persisted enum fields — a stale/corrupted
+// localStorage entry (e.g. from a renamed enum value in a future build)
+// should be dropped rather than flowing straight into state unchecked.
+const VALID_GLASSES_MODES: readonly GlassesMode[] = ["constant", "quantum_h_index", "global_h_index"];
+const VALID_AGG_MODES: readonly AggMode[] = ["none", "boxplot", "hexdensity", "clusters", "patents"];
+const VALID_BOX_ORIENTS: readonly BoxOrient[] = ["h", "v"];
+const VALID_GEO_SIZE_METRICS: readonly GeoSizeMetric[] = ["papers", "people", "citations"];
+
+function sanitizeViewConfig(raw: unknown): ViewConfig | undefined {
+  if (!raw || typeof raw !== "object") return undefined;
+  const candidate = raw as Partial<Record<keyof ViewConfig, unknown>>;
+  const out: Partial<ViewConfig> = {};
+  if (VALID_GLASSES_MODES.includes(candidate.glassesMode as GlassesMode)) {
+    out.glassesMode = candidate.glassesMode as GlassesMode;
+  }
+  if (VALID_AGG_MODES.includes(candidate.aggMode as AggMode)) {
+    out.aggMode = candidate.aggMode as AggMode;
+  }
+  if (VALID_BOX_ORIENTS.includes(candidate.boxOrient as BoxOrient)) {
+    out.boxOrient = candidate.boxOrient as BoxOrient;
+  }
+  if (VALID_GEO_SIZE_METRICS.includes(candidate.geoSizeMetric as GeoSizeMetric)) {
+    out.geoSizeMetric = candidate.geoSizeMetric as GeoSizeMetric;
+  }
+  return out as ViewConfig;
+}
+
+function configOf(state: AppState): ViewConfig {
+  return {
+    glassesMode: state.glassesMode,
+    aggMode: state.aggMode,
+    boxOrient: state.boxOrient,
+    geoSizeMetric: state.geoSizeMetric,
+  };
+}
+
+function loadConfigByMode(): ConfigByMode {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = window.localStorage.getItem(VIEW_CONFIG_STORAGE_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") return {};
+    const out: ConfigByMode = {};
+    for (const [mode, config] of Object.entries(parsed as Record<string, unknown>)) {
+      const sanitized = sanitizeViewConfig(config);
+      if (sanitized) out[mode as MapMode] = sanitized;
+    }
+    return out;
+  } catch {
+    return {};
+  }
+}
+
+function saveViewConfig(mode: MapMode, config: ViewConfig): void {
+  if (typeof window === "undefined") return;
+  try {
+    const all = loadConfigByMode();
+    all[mode] = config;
+    window.localStorage.setItem(VIEW_CONFIG_STORAGE_KEY, JSON.stringify(all));
+  } catch {
+    // localStorage unavailable/full/corrupt — persistence is best-effort only.
+  }
+}
+
+function baseInitialState(): AppState {
+  return {
+    scope: NORDICS_SCOPE,
+    glassesMode: "quantum_h_index",
+    mapMode: "geo",
+    aggMode: "none",
+    boxOrient: "h",
+    geoSizeMetric: "papers",
+    timeWindow: "all",
+    search: "",
+    searchOpen: false,
+    pinnedPersonId: null,
+  };
+}
+
+function createInitialState(): AppState {
+  const state = baseInitialState();
+  const saved = loadConfigByMode()[state.mapMode];
+  return saved ? { ...state, ...saved } : state;
+}
 
 type Action =
   | { type: "SET_SCOPE"; scope: string }
@@ -58,8 +129,7 @@ type Action =
   | { type: "SET_TIME_WINDOW"; window: TimeWindow }
   | { type: "SET_SEARCH"; query: string }
   | { type: "SET_SEARCH_OPEN"; open: boolean }
-  | { type: "SET_PINNED"; id: string | null }
-  | { type: "GO_BACK" };
+  | { type: "SET_PINNED"; id: string | null };
 
 // Views are keyed off mapMode alone now (List/Geo/Disciplines/Axes/Domains
 // are all lens options) — so a scope change has to carry mapMode along to
@@ -87,23 +157,6 @@ function aggForScope(mapMode: MapMode, agg: AggMode, scope: string): AggMode {
   return agg;
 }
 
-function snapshotOf(state: AppState): ViewSnapshot {
-  return {
-    scope: state.scope,
-    mapMode: state.mapMode,
-    glassesMode: state.glassesMode,
-    aggMode: state.aggMode,
-    boxOrient: state.boxOrient,
-    geoSizeMetric: state.geoSizeMetric,
-    timeWindow: state.timeWindow,
-  };
-}
-
-function pushHistory(state: AppState): ViewSnapshot[] {
-  const next = [...state.history, snapshotOf(state)];
-  return next.length > HISTORY_LIMIT ? next.slice(next.length - HISTORY_LIMIT) : next;
-}
-
 function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
     case "SET_SCOPE": {
@@ -117,7 +170,6 @@ function reducer(state: AppState, action: Action): AppState {
         mapMode,
         aggMode,
         pinnedPersonId: null,
-        history: pushHistory(state),
       };
     }
     case "SET_GLASSES": {
@@ -125,7 +177,9 @@ function reducer(state: AppState, action: Action): AppState {
       // are independent controls now — picking a weighting metric shouldn't
       // touch whichever Domains/Axes lens is currently active.
       if (action.mode === state.glassesMode) return state;
-      return { ...state, glassesMode: action.mode, history: pushHistory(state) };
+      const next = { ...state, glassesMode: action.mode };
+      saveViewConfig(next.mapMode, configOf(next));
+      return next;
     }
     case "SET_MAP": {
       // Geo is the only view not scoped to a single university — picking it
@@ -141,30 +195,46 @@ function reducer(state: AppState, action: Action): AppState {
       // stale glyph that no longer applies to this projection
       let aggMode = aggModeAllowed(state.aggMode, action.mode) ? state.aggMode : "none";
       aggMode = aggForScope(action.mode, aggMode, scope);
+      // Restore whatever display config was last used for the view being
+      // switched to, so hopping between views (and back) doesn't lose
+      // per-view settings. The restored aggMode must pass through the same
+      // guards as the live-state value above — localStorage can hold a
+      // value that's no longer valid for this mode/scope combo.
+      const saved = loadConfigByMode()[action.mode];
+      const restoredAgg = saved?.aggMode ?? aggMode;
+      aggMode = aggForScope(action.mode, aggModeAllowed(restoredAgg, action.mode) ? restoredAgg : "none", scope);
       return {
         ...state,
         mapMode: action.mode,
         aggMode,
+        glassesMode: saved?.glassesMode ?? state.glassesMode,
+        boxOrient: saved?.boxOrient ?? state.boxOrient,
+        geoSizeMetric: saved?.geoSizeMetric ?? state.geoSizeMetric,
         scope,
         pinnedPersonId: null,
-        history: pushHistory(state),
       };
     }
     case "SET_AGG": {
       if (action.mode === state.aggMode) return state;
-      return { ...state, aggMode: action.mode, history: pushHistory(state) };
+      const next = { ...state, aggMode: action.mode };
+      saveViewConfig(next.mapMode, configOf(next));
+      return next;
     }
     case "SET_BOX_ORIENT": {
       if (action.orient === state.boxOrient) return state;
-      return { ...state, boxOrient: action.orient, history: pushHistory(state) };
+      const next = { ...state, boxOrient: action.orient };
+      saveViewConfig(next.mapMode, configOf(next));
+      return next;
     }
     case "SET_GEO_SIZE_METRIC": {
       if (action.metric === state.geoSizeMetric) return state;
-      return { ...state, geoSizeMetric: action.metric, history: pushHistory(state) };
+      const next = { ...state, geoSizeMetric: action.metric };
+      saveViewConfig(next.mapMode, configOf(next));
+      return next;
     }
     case "SET_TIME_WINDOW": {
       if (action.window === state.timeWindow) return state;
-      return { ...state, timeWindow: action.window, history: pushHistory(state) };
+      return { ...state, timeWindow: action.window };
     }
     case "SET_SEARCH":
       return { ...state, search: action.query };
@@ -172,22 +242,6 @@ function reducer(state: AppState, action: Action): AppState {
       return { ...state, searchOpen: action.open, search: action.open ? state.search : "" };
     case "SET_PINNED":
       return { ...state, pinnedPersonId: action.id };
-    case "GO_BACK": {
-      if (!state.history.length) return state;
-      const last = state.history[state.history.length - 1];
-      return {
-        ...state,
-        scope: last.scope,
-        mapMode: last.mapMode,
-        glassesMode: last.glassesMode,
-        aggMode: last.aggMode,
-        boxOrient: last.boxOrient,
-        geoSizeMetric: last.geoSizeMetric,
-        timeWindow: last.timeWindow,
-        pinnedPersonId: null,
-        history: state.history.slice(0, -1),
-      };
-    }
     default:
       return state;
   }
@@ -201,7 +255,7 @@ interface AppContextValue {
 const AppContext = createContext<AppContextValue | null>(null);
 
 export function AppStateProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [state, dispatch] = useReducer(reducer, undefined, createInitialState);
   return <AppContext.Provider value={{ state, dispatch }}>{children}</AppContext.Provider>;
 }
 

@@ -6,7 +6,7 @@ import { scaleSqrt } from "d3-scale";
 import { max } from "d3-array";
 import { useAppState } from "../../state/AppState";
 import { useTaxonomyDataset } from "../../hooks/useTaxonomyDataset";
-import type { PaperCounts, TaxPerson } from "../../types";
+import type { Collaborations, PaperCounts, PatentLinks, TaxPerson } from "../../types";
 import { fmtInt } from "../../lib/format";
 import { filterByTimeWindow } from "../../lib/people";
 import { countryOfScope, NORDICS_SCOPE } from "../../lib/institutions";
@@ -110,9 +110,17 @@ interface TaxonomyViewProps {
    * Optional: a dataset built before paper_counts_geo.json existed falls
    * back to the summed (over-)count for that one university. */
   paperCounts?: PaperCounts | null;
+  patentLinks?: PatentLinks | null;
+  collaborations?: Collaborations | null;
+  knownPersonIds?: Set<string>;
 }
 
-export default function TaxonomyView({ paperCounts }: TaxonomyViewProps = {}) {
+export default function TaxonomyView({
+  paperCounts,
+  patentLinks,
+  collaborations,
+  knownPersonIds,
+}: TaxonomyViewProps = {}) {
   const { state, dispatch } = useAppState();
   const { data, loading, error } = useTaxonomyDataset();
 
@@ -531,9 +539,28 @@ export default function TaxonomyView({ paperCounts }: TaxonomyViewProps = {}) {
 
       {displayedPerson &&
         (pinnedPerson ? (
-          <Tooltip person={pinnedPerson} x={size.width / 2} y={size.height / 2 - 100} pinned onClose={unpin} />
+          <Tooltip
+            person={pinnedPerson}
+            x={size.width / 2}
+            y={size.height / 2 - 100}
+            pinned
+            onClose={unpin}
+            patentLinks={patentLinks}
+            collaborations={collaborations}
+            knownPersonIds={knownPersonIds}
+          />
         ) : (
-          hoverScreen && <Tooltip person={displayedPerson} x={hoverScreen.x} y={hoverScreen.y} pinned={false} />
+          hoverScreen && (
+            <Tooltip
+              person={displayedPerson}
+              x={hoverScreen.x}
+              y={hoverScreen.y}
+              pinned={false}
+              patentLinks={patentLinks}
+              collaborations={collaborations}
+              knownPersonIds={knownPersonIds}
+            />
+          )
         ))}
 
       {!displayedPerson && displayedUni && hoverScreen && (
