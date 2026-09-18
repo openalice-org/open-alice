@@ -107,7 +107,7 @@ export interface PaperCounts {
 
 export type GlassesMode = "constant" | "quantum_h_index" | "global_h_index";
 export type MapMode = "cartesian" | "domains" | "taxonomy" | "geo" | "list";
-export type AggMode = "none" | "boxplot" | "hexdensity" | "clusters" | "patents";
+export type AggMode = "none" | "boxplot" | "hexdensity" | "clusters" | "patents" | "universities";
 export type BoxOrient = "h" | "v";
 // Geo's own config: which magnitude drives a node's resting circle size.
 export type GeoSizeMetric = "papers" | "people" | "citations";

@@ -16,6 +16,8 @@ export function aggModeAllowed(agg: AggMode, mapMode: MapMode): boolean {
       return mapMode === "cartesian";
     case "patents":
       return mapMode === "cartesian" || mapMode === "domains";
+    case "universities":
+      return mapMode === "cartesian" || mapMode === "domains";
     case "hexdensity":
       return mapMode === "domains";
     case "clusters":

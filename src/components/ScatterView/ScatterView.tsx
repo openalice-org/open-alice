@@ -1,4 +1,12 @@
-import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  useCallback,
+  type CSSProperties,
+} from "react";
 import { zoom as d3zoom, zoomIdentity, type ZoomBehavior, type ZoomTransform } from "d3-zoom";
 import { select } from "d3-selection";
 import "d3-transition"; // augments Selection with .transition() used below
@@ -31,6 +39,7 @@ import {
 } from "../../lib/ternary";
 import { BOX_ROWS, BOX_COLS, computeBoxBins, boxGeom } from "../../lib/boxplot";
 import { hexRadius, hexbinCells, hexagonPath, hexAlpha, cssRgbToTuple } from "../../lib/hexbin";
+import { aggregateGeo } from "../../lib/geoAggregate";
 import Tooltip from "../Tooltip/Tooltip";
 import "./ScatterView.css";
 
@@ -65,6 +74,42 @@ function hexFadeOpacity(k: number): number {
 const CLUSTER_R_BOOST = 1.5;
 const CLUSTER_COLLIDE_BOOST = 2.1;
 
+// ---- Quantum-only jitter (Axes/cartesian mode only) ----------------------
+// A large share of "quantum-only" people (every one of their papers is
+// quantum-tagged) share the EXACT same x/y coordinate — one coordinate has
+// 57 people stacked on top of each other — which only matters in cartesian
+// mode since Domains projects a different, unaffected ternary position.
+// Deterministic (seeded by the stable person.id) so a given person always
+// jitters to the same spot on every render/zoom/pan — no visible jumping.
+const QUANTUM_JITTER_MAGNITUDE = 0.02; // data-space units, domain is ~[-1,1]
+
+/** Basic FNV-1a-style string hash -> unsigned 32-bit int. */
+function hashStringFNV1a(str: string): number {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return h >>> 0;
+}
+
+/** Two independent pseudo-random floats in [-1, 1], pure function of `id` —
+ * salted differently per axis so x/y offsets aren't correlated. */
+function jitterOffsetsOf(id: string): { dx: number; dy: number } {
+  const hx = hashStringFNV1a(`${id}|x`);
+  const hy = hashStringFNV1a(`${id}|y`);
+  return {
+    dx: ((hx % 20000) / 10000 - 1) * QUANTUM_JITTER_MAGNITUDE,
+    dy: ((hy % 20000) / 10000 - 1) * QUANTUM_JITTER_MAGNITUDE,
+  };
+}
+
+/** All of this person's papers are quantum-tagged — the population that
+ * collides onto shared coordinates in cartesian mode (see jitter above). */
+function isQuantumOnly(p: Person): boolean {
+  return p.total_papers > 0 && p.total_papers === p.quantum_papers;
+}
+
 // Rail's Emphasis dropdown owns the real label list — duplicated as a
 // 2-entry lookup here rather than importing from Rail.tsx, since the legend
 // only ever needs to echo the current one back as plain text.
@@ -89,6 +134,72 @@ const BOUNDARY_PAIRS: [DomainKey, DomainKey][] = [
   ["sensing", "computing"],
   ["communication", "computing"],
 ];
+
+// ---- Universities-mode entry/exit transition -----------------------------
+// Purely presentational and component-local (no AppState involvement): the
+// two moments where the view swaps between one-circle-per-person and
+// one-bubble-per-university used to snap instantly on re-render. Both are
+// staged here with plain CSS transitions on the SVG geometry properties
+// (cx/cy) and opacity, driven by the small phase machine below:
+//
+//   ENTER (scope widened out of a single university, so "universities"
+//   became active): converge -> revealUnis -> idle
+//   EXIT (a bubble was clicked): hideUnis -> [SET_SCOPE dispatch] -> explode
+//   -> idle
+//
+// Every non-idle phase paints its START values first and flips to its END
+// values on the SECOND animation frame — browsers coalesce style changes
+// made within one frame, so without that gap the transition never runs.
+type AnimPhase = "idle" | "converge" | "revealUnis" | "hideUnis" | "explode";
+
+// How long each phase lasts, matched to the inline CSS durations below.
+const PHASE_MS: Record<Exclude<AnimPhase, "idle">, number> = {
+  converge: 500,
+  revealUnis: 350,
+  hideUnis: 300,
+  explode: 450,
+};
+const CONVERGE_EASE = "cx 450ms ease, cy 450ms ease";
+const EXPLODE_EASE = "cx 450ms ease, cy 450ms ease, opacity 0.18s ease";
+const REVEAL_EASE = "opacity 350ms ease";
+const HIDE_EASE = "opacity 300ms ease";
+
+/** One person's captured start position for the converge phase — snapshotted
+ * at detection time so the phase can keep drawing the people who were on
+ * screen a moment ago even though the `people` prop has already widened. */
+interface ConvergingPoint {
+  id: string;
+  cx: number;
+  cy: number;
+  r: number;
+  fill: string;
+  fillOpacity: number;
+}
+
+interface AnimState {
+  phase: AnimPhase;
+  /** Bumped on EVERY phase entry so the driver effect below re-runs (and so
+   * its cleanup cancels the previous phase's timer/rAFs) even when the same
+   * phase is entered twice in a row. Also used to stamp async callbacks so a
+   * stale timer can never mutate a newer sequence. */
+  seq: number;
+  /** false = start values are on screen; true = end values applied. */
+  flipped: boolean;
+  converging: ConvergingPoint[] | null;
+  target: { university: string; cx: number; cy: number } | null;
+  burstOrigin: { cx: number; cy: number } | null;
+  pendingScope: string | null;
+}
+
+const IDLE_ANIM: AnimState = {
+  phase: "idle",
+  seq: 0,
+  flipped: false,
+  converging: null,
+  target: null,
+  burstOrigin: null,
+  pendingScope: null,
+};
 
 export default function ScatterView({ dataset, people, patentLinks, collaborations, knownPersonIds }: ScatterViewProps) {
   const { state, dispatch } = useAppState();
@@ -142,6 +253,16 @@ export default function ScatterView({ dataset, people, patentLinks, collaboratio
       if (state.mapMode === "domains" && hasShares(p)) {
         const { ux, uy } = ternaryUnit(p);
         return { cx: triX(ux), cy: triY(uy) };
+      }
+      // Nudge quantum-only people apart so a stack of dozens sharing an
+      // identical raw coordinate reads as a small cluster instead of one
+      // point (see QUANTUM_JITTER_MAGNITUDE doc above) — cartesian only,
+      // and only the plotted position; xScale/yScale's domain (above) is
+      // computed from the un-jittered raw x/y so the jitter can't distort
+      // the axis extent.
+      if (state.mapMode === "cartesian" && isQuantumOnly(p)) {
+        const { dx, dy } = jitterOffsetsOf(p.id);
+        return { cx: xScale(p.x + dx), cy: yScale(p.y + dy) };
       }
       return { cx: xScale(p.x), cy: yScale(p.y) };
     },
@@ -520,6 +641,208 @@ export default function ScatterView({ dataset, people, patentLinks, collaboratio
     // at sim creation — same resize-tracking reasoning as the cluster sim.
   }, [patentsActive, holders, size.width, size.height]);
 
+  // ---- Universities aggregation: Cartesian or Domains (see aggModeAllowed).
+  // Groups the current `people` by university and draws one bubble per
+  // group instead of one point per person — mirrors GeoView's byUni/uniAgg/
+  // rUni pattern (group -> aggregateGeo for the domain-mix rollup -> a
+  // fresh count-based sqrt scale for radius), but positioned at the mean of
+  // each member's already-projected screen position for the CURRENT
+  // mapMode (projectOf), so it works for both Cartesian and Domains without
+  // separate math per mode.
+  const universitiesActive =
+    state.aggMode === "universities" && (state.mapMode === "cartesian" || state.mapMode === "domains");
+
+  interface UniBubble {
+    university: string;
+    cx: number;
+    cy: number;
+    count: number;
+    fill: string;
+  }
+
+  const uniBubbles = useMemo<UniBubble[]>(() => {
+    if (!universitiesActive) return [];
+    const byUni = new Map<string, Person[]>();
+    people.forEach((p) => {
+      if (state.mapMode === "domains" && !hasShares(p)) return;
+      if (!byUni.has(p.university)) byUni.set(p.university, []);
+      byUni.get(p.university)!.push(p);
+    });
+    const groups = Array.from(byUni.entries()).map(([university, members]) => {
+      let sx = 0;
+      let sy = 0;
+      members.forEach((p) => {
+        const { cx, cy } = projectOf(p);
+        sx += cx;
+        sy += cy;
+      });
+      // Domain coloring only makes sense in Domains view; Axes (cartesian)
+      // keeps the same neutral "var(--point)" fill regular points use there.
+      let fill = "var(--point)";
+      if (state.mapMode === "domains") {
+        const agg = aggregateGeo(members);
+        // Argmax over the group's paper-weighted domain-mix, same selection
+        // dominantDomainOf uses per-person — coloured with the same vivid
+        // per-domain palette the rest of Domains uses for consistency.
+        const shares = agg.slices;
+        if (shares.sensing + shares.communication + shares.computing > 0) {
+          const dom = (["sensing", "communication", "computing"] as const).reduce((best, k) =>
+            shares[k] > shares[best] ? k : best,
+          );
+          fill = DOMAIN_COLORS_PRIMARY[dom];
+        }
+      }
+      return {
+        university,
+        cx: sx / members.length,
+        cy: sy / members.length,
+        count: members.length,
+        fill,
+      };
+    });
+    return groups;
+  }, [universitiesActive, people, state.mapMode, projectOf]);
+
+  const uniRadiusScale = useMemo(() => {
+    const maxCount = max(uniBubbles, (g) => g.count) ?? 1;
+    return scaleSqrt().domain([0, maxCount]).range([4, 26]);
+  }, [uniBubbles]);
+
+  const [hoveredUni, setHoveredUni] = useState<{ university: string; count: number; x: number; y: number } | null>(
+    null,
+  );
+
+  // ---- Universities-mode entry/exit transition (see the phase machine doc
+  // at the top of this file). Local presentational state only.
+  const [anim, setAnim] = useState<AnimState>(IDLE_ANIM);
+
+  // Phase driver: owns BOTH the double-rAF "flip to the end values" step and
+  // the timer that advances to the next phase. Keyed on phase+seq only (NOT
+  // on `flipped`, which this very effect sets — including it would cancel and
+  // restart the advance timer halfway through every phase). React runs the
+  // cleanup before any re-run and on unmount, so an interrupted or
+  // re-triggered sequence can never leave a live timer or rAF behind.
+  useEffect(() => {
+    if (anim.phase === "idle") return;
+    const seq = anim.seq;
+    const phase = anim.phase;
+    // Read alongside phase/seq: both are written in the same state update, so
+    // this is always the payload belonging to THIS phase entry.
+    const pendingScope = anim.pendingScope;
+
+    let raf2 = 0;
+    const raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => {
+        setAnim((a) => (a.seq === seq && !a.flipped ? { ...a, flipped: true } : a));
+      });
+    });
+
+    const timer = window.setTimeout(() => {
+      if (phase === "hideUnis") {
+        // The bubbles have finished fading out — only now does the real scope
+        // change land. The reducer's aggForScope drops aggMode to "none" for
+        // a single-university scope, so the next render is the per-person
+        // view that the explode phase animates outward.
+        if (pendingScope) dispatch({ type: "SET_SCOPE", scope: pendingScope });
+        setAnim((a) =>
+          a.seq === seq
+            ? { ...a, phase: "explode", seq: a.seq + 1, flipped: false, pendingScope: null }
+            : a,
+        );
+        return;
+      }
+      setAnim((a) => {
+        if (a.seq !== seq) return a;
+        if (a.phase === "converge") {
+          return { ...a, phase: "revealUnis", seq: a.seq + 1, flipped: false, converging: null };
+        }
+        // revealUnis / explode both end the sequence: back to fully normal,
+        // override-free rendering.
+        return { ...IDLE_ANIM, seq: a.seq + 1 };
+      });
+    }, PHASE_MS[anim.phase]);
+
+    return () => {
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+      clearTimeout(timer);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [anim.phase, anim.seq]);
+
+  // Bail-out guard: if the world changes under an in-flight sequence (the
+  // user switches map/agg mode, or a scope change lands that we didn't
+  // schedule), drop straight back to idle instead of rendering a phase whose
+  // preconditions no longer hold. Combined with the always-firing advance
+  // timer above, there is no path that can strand a non-idle phase.
+  useEffect(() => {
+    if (anim.phase === "idle") return;
+    const wantsUniversities = anim.phase !== "explode"; // converge/revealUnis/hideUnis
+    if (wantsUniversities !== universitiesActive) {
+      setAnim((a) => (a.phase === anim.phase ? { ...IDLE_ANIM, seq: a.seq + 1 } : a));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [anim.phase, universitiesActive]);
+
+  // ---- ENTER detection. The scope selector lives outside this component, so
+  // widening out of a single university is only visible here as changed
+  // props/context on the next render — diff it against the previous render's
+  // values. No dependency array on purpose: read the OLD values first, then
+  // write the new ones, so one effect body holds both.
+  const prevScopeRef = useRef(state.scope);
+  const prevAggModeRef = useRef(state.aggMode);
+  const prevPeopleRef = useRef(people);
+
+  // useLayoutEffect, not useEffect: the render that first turns
+  // universitiesActive on would otherwise paint the complete bubble set for
+  // one frame before this effect swapped it for the converge phase — a
+  // visible flash of exactly the thing the animation is supposed to build up
+  // to. A layout effect's state update is flushed before that paint.
+  useLayoutEffect(() => {
+    const prevScope = prevScopeRef.current;
+    const prevAggMode = prevAggModeRef.current;
+    const prevPeople = prevPeopleRef.current;
+    prevScopeRef.current = state.scope;
+    prevAggModeRef.current = state.aggMode;
+    prevPeopleRef.current = people;
+
+    if (anim.phase !== "idle") return; // never interleave sequences
+    // Must be a fresh entry into universities mode...
+    if (prevAggMode === "universities" || state.aggMode !== "universities" || !universitiesActive) return;
+    // ...arriving from a single-university (per-person) view that actually
+    // had people on screen. Anything else (initial mount, a geo->geo scope
+    // change, an empty previous view) just renders normally.
+    if (prevScope === state.scope || isGeoScope(prevScope) || prevPeople.length === 0) return;
+
+    const targetBubble = uniBubbles.find((b) => b.university === prevScope);
+    if (!targetBubble) return; // nothing to converge onto — render instantly
+
+    // Positions are taken with the CURRENT projection/scales so they share a
+    // coordinate system with the bubble centroid they fly to.
+    const converging: ConvergingPoint[] = [];
+    for (const p of prevPeople) {
+      if (state.mapMode === "domains" && !hasShares(p)) continue;
+      const { cx, cy } = projectOf(p);
+      converging.push({
+        id: p.id,
+        cx,
+        cy,
+        r: radiusScale(p),
+        fill: state.mapMode === "domains" ? domainColorOf(p) : "var(--point)",
+        fillOpacity: state.mapMode === "domains" ? 1 : intensityScale(p),
+      });
+    }
+    if (converging.length === 0) return;
+
+    setAnim((a) => ({
+      ...IDLE_ANIM,
+      seq: a.seq + 1,
+      phase: "converge",
+      converging,
+      target: { university: targetBubble.university, cx: targetBubble.cx, cy: targetBubble.cy },
+    }));
+  });
+
   // Pinning a person (a click) doesn't touch hoveredId — without this, the
   // patent highlight/dim goes dark the moment you pin someone, exactly when
   // you'd want it to stay put and let you inspect their satellites at
@@ -560,7 +883,7 @@ export default function ScatterView({ dataset, people, patentLinks, collaboratio
   // are too many people for the reveal to stay legible, so it's pinned at
   // hexFade=1 (hex fully opaque, points fully hidden — see the opacity math
   // below, NOT 0, which would make the hex layer itself invisible instead).
-  const showPoints = !boxplotActive && !clustersActive;
+  const showPoints = !boxplotActive && !clustersActive && !universitiesActive;
   // Patents keeps the point layer (unlike Boxplot/Clusters, which replace it
   // outright) but narrows it to holders — everyone else fades out, same as
   // the vanilla app's non-holder fade.
@@ -698,9 +1021,22 @@ export default function ScatterView({ dataset, people, patentLinks, collaboratio
             </g>
           )}
 
+          {/* showPoints is already false for every universities-mode phase
+              (converge/revealUnis/hideUnis all require universitiesActive),
+              so the normal point layer is suppressed during those on its own.
+              The "explode" phase DOES run through here — it is the normal
+              per-person rendering, only with each circle's starting position
+              forced to the clicked bubble's centre for one frame. */}
           {showPoints &&
             pointPeople.map((p) => {
               const { cx, cy } = projectOf(p);
+              const exploding = anim.phase === "explode" && anim.burstOrigin != null;
+              // Frame 1 of the burst: every point is stacked on the bubble we
+              // just came from. The double-rAF flip (see the phase driver)
+              // then hands each one its own real position and CSS animates
+              // them outward.
+              const burstCx = exploding && !anim.flipped ? anim.burstOrigin!.cx : cx;
+              const burstCy = exploding && !anim.flipped ? anim.burstOrigin!.cy : cy;
               const r = radiusScale(p);
               // in domains mode, a person without domain shares has nowhere
               // meaningful to sit — keep them mounted at their cartesian spot
@@ -726,13 +1062,16 @@ export default function ScatterView({ dataset, people, patentLinks, collaboratio
               return (
                 <circle
                   key={p.id}
-                  cx={cx}
-                  cy={cy}
+                  cx={burstCx}
+                  cy={burstCy}
                   r={r / transform.k}
                   fill={fill}
                   fillOpacity={fillOpacity}
                   opacity={opacity}
-                  style={{ pointerEvents: hiddenInDomains || hexHidden ? "none" : "auto" }}
+                  style={{
+                    pointerEvents: hiddenInDomains || hexHidden || exploding ? "none" : "auto",
+                    ...(exploding ? { transition: EXPLODE_EASE } : null),
+                  }}
                   className={"point" + (p.id === state.pinnedPersonId ? " pinned" : "")}
                   onMouseEnter={(e) => {
                     setHoveredId(p.id);
@@ -833,6 +1172,81 @@ export default function ScatterView({ dataset, people, patentLinks, collaboratio
                   );
                 })}
               </g>
+            </g>
+          )}
+
+          {/* The converge phase draws ONLY the flying people (below), so the
+              bubble layer stays out entirely until revealUnis. */}
+          {universitiesActive && anim.phase !== "converge" && (
+            <g className="agg-universities">
+              {uniBubbles.map((g) => {
+                const isTarget = anim.target?.university === g.university;
+                let opacity: number | undefined;
+                let style: CSSProperties | undefined;
+                if (anim.phase === "revealUnis") {
+                  // The bubble the people just converged onto is already
+                  // visually there — it holds at 1 and never fades. Everyone
+                  // else starts invisible and fades in on the flip.
+                  opacity = isTarget || anim.flipped ? 1 : 0;
+                  style = { transition: REVEAL_EASE };
+                } else if (anim.phase === "hideUnis") {
+                  opacity = anim.flipped ? 0 : 1;
+                  style = { transition: HIDE_EASE, pointerEvents: "none" };
+                }
+                return (
+                  <circle
+                    key={g.university}
+                    cx={g.cx}
+                    cy={g.cy}
+                    r={uniRadiusScale(g.count) / transform.k}
+                    fill={g.fill}
+                    fillOpacity={0.75}
+                    opacity={opacity}
+                    style={style}
+                    className="point"
+                    onMouseEnter={(e) => setHoveredUni({ university: g.university, count: g.count, x: e.clientX, y: e.clientY })}
+                    onMouseMove={(e) => setHoveredUni((h) => (h ? { ...h, x: e.clientX, y: e.clientY } : h))}
+                    onMouseLeave={() => setHoveredUni(null)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // Mid-sequence clicks are ignored rather than stacking a
+                      // second sequence on top of the running one.
+                      if (anim.phase !== "idle") return;
+                      setHoveredUni(null);
+                      // The scope change itself is deferred until the fade-out
+                      // finishes — see the hideUnis branch of the phase driver.
+                      setAnim((a) => ({
+                        ...IDLE_ANIM,
+                        seq: a.seq + 1,
+                        phase: "hideUnis",
+                        burstOrigin: { cx: g.cx, cy: g.cy },
+                        pendingScope: g.university,
+                      }));
+                    }}
+                  />
+                );
+              })}
+            </g>
+          )}
+
+          {/* Converge phase: the people from the university we just zoomed out
+              of, flying from their real positions into that university's
+              bubble centroid. Nothing else is on screen during this phase. */}
+          {anim.phase === "converge" && anim.converging && anim.target && (
+            <g className="agg-uni-converge">
+              {anim.converging.map((c) => (
+                <circle
+                  key={c.id}
+                  cx={anim.flipped ? anim.target!.cx : c.cx}
+                  cy={anim.flipped ? anim.target!.cy : c.cy}
+                  r={c.r / transform.k}
+                  fill={c.fill}
+                  fillOpacity={c.fillOpacity}
+                  opacity={0.88}
+                  className="point"
+                  style={{ transition: CONVERGE_EASE, pointerEvents: "none" }}
+                />
+              ))}
             </g>
           )}
 
@@ -1030,6 +1444,12 @@ export default function ScatterView({ dataset, people, patentLinks, collaboratio
       {hoveredPatent && (
         <div className="pat-tooltip" style={{ left: hoveredPatent.x + 14, top: hoveredPatent.y + 14 }}>
           {hoveredPatent.title || "Untitled patent"}
+        </div>
+      )}
+
+      {universitiesActive && hoveredUni && (
+        <div className="pat-tooltip" style={{ left: hoveredUni.x + 14, top: hoveredUni.y + 14 }}>
+          {hoveredUni.university} · {hoveredUni.count} {hoveredUni.count === 1 ? "person" : "people"}
         </div>
       )}
     </div>

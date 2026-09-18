@@ -44,9 +44,15 @@ const DOMAIN_CONFIG: { key: AggMode; label: string }[] = [
   { key: "none", label: "Domain mix" },
   { key: "clusters", label: "Primary domain" },
   { key: "patents", label: "Patents" },
+  { key: "universities", label: "Universities" },
 ];
 
 function domainConfigAllowed(key: AggMode, scope: string): boolean {
+  // Universities is the opposite of the per-person modes below: it's only
+  // meaningful once there's more than one university on screen (Nordics/
+  // country scope) — at a single-university scope it'd collapse to one
+  // bubble containing everyone.
+  if (key === "universities") return isGeoScope(scope);
   if (key === "none" || key === "clusters" || key === "patents") return !isGeoScope(scope);
   return true;
 }
@@ -58,9 +64,13 @@ const CARTESIAN_CONFIG: { key: AggMode; label: string }[] = [
   { key: "none", label: "People" },
   { key: "boxplot", label: "Boxes" },
   { key: "patents", label: "Patents" },
+  { key: "universities", label: "Universities" },
 ];
 
 function cartesianConfigAllowed(key: AggMode, scope: string): boolean {
+  // Universities is only meaningful at broad (Nordics/country) scope — the
+  // opposite gate from the per-person "People"/"Patents" options below.
+  if (key === "universities") return isGeoScope(scope);
   if (key === "none" || key === "patents") return !isGeoScope(scope);
   return true;
 }
@@ -72,6 +82,10 @@ const SCOPE_LOCK_HINT = "Only available at a single university — pick one firs
 // Shown on the Emphasis buttons when they're locked (outside Axes/Domains,
 // or while Boxplot's aggregate glyphs are on screen).
 const EMPHASIS_LOCK_HINT = "Only applies to the Axes and Domains views";
+const BROAD_SCOPE_LOCK_HINT = "Only available at Nordics/country scope — zoom out first";
+function lockHintFor(key: AggMode): string {
+  return key === "universities" ? BROAD_SCOPE_LOCK_HINT : SCOPE_LOCK_HINT;
+}
 
 // Geo's own config: which magnitude sizes a node's resting circle. All three
 // are always available — unlike Domains/Axes, Geo's node set (countries or
@@ -233,13 +247,13 @@ export default function Rail({ people }: RailProps) {
                         <button
                           type="button"
                           disabled={!allowed}
-                          title={allowed ? undefined : SCOPE_LOCK_HINT}
+                          title={allowed ? undefined : lockHintFor(o.key)}
                           className={"config-btn" + (o.key === state.aggMode ? " active" : "") + (allowed ? "" : " disabled")}
                           onClick={() => allowed && dispatch({ type: "SET_AGG", mode: o.key })}
                         >
                           {o.label}
                         </button>
-                        {!allowed && <i className="ph-light ph-question config-hint-icon" data-tip={SCOPE_LOCK_HINT} />}
+                        {!allowed && <i className="ph-light ph-question config-hint-icon" data-tip={lockHintFor(o.key)} />}
                       </span>
                     );
                   })}
@@ -256,13 +270,13 @@ export default function Rail({ people }: RailProps) {
                         <button
                           type="button"
                           disabled={!allowed}
-                          title={allowed ? undefined : SCOPE_LOCK_HINT}
+                          title={allowed ? undefined : lockHintFor(o.key)}
                           className={"config-btn" + (o.key === state.aggMode ? " active" : "") + (allowed ? "" : " disabled")}
                           onClick={() => allowed && dispatch({ type: "SET_AGG", mode: o.key })}
                         >
                           {o.label}
                         </button>
-                        {!allowed && <i className="ph-light ph-question config-hint-icon" data-tip={SCOPE_LOCK_HINT} />}
+                        {!allowed && <i className="ph-light ph-question config-hint-icon" data-tip={lockHintFor(o.key)} />}
                       </span>
                     );
                   })}
