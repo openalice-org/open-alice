@@ -22,7 +22,7 @@
 /* Soft drop shadow on the whole landmass (one filter on the group, so
    neighbouring countries don't shadow each other) — reads as floating. */
 .geo-land {
-  filter: drop-shadow(0 8px 14px rgba(24, 24, 22, 0.22));
+  filter: drop-shadow(6px 10px 5px rgba(24, 24, 22, 0.14));
 }
 
 .geo-outline {
