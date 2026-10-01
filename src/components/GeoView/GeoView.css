@@ -62,12 +62,9 @@
   font-size: 15px;
   letter-spacing: 0.06em;
   fill: var(--ink);
-  /* paper-coloured halo (stroke painted under the fill) keeps the text
-     legible over bubbles, land and borders alike. */
-  stroke: var(--paper);
-  stroke-width: 3.5px;
-  stroke-linejoin: round;
-  paint-order: stroke;
+  /* hard, unblurred paper-coloured shadow offset down-right: keeps the text
+     legible over bubbles, land and borders without a heavy halo. */
+  filter: drop-shadow(1px 1px 0 var(--paper));
   pointer-events: none;
 }
 
@@ -76,12 +73,9 @@
   font-family: var(--sans);
   font-size: 10px;
   fill: var(--ink);
-  /* paper-coloured halo (stroke painted under the fill) keeps the text
-     legible over bubbles, land and borders alike. */
-  stroke: var(--paper);
-  stroke-width: 3.5px;
-  stroke-linejoin: round;
-  paint-order: stroke;
+  /* hard, unblurred paper-coloured shadow offset down-right: keeps the text
+     legible over bubbles, land and borders without a heavy halo. */
+  filter: drop-shadow(1px 1px 0 var(--paper));
   pointer-events: none;
 }
 
