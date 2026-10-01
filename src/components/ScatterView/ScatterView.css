@@ -8,6 +8,28 @@
     fill-opacity 0.45s ease;
 }
 
+/* Time-window preset swap (see windowSwap in ScatterView.tsx): people who
+   drop out stay mounted and shrink + fade while gliding with the axis
+   rescale; people who join grow + fade in at their final spot. */
+.point.leaving {
+  transition:
+    opacity 0.45s ease,
+    cx 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+    cy 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+    r 0.6s ease;
+}
+
+.point.entering {
+  animation: point-enter 0.5s ease-out;
+}
+
+@keyframes point-enter {
+  from {
+    opacity: 0;
+    r: 0;
+  }
+}
+
 .point.pinned {
   stroke: var(--ink);
   stroke-width: 1.5;

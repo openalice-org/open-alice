@@ -159,6 +159,9 @@ const PHASE_MS: Record<Exclude<AnimPhase, "idle">, number> = {
   hideUnis: 300,
   explode: 450,
 };
+// Time-window preset swap: how long leaving circles stay mounted. Matches
+// the 0.6s cx/cy flight on .point (ScatterView.css) plus a small margin.
+const WINDOW_SWAP_MS = 650;
 const CONVERGE_EASE = "cx 450ms ease, cy 450ms ease";
 const EXPLODE_EASE = "cx 450ms ease, cy 450ms ease, opacity 0.18s ease";
 const REVEAL_EASE = "opacity 350ms ease";
@@ -212,6 +215,49 @@ export default function ScatterView({ dataset, people, patentLinks, collaboratio
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [hoverScreen, setHoverScreen] = useState<{ x: number; y: number } | null>(null);
   const [hoveredPatent, setHoveredPatent] = useState<{ id: string; title?: string; x: number; y: number } | null>(null);
+
+  // ---- Time-window enter/exit. Changing the preset narrows or widens
+  // `people`; without this, circles for people who drop out unmount in the
+  // same commit that the axes rescale, so only the survivors glide and the
+  // rest vanish. Diffed DURING render (not in an effect) so the leaving
+  // circles are never unmounted: they stay in the tree under the same key,
+  // glide with the rescale while fading/shrinking, then are dropped by the
+  // timer below. Scope changes have their own phase machine, so they are
+  // excluded.
+  const [windowSwap, setWindowSwap] = useState<{
+    people: Person[];
+    window: string;
+    scope: string;
+    leaving: Person[];
+    entering: Set<string>;
+  }>({ people, window: state.timeWindow, scope: state.scope, leaving: [], entering: new Set() });
+  if (windowSwap.people !== people) {
+    const animate = windowSwap.scope === state.scope && windowSwap.window !== state.timeWindow;
+    const nextIds = new Set(people.map((p) => p.id));
+    const prevIds = new Set(windowSwap.people.map((p) => p.id));
+    setWindowSwap({
+      people,
+      window: state.timeWindow,
+      scope: state.scope,
+      leaving: animate ? windowSwap.people.filter((p) => !nextIds.has(p.id)) : [],
+      entering: animate ? new Set(people.filter((p) => !prevIds.has(p.id)).map((p) => p.id)) : new Set(),
+    });
+    // A hovered circle that starts leaving goes pointer-events:none, which
+    // browsers don't reliably report as a mouseleave — clear it by hand.
+    if (animate && hoveredId != null && !nextIds.has(hoveredId)) {
+      setHoveredId(null);
+      setHoverScreen(null);
+    }
+  }
+  const leavingPeople = windowSwap.leaving;
+  const enteringIds = windowSwap.entering;
+  useEffect(() => {
+    if (leavingPeople.length === 0 && enteringIds.size === 0) return;
+    const t = window.setTimeout(() => {
+      setWindowSwap((s) => (s.leaving === leavingPeople ? { ...s, leaving: [], entering: new Set() } : s));
+    }, WINDOW_SWAP_MS);
+    return () => window.clearTimeout(t);
+  }, [leavingPeople, enteringIds]);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -1028,7 +1074,8 @@ export default function ScatterView({ dataset, people, patentLinks, collaboratio
               per-person rendering, only with each circle's starting position
               forced to the clicked bubble's centre for one frame. */}
           {showPoints &&
-            pointPeople.map((p) => {
+            (patentsActive ? pointPeople : [...pointPeople, ...leavingPeople]).map((p) => {
+              const leaving = leavingPeople.includes(p);
               const { cx, cy } = projectOf(p);
               const exploding = anim.phase === "explode" && anim.burstOrigin != null;
               // Frame 1 of the burst: every point is stacked on the bubble we
@@ -1037,7 +1084,7 @@ export default function ScatterView({ dataset, people, patentLinks, collaboratio
               // them outward.
               const burstCx = exploding && !anim.flipped ? anim.burstOrigin!.cx : cx;
               const burstCy = exploding && !anim.flipped ? anim.burstOrigin!.cy : cy;
-              const r = radiusScale(p);
+              const r = radiusScale(p) * (leaving ? 0.35 : 1);
               // in domains mode, a person without domain shares has nowhere
               // meaningful to sit — keep them mounted at their cartesian spot
               // (see projectOf) but faded out, so switching modes reads as a
@@ -1049,7 +1096,7 @@ export default function ScatterView({ dataset, people, patentLinks, collaboratio
               const hoverDim = (hoveredId != null && hoveredId !== p.id) || patentHoverDim;
               const searchDim = state.search.trim() !== "" && !matchesPersonSearch(p, state.search);
               let opacity = 0.88;
-              if (hiddenInDomains) opacity = 0;
+              if (hiddenInDomains || leaving) opacity = 0;
               else if (hoverDim) opacity *= 0.12;
               else if (searchDim) opacity *= 0.22;
               // hex density owns low zoom; points fade in as you zoom past
@@ -1069,10 +1116,15 @@ export default function ScatterView({ dataset, people, patentLinks, collaboratio
                   fillOpacity={fillOpacity}
                   opacity={opacity}
                   style={{
-                    pointerEvents: hiddenInDomains || hexHidden || exploding ? "none" : "auto",
+                    pointerEvents: hiddenInDomains || hexHidden || exploding || leaving ? "none" : "auto",
                     ...(exploding ? { transition: EXPLODE_EASE } : null),
                   }}
-                  className={"point" + (p.id === state.pinnedPersonId ? " pinned" : "")}
+                  className={
+                    "point" +
+                    (p.id === state.pinnedPersonId ? " pinned" : "") +
+                    (leaving ? " leaving" : "") +
+                    (enteringIds.has(p.id) ? " entering" : "")
+                  }
                   onMouseEnter={(e) => {
                     setHoveredId(p.id);
                     setHoverScreen({ x: e.clientX, y: e.clientY });
