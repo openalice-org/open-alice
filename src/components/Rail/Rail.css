@@ -58,16 +58,6 @@
   position: static;
 }
 
-/* OpenAlice mark above the view picker; the extra margin adds to the
-   stack's own gap to give the glasses pill some breathing room. */
-.rail-logo {
-  display: block;
-  width: 52px;
-  height: 52px;
-  margin-bottom: 14px;
-  user-select: none;
-}
-
 .rail-btn {
   width: 40px;
   height: 40px;

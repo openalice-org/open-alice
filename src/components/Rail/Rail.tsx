@@ -179,7 +179,6 @@ export default function Rail({ people }: RailProps) {
   return (
     <>
       <div className="rail-left-stack">
-      <img className="rail-logo" src={`${import.meta.env.BASE_URL}alice.png`} alt="OpenAlice" width={52} height={52} />
       <div className="panel panel-rail rail-left glass-panel" ref={rootRef}>
         <div className="rail-row lens" title="View" ref={viewRowRef}>
           <span className="mode">{viewLabel}</span>
