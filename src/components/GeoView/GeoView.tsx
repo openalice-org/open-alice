@@ -584,11 +584,13 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
   return (
     <div className={"geo-view" + (panelAgg ? " has-panel" : "")}>
       <svg viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} className="geo-svg">
-        {!countryScope
-          ? COUNTRY_ORDER.map((cc) => (
-              <path key={cc} className="geo-outline" d={path(NORDICS_GEO[cc] as never) ?? undefined} />
-            ))
-          : <path className="geo-outline" d={path(NORDICS_GEO[countryScope] as never) ?? undefined} />}
+        <g className="geo-land">
+          {!countryScope
+            ? COUNTRY_ORDER.map((cc) => (
+                <path key={cc} className="geo-outline" d={path(NORDICS_GEO[cc] as never) ?? undefined} />
+              ))
+            : <path className="geo-outline" d={path(NORDICS_GEO[countryScope] as never) ?? undefined} />}
+        </g>
 
         {!countryScope
           ? countryNodes.map((c) => {

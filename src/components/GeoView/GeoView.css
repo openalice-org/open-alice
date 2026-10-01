@@ -19,6 +19,12 @@
   cursor: pointer;
 }
 
+/* Soft drop shadow on the whole landmass (one filter on the group, so
+   neighbouring countries don't shadow each other) — reads as floating. */
+.geo-land {
+  filter: drop-shadow(0 8px 14px rgba(24, 24, 22, 0.22));
+}
+
 .geo-outline {
   fill: var(--paper-deep);
   stroke: rgba(68, 68, 63, 0.8);
