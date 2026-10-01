@@ -253,6 +253,7 @@ function CityNode({
   hoveredDomain,
   domainScale,
   domainRank,
+  labelsOnly,
 }: {
   city: CityGroup;
   // The one university currently under the mouse (drives the floating
@@ -272,8 +273,32 @@ function CityNode({
   // — fades the resting colour slightly paler/brighter further down the
   // ranking, alongside the size difference above.
   domainRank: { rankOf: Map<string, number>; total: number };
+  // Labels are drawn in a separate pass above every glyph, so a later
+  // bubble never paints over an earlier label.
+  labelsOnly?: boolean;
 }) {
   const n = city.members.length;
+  const radiusOf = (m: (typeof city.members)[number]) =>
+    hoveredDomain && domainScale ? domainScale(m.agg.slices[hoveredDomain]) : m.r;
+
+  if (labelsOnly) {
+    return (
+      <g className="geo-city" transform={`translate(${city.x},${city.y})`}>
+        {city.members.map((m) => {
+          const displayR = radiusOf(m);
+          return (
+            displayR > 8 && (
+              <g key={m.name} transform={`translate(${m.tx},${m.ty})`}>
+                <text className="inst-label" y={displayR + 12}>
+                  {m.name.length > 24 ? m.name.slice(0, 22) + "…" : m.name}
+                </text>
+              </g>
+            )
+          );
+        })}
+      </g>
+    );
+  }
 
   return (
     <g className="geo-city" transform={`translate(${city.x},${city.y})`}>
@@ -306,11 +331,6 @@ function CityNode({
             }}
           >
             <GeoGlyph r={m.r} displayR={displayR} agg={m.agg} showPie={showPie} circleFill={circleFill} />
-            {displayR > 8 && (
-              <text className="inst-label" y={displayR + 12}>
-                {m.name.length > 24 ? m.name.slice(0, 22) + "…" : m.name}
-              </text>
-            )}
           </g>
         );
       })}
@@ -592,8 +612,9 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
             : <path className="geo-outline" d={path(NORDICS_GEO[countryScope] as never) ?? undefined} />}
         </g>
 
-        {!countryScope
-          ? countryNodes.map((c) => {
+        {!countryScope ? (
+          <>
+            {countryNodes.map((c) => {
               const label = COUNTRY_LABELS[c.cc] ?? c.cc;
               const showPie = hover?.title === label;
               const displayR = hoveredPanelDomain && hoverDomainScale ? hoverDomainScale(c.agg.slices[hoveredPanelDomain]) : c.r;
@@ -616,13 +637,24 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
                   }}
                 >
                   <GeoGlyph r={c.r} displayR={displayR} agg={c.agg} showPie={showPie} circleFill={circleFill} />
-                  <text className="country-label" y={displayR + 18}>
-                    {label.toUpperCase()}
-                  </text>
                 </g>
               );
-            })
-          : cityNodes.map((city) => (
+            })}
+            <g className="geo-labels">
+              {countryNodes.map((c) => {
+                const displayR =
+                  hoveredPanelDomain && hoverDomainScale ? hoverDomainScale(c.agg.slices[hoveredPanelDomain]) : c.r;
+                return (
+                  <text key={c.cc} className="country-label" x={c.x} y={c.y + displayR + 18}>
+                    {(COUNTRY_LABELS[c.cc] ?? c.cc).toUpperCase()}
+                  </text>
+                );
+              })}
+            </g>
+          </>
+        ) : (
+          <>
+            {cityNodes.map((city) => (
               <CityNode
                 key={city.city}
                 city={city}
@@ -635,6 +667,24 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
                 domainRank={hoverDomainRank}
               />
             ))}
+            <g className="geo-labels">
+              {cityNodes.map((city) => (
+                <CityNode
+                  key={city.city}
+                  city={city}
+                  hoveredName={null}
+                  onHoverMember={() => {}}
+                  onLeaveMember={() => {}}
+                  onClickMember={() => {}}
+                  hoveredDomain={hoveredPanelDomain}
+                  domainScale={hoverDomainScale}
+                  domainRank={hoverDomainRank}
+                  labelsOnly
+                />
+              ))}
+            </g>
+          </>
+        )}
       </svg>
 
       {panelAgg && (

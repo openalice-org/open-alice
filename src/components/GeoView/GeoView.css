@@ -61,7 +61,13 @@
   font-family: var(--serif);
   font-size: 15px;
   letter-spacing: 0.06em;
-  fill: var(--ink-dim);
+  fill: var(--ink);
+  /* paper-coloured halo (stroke painted under the fill) keeps the text
+     legible over bubbles, land and borders alike. */
+  stroke: var(--paper);
+  stroke-width: 3.5px;
+  stroke-linejoin: round;
+  paint-order: stroke;
   pointer-events: none;
 }
 
@@ -69,7 +75,13 @@
   text-anchor: middle;
   font-family: var(--sans);
   font-size: 10px;
-  fill: var(--ink-dim);
+  fill: var(--ink);
+  /* paper-coloured halo (stroke painted under the fill) keeps the text
+     legible over bubbles, land and borders alike. */
+  stroke: var(--paper);
+  stroke-width: 3.5px;
+  stroke-linejoin: round;
+  paint-order: stroke;
   pointer-events: none;
 }
 
