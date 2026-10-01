@@ -6,8 +6,10 @@
   justify-content: center;
 }
 
+/* Reserve the aid panel's width plus a gap, so the eastern edge of the map
+   (Finland) never slides underneath it. */
 .geo-view.has-panel {
-  padding-right: 380px;
+  padding-right: 460px;
 }
 
 .geo-svg {
