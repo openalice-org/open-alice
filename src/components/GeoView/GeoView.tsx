@@ -125,12 +125,12 @@ interface CityGroup {
 // Near-white "faded out" fill for a pie slice's non-hovered siblings in the
 // aid panel — close to --paper-deep so it reads as receding into the page
 // rather than just dimming.
-const PANEL_DIM_FILL = "#f2f1ea";
+const PANEL_DIM_FILL = "#e6e5de";
 
 // A map university's resting glyph colour — plain grey, matching
 // PieGlyph's own zero-data fallback (.geo-pie-fallback) — until a domain
 // section is hovered in the aid panel, when it takes that domain's colour.
-const GEO_UNI_GRAY = "#9a9a93";
+const GEO_UNI_GRAY = "#5f5f58";
 
 /** Reads whichever magnitude the Geo config's "size by" option currently
  * picks (Papers/Authors/Citations) off a node's aggregate — the single

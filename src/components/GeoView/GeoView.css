@@ -32,7 +32,7 @@
    box, and even pinned, the growing radius shifts the mouse off the shape
    mid-hover — flicker/drift either way), so this is stroke-only. */
 .geo-pie-fallback {
-  fill: #9a9a93;
+  fill: #5f5f58;
   stroke: rgba(255, 255, 255, 0.7);
   stroke-width: 1;
   transition: stroke 0.15s ease;
