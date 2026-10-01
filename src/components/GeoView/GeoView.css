@@ -21,7 +21,7 @@
 
 .geo-outline {
   fill: var(--paper-deep);
-  stroke: var(--ink-dim);
+  stroke: rgba(68, 68, 63, 0.8);
   stroke-width: 1.4;
   stroke-linejoin: round;
   pointer-events: none;
