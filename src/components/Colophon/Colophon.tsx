@@ -202,7 +202,7 @@ export default function Colophon({ people, paperCounts }: ColophonProps) {
           </span>
           {timeOpen && (
             <div className="inst-menu glass-panel" role="listbox" onClick={(e) => e.stopPropagation()}>
-              {(Object.keys(timeWindowLabels) as TimeWindow[]).map((w) => (
+              {(["all", "last10", "last5"] as TimeWindow[]).map((w) => (
                 <div
                   key={w}
                   className={"inst-opt inst-all" + (state.timeWindow === w ? " active" : "")}
