@@ -5,6 +5,7 @@ import { peopleForScope, universityCountryMap } from "./lib/institutions";
 import { filterByTimeWindow, paperCountsForWindow } from "./lib/people";
 import Rail from "./components/Rail/Rail";
 import Colophon from "./components/Colophon/Colophon";
+import LicenseNote from "./components/LicenseNote/LicenseNote";
 import ScatterView from "./components/ScatterView/ScatterView";
 import GeoView from "./components/GeoView/GeoView";
 import TaxonomyView from "./components/TaxonomyView/TaxonomyView";
@@ -83,6 +84,7 @@ function AppInner() {
 
       <Rail people={dataset.people} />
       <Colophon people={dataset.people} paperCounts={paperCounts} />
+      <LicenseNote />
     </div>
   );
 }

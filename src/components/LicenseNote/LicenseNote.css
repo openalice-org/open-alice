@@ -1,0 +1,21 @@
+/* Quiet caption in the bottom-right corner, mirroring the colophon. */
+.license-note {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 40;
+  font-family: var(--serif);
+  font-size: 12px;
+  color: var(--ink-dim);
+  opacity: 0.7;
+}
+
+.license-note a {
+  color: inherit;
+  text-underline-offset: 3px;
+}
+
+.license-note a:hover {
+  opacity: 1;
+  color: var(--ink);
+}
