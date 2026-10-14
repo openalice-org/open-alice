@@ -173,17 +173,6 @@ In **GitHub → repository → Settings → Environments → `deployment`**, add
 | Secret | `AWS_ACCESS_KEY_ID` | Access key ID of the deploy-only IAM user |
 | Secret | `AWS_SECRET_ACCESS_KEY` | Secret access key of the deploy-only IAM user |
 
-#### Current repository values
-
-The non-secret repository variables currently configured for this deployment are:
-
-| Name | Value |
-| --- | --- |
-| `AWS_REGION` | `eu-central-1` |
-| `S3_BUCKET` | `YOUR_BUCKET` |
-| `CLOUDFRONT_DISTRIBUTION_ID` | `YOUR_DISTRIBUTION_ID` |
-| `CLOUDFRONT_DOMAIN` | `YOUR_DISTRIBUTION.cloudfront.net` |
-
 The two AWS access-key values intentionally remain GitHub Secrets only and must never be committed to this repository.
 
 The workflow explicitly targets the `deployment` GitHub Environment, so its environment-scoped secrets and variables are available to both publishing and branch-cleanup jobs.
