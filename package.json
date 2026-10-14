@@ -1,6 +1,8 @@
 {
-  "name": "qsip-sprint14",
+  "name": "open-alice",
   "private": true,
+  "license": "MIT",
+  "repository": "github:openalice-org/open-alice",
   "version": "0.0.0",
   "type": "module",
   "scripts": {
