@@ -7,6 +7,9 @@ patent links, built from open scholarly data.
   methodology and caveats. Source records come from [OpenAlex](https://openalex.org) (CC0); patent links use EPO OPS.
 - **License:** code is MIT, see [LICENSE](LICENSE).
 
+Want to help improve the map? See [Contributing to OpenAlice](CONTRIBUTING.md)
+for ways to ask a question, report a problem, or propose a change.
+
 This Vite/React application is deployed automatically to a private Amazon S3 bucket and served publicly through CloudFront.
 
 ## Run locally
