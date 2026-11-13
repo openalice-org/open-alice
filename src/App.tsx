@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { Suspense, lazy, useMemo } from "react";
 import { AppStateProvider, useAppState } from "./state/AppState";
 import { useDataset } from "./hooks/useDataset";
 import { peopleForScope, universityCountryMap } from "./lib/institutions";
@@ -8,12 +8,15 @@ import Colophon from "./components/Colophon/Colophon";
 import ScatterView from "./components/ScatterView/ScatterView";
 import GeoView from "./components/GeoView/GeoView";
 import TaxonomyView from "./components/TaxonomyView/TaxonomyView";
-import TableView from "./components/TableView/TableView";
+import TableView, { PersonDetail } from "./components/TableView/TableView";
 import "./App.css";
+
+// three.js is heavy; only fetch it when someone opens a person's details.
+const PersonExplorer = lazy(() => import("./components/PersonExplorer/PersonExplorer"));
 
 function AppInner() {
   const { dataset, paperCounts, patentLinks, collaborations, loading, error } = useDataset();
-  const { state } = useAppState();
+  const { state, dispatch } = useAppState();
 
   const universityCountries = useMemo(() => (dataset ? universityCountryMap(dataset.people) : new Map<string, string>()), [dataset]);
 
@@ -83,6 +86,21 @@ function AppInner() {
 
       <Rail people={dataset.people} />
       <Colophon people={dataset.people} paperCounts={paperCounts} />
+
+      {state.explorerPersonId &&
+        (() => {
+          const person = dataset.people.find((p) => p.id === state.explorerPersonId);
+          return person ? (
+            <Suspense fallback={null}>
+              <PersonExplorer
+                key={person.id}
+                person={person}
+                detail={<PersonDetail person={person} />}
+                onClose={() => dispatch({ type: "OPEN_EXPLORER", id: null })}
+              />
+            </Suspense>
+          ) : null;
+        })()}
     </div>
   );
 }

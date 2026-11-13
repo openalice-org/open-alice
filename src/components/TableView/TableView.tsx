@@ -68,7 +68,7 @@ function YearlySparkline({ yearly }: { yearly: NonNullable<Person["yearly"]> }) 
   );
 }
 
-function PersonDetail({ person }: { person: Person }) {
+export function PersonDetail({ person, onExplore }: { person: Person; onExplore?: () => void }) {
   const dom = dominantDomainOf(person);
   const titles = person.example_titles ?? [];
   const hasYearly = person.yearly && Object.keys(person.yearly).length >= 2;
@@ -97,6 +97,12 @@ function PersonDetail({ person }: { person: Person }) {
             {person.first_year ?? "?"}–{person.last_year ?? "?"}
           </b>
         </div>
+
+        {onExplore && (
+          <button type="button" className="detail-explore-btn" onClick={onExplore}>
+            See details
+          </button>
+        )}
 
         <div className="detail-section-label">Our reading</div>
         {person.topic && <div className="detail-topic">{person.topic}</div>}
@@ -254,7 +260,7 @@ export default function TableView({ people }: TableViewProps) {
                       <td colSpan={COLUMNS.length}>
                         <div className={"detail-collapse" + (expanded ? " expanded" : "")}>
                           <div className="detail-collapse-inner">
-                            <PersonDetail person={p} />
+                            <PersonDetail person={p} onExplore={() => dispatch({ type: "OPEN_EXPLORER", id: p.id })} />
                           </div>
                         </div>
                       </td>

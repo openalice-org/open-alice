@@ -1,0 +1,70 @@
+.view-presets {
+  position: absolute;
+  top: 16px;
+  left: 18px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vp-row {
+  display: flex;
+  gap: 6px;
+}
+
+.vp-btn {
+  display: grid;
+  place-items: center;
+  height: 34px;
+  padding: 0;
+  background: rgba(251, 251, 249, 0.86);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: border-color 140ms ease, background 140ms ease, box-shadow 140ms ease;
+}
+
+.vp-side {
+  width: 48px;
+}
+
+.vp-all {
+  width: 156px; /* = three side buttons + their gaps */
+}
+
+.vp-btn:hover {
+  background: var(--paper);
+  border-color: var(--ink-dim);
+}
+
+/* selected: ink border plus a hairline ring */
+.vp-btn.active {
+  background: var(--paper);
+  border-color: var(--ink);
+  box-shadow: 0 0 0 1px var(--ink);
+}
+
+.vp-btn:focus-visible {
+  outline: 2px solid var(--thinker);
+  outline-offset: 2px;
+}
+
+.vp-glyph {
+  width: 26px;
+  height: 24px;
+  overflow: visible;
+}
+
+.vp-tri {
+  fill: none;
+  stroke: var(--ink);
+  stroke-opacity: 0.28;
+  stroke-width: 1;
+  stroke-linejoin: round;
+}
+
+.vp-edge {
+  stroke-width: 3;
+  stroke-linecap: round;
+}

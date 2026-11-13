@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Collaborations, Person, PatentLinks } from "../../types";
 import PatentsDialog from "../PatentsDialog/PatentsDialog";
+import { useAppState } from "../../state/AppState";
 import "./Tooltip.css";
 
 interface TooltipProps {
@@ -46,6 +47,7 @@ export default function Tooltip({
   knownPersonIds,
   onPinPerson,
 }: TooltipProps) {
+  const { dispatch } = useAppState();
   const [patentsOpen, setPatentsOpen] = useState(false);
   const width = 280;
   const left = clamp(x + 16, 8, window.innerWidth - width - 8);
@@ -148,6 +150,13 @@ export default function Tooltip({
           Author patents ↗
         </button>
       )}
+      <button
+        className="tip-details-btn"
+        type="button"
+        onClick={() => dispatch({ type: "OPEN_EXPLORER", id: person.id })}
+      >
+        See details
+      </button>
       {person.id && (
         <a className="tip-link" href={person.id} target="_blank" rel="noopener noreferrer">
           OpenAlex ↗
