@@ -1,6 +1,6 @@
 .year-ruler {
   position: absolute;
-  top: 16px;
+  top: 118px; /* below the cog + close capsule */
   right: 18px;
   bottom: 48px;
   width: 92px;

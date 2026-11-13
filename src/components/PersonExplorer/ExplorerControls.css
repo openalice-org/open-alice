@@ -1,0 +1,24 @@
+/* Capsules matching the app's rail, but positioned inside the modal's stage. */
+.pe-rail {
+  position: absolute;
+  top: 16px;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px;
+  border-radius: 999px;
+}
+
+.pe-rail-left {
+  left: 18px;
+}
+
+.pe-rail-right {
+  right: 18px;
+}
+
+/* Popouts are portaled to <body>, so they have to clear the modal (z-index 100). */
+.pe-pop {
+  z-index: 130;
+}

@@ -1,36 +1,25 @@
+/* Lives inside the cog's pill: a single inline row of triangle buttons. */
 .view-presets {
-  position: absolute;
-  top: 16px;
-  left: 18px;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
-.vp-row {
-  display: flex;
-  gap: 6px;
+.vp-gap {
+  width: 6px;
 }
 
 .vp-btn {
   display: grid;
   place-items: center;
-  height: 34px;
+  width: 40px;
+  height: 30px;
   padding: 0;
   background: rgba(251, 251, 249, 0.86);
   border: 1px solid var(--line);
-  border-radius: 3px;
+  border-radius: 6px;
   cursor: pointer;
   transition: border-color 140ms ease, background 140ms ease, box-shadow 140ms ease;
-}
-
-.vp-side {
-  width: 48px;
-}
-
-.vp-all {
-  width: 156px; /* = three side buttons + their gaps */
 }
 
 .vp-btn:hover {
@@ -51,8 +40,8 @@
 }
 
 .vp-glyph {
-  width: 26px;
-  height: 24px;
+  width: 24px;
+  height: 22px;
   overflow: visible;
 }
 

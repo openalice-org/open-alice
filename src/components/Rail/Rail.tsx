@@ -113,7 +113,7 @@ interface PopoutProps {
 // content behind it — it renders as a flat translucent tint with crisp,
 // unblurred content showing through, instead of an actual blur. Portaling
 // out from under that ancestor is what lets this element's own blur work.
-function Popout({ anchorRef, side, align, className, children }: PopoutProps) {
+export function Popout({ anchorRef, side, align, className, children }: PopoutProps) {
   const [style, setStyle] = useState<CSSProperties | null>(null);
 
   useLayoutEffect(() => {

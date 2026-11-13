@@ -2,9 +2,13 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import type { PersonPaper } from "../../lib/personPapers";
+import type { YearPoint } from "../../lib/trajectory";
 import { DOMAIN_COLORS, DOMAIN_COLORS_VIVID } from "../../lib/ternary";
 
 export type PaperSizeMetric = "constant" | "citations" | "coauthors";
+
+/** Every paper as a dot, or one node per year joined into a path. */
+export type CubeMode = "papers" | "trajectory";
 
 /** Camera presets: the default 3/4 view, straight down, or square-on to one prism face
  * (AB = Sensing/Communication, BC = Communication/Computing, CA = Computing/Sensing). */
@@ -17,6 +21,13 @@ interface PaperCubeProps {
   sizeBy: PaperSizeMetric;
   selectedWid: number | null;
   onSelect: (wid: number | null) => void;
+  mode: CubeMode;
+  /** Trajectory mode: keep the individual papers visible as faint context. */
+  ghost: boolean;
+  /** One weighted-average point per year (only drawn in trajectory mode). */
+  trajectory: YearPoint[];
+  selectedYear: number | null;
+  onSelectYear: (year: number | null) => void;
   /** Requested camera preset; bump `n` to re-apply the same preset (n=0 applies instantly on mount). */
   view: { id: ViewId; n: number };
   /** Fired when the user grabs the camera, so the parent can drop the active-preset highlight. */
@@ -28,6 +39,8 @@ const SIDE = 10;
 const HEIGHT = 10;
 const R_MIN = 0.09;
 const R_MAX = 0.42;
+const GHOST_SCALE = 0.5; // paper dots shrink to this fraction behind a trajectory
+const GHOST_ALPHA = 0.28;
 const OUTLINE = 1.07; // hairline outline shell scale relative to the dot
 const INK = 0x181816;
 const OUTLINE_INK = 0x3a3a35;
@@ -54,7 +67,7 @@ const FACE_EDGES: [keyof typeof CORNERS, keyof typeof CORNERS][] = [
   ["C", "A"],
 ];
 
-function pointXZ(p: PersonPaper): XZ {
+function pointXZ(p: { sensing: number; communication: number; computing: number }): XZ {
   const { A, B, C } = CORNERS;
   return [
     p.sensing * A[0] + p.communication * B[0] + p.computing * C[0],
@@ -211,6 +224,9 @@ interface Scene3D {
   ramp: THREE.DataTexture;
   /** The pickable (front) instanced mesh inside `dots`. */
   points: THREE.InstancedMesh | null;
+  /** Trajectory year nodes (pickable) and the group holding nodes + path. */
+  nodes: THREE.InstancedMesh | null;
+  traj: THREE.Group;
   halo: THREE.Sprite;
   render: () => void;
   /** Materials that fade as the camera rises toward a top-down view (set by the dots effect). */
@@ -226,6 +242,11 @@ export default function PaperCube({
   sizeBy,
   selectedWid,
   onSelect,
+  mode,
+  ghost,
+  trajectory,
+  selectedYear,
+  onSelectYear,
   view,
   onOrbit,
 }: PaperCubeProps) {
@@ -233,12 +254,17 @@ export default function PaperCube({
   const s3 = useRef<Scene3D | null>(null);
   const papersRef = useRef<PersonPaper[]>([]);
   const onSelectRef = useRef(onSelect);
+  const trajRef = useRef<YearPoint[]>([]);
+  const modeRef = useRef(mode);
+  const onSelectYearRef = useRef(onSelectYear);
   const onOrbitRef = useRef(onOrbit);
   const animRaf = useRef(0);
   useEffect(() => {
     onSelectRef.current = onSelect;
+    onSelectYearRef.current = onSelectYear;
     onOrbitRef.current = onOrbit;
-  }, [onSelect, onOrbit]);
+    modeRef.current = mode;
+  }, [onSelect, onSelectYear, onOrbit, mode]);
 
   // ---- one-time scene setup ------------------------------------------------
   useEffect(() => {
@@ -263,7 +289,8 @@ export default function PaperCube({
 
     const chrome = new THREE.Group();
     const dots = new THREE.Group();
-    scene.add(chrome, dots);
+    const traj = new THREE.Group();
+    scene.add(chrome, dots, traj);
 
     // selection marker: a fine ink ring that always faces the camera
     const ringCanvas = document.createElement("canvas");
@@ -358,15 +385,17 @@ export default function PaperCube({
       const moved = Math.hypot(e.clientX - down[0], e.clientY - down[1]);
       down = null;
       if (moved > 4) return;
-      const mesh = s3.current?.points;
+      const trajectoryMode = modeRef.current === "trajectory";
+      const mesh = trajectoryMode ? s3.current?.nodes : s3.current?.points;
       if (!mesh) return;
       ray.setFromCamera(ndc(e), camera);
       const idx = ray.intersectObject(mesh, false)[0]?.instanceId;
-      onSelectRef.current(idx != null ? (papersRef.current[idx]?.wid ?? null) : null);
+      if (trajectoryMode) onSelectYearRef.current(idx != null ? (trajRef.current[idx]?.year ?? null) : null);
+      else onSelectRef.current(idx != null ? (papersRef.current[idx]?.wid ?? null) : null);
     };
     const onMove = (e: PointerEvent) => {
       if (down) return;
-      const mesh = s3.current?.points;
+      const mesh = modeRef.current === "trajectory" ? s3.current?.nodes : s3.current?.points;
       if (!mesh) return;
       ray.setFromCamera(ndc(e), camera);
       renderer.domElement.style.cursor = ray.intersectObject(mesh, false).length ? "pointer" : "grab";
@@ -378,7 +407,7 @@ export default function PaperCube({
     el.addEventListener("pointermove", onMove);
 
     const ramp = toonRamp();
-    s3.current = { renderer, scene, camera, controls, chrome, dots, ramp, points: null, halo, render, fadeMats: [], syncView };
+    s3.current = { renderer, scene, camera, controls, chrome, dots, ramp, points: null, nodes: null, traj, halo, render, fadeMats: [], syncView };
     resize();
     return () => {
       ro.disconnect();
@@ -510,17 +539,19 @@ export default function PaperCube({
     s.points = null;
     s.fadeMats = [];
 
-    if (papers.length) {
+    // Trajectory mode: papers become faint, smaller context dots (or vanish entirely).
+    const ghosting = mode === "trajectory";
+    if (papers.length && !(ghosting && !ghost)) {
       const sphere = new THREE.SphereGeometry(1, 20, 14);
       const front = new THREE.InstancedMesh(
         sphere,
-        new THREE.MeshToonMaterial({ gradientMap: s.ramp, transparent: true }),
+        new THREE.MeshToonMaterial({ gradientMap: s.ramp, transparent: true, opacity: ghosting ? GHOST_ALPHA : 1 }),
         papers.length,
       );
       // ink outline: an inverted-hull shell, slightly larger, back faces only
       const outline = new THREE.InstancedMesh(
         sphere.clone(),
-        new THREE.MeshBasicMaterial({ color: OUTLINE_INK, side: THREE.BackSide, transparent: true }),
+        new THREE.MeshBasicMaterial({ color: OUTLINE_INK, side: THREE.BackSide, transparent: true, opacity: ghosting ? GHOST_ALPHA : 1 }),
         papers.length,
       );
       // soft contact shadows on the floor, to read depth at a glance
@@ -541,7 +572,7 @@ export default function PaperCube({
         const jitter = ((p.wid % 997) / 997 - 0.5) * (HEIGHT / span) * 0.6;
         const y = Math.min(HEIGHT, Math.max(0, ((p.year - yearMin) / span) * HEIGHT + jitter));
         const t = sizeBy === "constant" || vmax === 0 ? 0.5 : Math.sqrt(sizeValue(p, sizeBy) / vmax);
-        const r = R_MIN + (R_MAX - R_MIN) * t;
+        const r = (R_MIN + (R_MAX - R_MIN) * t) * (ghosting ? GHOST_SCALE : 1);
         m4.makeScale(r, r, r).setPosition(x, y, z);
         front.setMatrixAt(i, m4);
         m4.makeScale(r * OUTLINE, r * OUTLINE, r * OUTLINE).setPosition(x, y, z);
@@ -559,24 +590,111 @@ export default function PaperCube({
       if (front.instanceColor) front.instanceColor.needsUpdate = true;
       front.computeBoundingSphere();
       shadow.renderOrder = -1;
-      s.dots.add(shadow, outline, front);
+      if (!ghosting) s.dots.add(shadow);
+      s.dots.add(outline, front);
       s.points = front;
-      s.fadeMats = [front.material as THREE.Material, outline.material as THREE.Material];
+      // seen from above, only the full-strength dots go see-through (ghosts already are)
+      if (!ghosting) s.fadeMats = [front.material as THREE.Material, outline.material as THREE.Material];
     }
     s.syncView();
     s.render();
-  }, [papers, yearMin, yearMax, sizeBy]);
+  }, [papers, yearMin, yearMax, sizeBy, mode, ghost]);
+
+  // ---- trajectory: one node per year at the weighted-average position, joined by a path ----
+  useEffect(() => {
+    const s = s3.current;
+    if (!s) return;
+    trajRef.current = trajectory;
+    for (const child of [...s.traj.children]) {
+      s.traj.remove(child);
+      disposeObject(child);
+    }
+    s.nodes = null;
+    if (mode === "trajectory" && trajectory.length) {
+      const span = Math.max(1, yearMax - yearMin);
+      const nmax = Math.max(1, ...trajectory.map((p) => p.n));
+      const pts = trajectory.map((p) => {
+        const [x, z] = pointXZ(p);
+        return new THREE.Vector3(x, Math.min(HEIGHT, Math.max(0, ((p.year - yearMin) / span) * HEIGHT)), z);
+      });
+      const cols = trajectory.map(
+        (p) =>
+          new THREE.Color(
+            cA.r * p.sensing + cB.r * p.communication + cC.r * p.computing,
+            cA.g * p.sensing + cB.g * p.communication + cC.g * p.computing,
+            cA.b * p.sensing + cB.b * p.communication + cC.b * p.computing,
+          ),
+      );
+      const rad = (p: YearPoint) => 0.17 + 0.36 * Math.sqrt(p.n / nmax);
+
+      // year nodes (+ ink outline shells)
+      const sphere = new THREE.SphereGeometry(1, 24, 16);
+      const nodes = new THREE.InstancedMesh(sphere, new THREE.MeshToonMaterial({ gradientMap: s.ramp }), trajectory.length);
+      const outline = new THREE.InstancedMesh(
+        sphere.clone(),
+        new THREE.MeshBasicMaterial({ color: OUTLINE_INK, side: THREE.BackSide }),
+        trajectory.length,
+      );
+      const m4 = new THREE.Matrix4();
+      trajectory.forEach((p, i) => {
+        const r = rad(p);
+        m4.makeScale(r, r, r).setPosition(pts[i]);
+        nodes.setMatrixAt(i, m4);
+        m4.makeScale(r * OUTLINE, r * OUTLINE, r * OUTLINE).setPosition(pts[i]);
+        outline.setMatrixAt(i, m4);
+        nodes.setColorAt(i, cols[i]);
+      });
+      nodes.instanceMatrix.needsUpdate = true;
+      outline.instanceMatrix.needsUpdate = true;
+      if (nodes.instanceColor) nodes.instanceColor.needsUpdate = true;
+      nodes.computeBoundingSphere();
+      s.traj.add(outline, nodes);
+      s.nodes = nodes;
+
+      // path: thickness follows the papers behind each stretch; gaps in the record read fainter
+      for (let i = 0; i < trajectory.length - 1; i++) {
+        const a = trajectory[i];
+        const b = trajectory[i + 1];
+        const w = Math.sqrt((a.n + b.n) / 2 / nmax);
+        const gap = b.year - a.year > 1;
+        const mat = new THREE.MeshToonMaterial({
+          gradientMap: s.ramp,
+          color: cols[i].clone().lerp(cols[i + 1], 0.5),
+          transparent: gap,
+          opacity: gap ? 0.5 : 1,
+        });
+        s.traj.add(bar(pts[i], pts[i + 1], 0.035 + 0.14 * w, mat));
+      }
+
+      // the same path flattened onto the floor: a faint ink trace of where the author has moved
+      const floorPath = new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints(pts.map((v) => new THREE.Vector3(v.x, 0.02, v.z))),
+        new THREE.LineBasicMaterial({ color: INK, transparent: true, opacity: 0.3 }),
+      );
+      s.traj.add(floorPath);
+    }
+    s.syncView();
+    s.render();
+  }, [trajectory, mode, yearMin, yearMax]);
 
   // ---- selection marker --------------------------------------------------------
   useEffect(() => {
     const s = s3.current;
     if (!s) return;
-    const i = selectedWid == null ? -1 : papersRef.current.findIndex((p) => p.wid === selectedWid);
-    if (i < 0 || !s.points) {
+    const trajectoryMode = mode === "trajectory";
+    const mesh = trajectoryMode ? s.nodes : s.points;
+    const i = trajectoryMode
+      ? selectedYear == null
+        ? -1
+        : trajRef.current.findIndex((p) => p.year === selectedYear)
+      : selectedWid == null
+        ? -1
+        : papersRef.current.findIndex((p) => p.wid === selectedWid);
+    if (i < 0 || !mesh) {
       s.halo.visible = false;
     } else {
       const m = new THREE.Matrix4();
-      s.points.getMatrixAt(i, m);
+      mesh.getMatrixAt(i, m);
       const pos = new THREE.Vector3();
       const scl = new THREE.Vector3();
       m.decompose(pos, new THREE.Quaternion(), scl);
@@ -585,7 +703,7 @@ export default function PaperCube({
       s.halo.visible = true;
     }
     s.render();
-  }, [selectedWid, papers, yearMin, yearMax, sizeBy]);
+  }, [selectedWid, selectedYear, mode, trajectory, papers, yearMin, yearMax, sizeBy, ghost]);
 
   return <div className="paper-cube" ref={hostRef} />;
 }

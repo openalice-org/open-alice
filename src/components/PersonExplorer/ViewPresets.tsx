@@ -71,24 +71,23 @@ export default function ViewPresets({ active, onPick }: ViewPresetsProps) {
   return (
     <div className="view-presets" role="group" aria-label="Preset views">
       <Defs />
-      <div className="vp-row">
-        {EDGES.map((e) => (
-          <button
-            key={e.id}
-            type="button"
-            className={"vp-btn vp-side" + (active === e.id ? " active" : "")}
-            title={`${LABEL[e.id]}: square-on to that face, time against that axis`}
-            aria-label={LABEL[e.id]}
-            aria-pressed={active === e.id}
-            onClick={() => onPick(e.id)}
-          >
-            <Glyph lit={[e.id]} />
-          </button>
-        ))}
-      </div>
+      {EDGES.map((e) => (
+        <button
+          key={e.id}
+          type="button"
+          className={"vp-btn" + (active === e.id ? " active" : "")}
+          title={`${LABEL[e.id]}: square-on to that face, time against that axis`}
+          aria-label={LABEL[e.id]}
+          aria-pressed={active === e.id}
+          onClick={() => onPick(e.id)}
+        >
+          <Glyph lit={[e.id]} />
+        </button>
+      ))}
+      <span className="vp-gap" />
       <button
         type="button"
-        className={"vp-btn vp-all" + (active === "top" ? " active" : "")}
+        className={"vp-btn" + (active === "top" ? " active" : "")}
         title="All papers: from above, every year flattened onto the triangle"
         aria-label="All papers, from above"
         aria-pressed={active === "top"}
