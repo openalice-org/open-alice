@@ -42,8 +42,25 @@
   border-top: 0;
 }
 
+/* the close button sits in the modal's top-left corner, clear of the cog */
+.pe-modal {
+  position: relative;
+}
+
+.pe-close {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 4;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--line-soft);
+  cursor: pointer;
+}
+
 .pe-head {
-  padding: 24px 24px 0;
+  padding: 60px 24px 0; /* leaves room for the close button above the name */
 }
 
 .pe-name {

@@ -16,7 +16,6 @@ interface ExplorerControlsProps {
   onGhost: (g: boolean) => void;
   activeView: ViewId | null;
   onPickView: (id: ViewId) => void;
-  onClose: () => void;
 }
 
 const MODES: { key: CubeMode; label: string; icon: string }[] = [
@@ -36,12 +35,34 @@ const WEIGHT: { key: TrajectoryWeight; label: string }[] = [
 ];
 
 /**
+ * Keep a popout mounted long enough to play its exit animation. `mounted` gates rendering;
+ * `shown` flips the CSS class one beat after mount (so the enter transition has a start
+ * state) and back off at the start of the exit. All state changes happen in timers.
+ */
+function usePresence(open: boolean, exitMs = 200) {
+  const [mounted, setMounted] = useState(false);
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    const timers: number[] = [];
+    if (open) {
+      timers.push(window.setTimeout(() => setMounted(true), 0));
+      timers.push(window.setTimeout(() => setShown(true), 40));
+    } else {
+      timers.push(window.setTimeout(() => setShown(false), 0));
+      timers.push(window.setTimeout(() => setMounted(false), exitMs));
+    }
+    return () => timers.forEach(window.clearTimeout);
+  }, [open, exitMs]);
+  return { mounted, shown };
+}
+
+/**
  * The explorer's own lens + cog, mirroring the app's rail: the eyeglasses
  * button switches between Papers and Trajectory; the gear opens that mode's
  * options plus the camera views. (Popouts are portaled, same as the Rail's.)
  */
 export default function ExplorerControls(props: ExplorerControlsProps) {
-  const { mode, onMode, activeView, onPickView, onClose } = props;
+  const { mode, onMode, activeView, onPickView } = props;
   const [open, setOpen] = useState<"lens" | "config" | null>(null);
   const lensRef = useRef<HTMLDivElement>(null);
   const cfgRef = useRef<HTMLDivElement>(null);
@@ -62,6 +83,9 @@ export default function ExplorerControls(props: ExplorerControlsProps) {
     };
   }, []);
 
+  const lensPresence = usePresence(open === "lens");
+  const cfgPresence = usePresence(open === "config");
+
   const btn = (active: boolean, label: string, onClick: () => void) => (
     <button key={label} type="button" className={"config-btn" + (active ? " active" : "")} onClick={onClick}>
       {label}
@@ -81,8 +105,13 @@ export default function ExplorerControls(props: ExplorerControlsProps) {
           >
             <i className="ph-light ph-eyeglasses" />
           </div>
-          {open === "lens" && (
-            <Popout anchorRef={lensRef} side="right" align="top" className="menu pe-pop">
+          {lensPresence.mounted && (
+            <Popout
+              anchorRef={lensRef}
+              side="right"
+              align="top"
+              className={"menu pe-pop pe-pop-menu" + (lensPresence.shown ? " in" : "")}
+            >
               <div className="menu-head">Mode</div>
               {MODES.map((m) => (
                 <div
@@ -103,8 +132,13 @@ export default function ExplorerControls(props: ExplorerControlsProps) {
 
       <div className="pe-rail pe-rail-right glass-panel">
         <div className="rail-row config" title="Config" ref={cfgRef}>
-          {open === "config" && (
-            <Popout anchorRef={cfgRef} side="left" align="center" className="config-buttons pe-pop">
+          {cfgPresence.mounted && (
+            <Popout
+              anchorRef={cfgRef}
+              side="left"
+              align="center"
+              className={"config-buttons pe-pop pe-pop-cfg" + (cfgPresence.shown ? " in" : "")}
+            >
               {mode === "papers" ? (
                 <>
                   <span className="config-label">Size by</span>
@@ -136,11 +170,6 @@ export default function ExplorerControls(props: ExplorerControlsProps) {
             }}
           >
             <i className="ph-light ph-gear" />
-          </div>
-        </div>
-        <div className="rail-row">
-          <div className="rail-btn" title="Close" onClick={onClose}>
-            <i className="ph-light ph-x" />
           </div>
         </div>
       </div>

@@ -78,6 +78,9 @@ export default function PersonExplorer({ person, detail, onClose }: PersonExplor
   return (
     <div className="person-explorer" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <div className="pe-modal" role="dialog" aria-modal="true" aria-label={`Details for ${person.name}`}>
+        <button type="button" className="pe-close rail-btn glass-panel" onClick={onClose} aria-label="Close" title="Close (Esc)">
+          <i className="ph-light ph-x" />
+        </button>
         <div className="pe-left">
           <div className="pe-head">
             <div className="pe-name">{person.name}</div>
@@ -114,7 +117,6 @@ export default function PersonExplorer({ person, detail, onClose }: PersonExplor
               onGhost={setGhost}
               activeView={activeView}
               onPickView={pickView}
-              onClose={onClose}
             />
             {bounds && bounds[1] > bounds[0] && (
               <YearRuler

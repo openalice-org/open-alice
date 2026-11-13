@@ -191,6 +191,97 @@ function sizeValue(p: PersonPaper, metric: PaperSizeMetric): number {
   return 1;
 }
 
+const SPLINE_STEPS = 18; // samples per year-to-year stretch
+const TUBE_SIDES = 10;
+
+interface SplineSample {
+  p: THREE.Vector3;
+  /** Which stretch (node i -> i+1) this sample lies on, and how far along it (0..1). */
+  seg: number;
+  u: number;
+}
+
+/** Sample a centripetal Catmull-Rom spline that passes exactly through every node. */
+function splineSamples(nodes: THREE.Vector3[]): SplineSample[] {
+  if (nodes.length < 2) return [];
+  const curve = new THREE.CatmullRomCurve3(nodes, false, "centripetal");
+  const stretches = nodes.length - 1;
+  const total = stretches * SPLINE_STEPS;
+  const out: SplineSample[] = [];
+  for (let k = 0; k <= total; k++) {
+    const t = k / total;
+    const seg = Math.min(stretches - 1, Math.floor(t * stretches));
+    out.push({ p: curve.getPoint(t), seg, u: t * stretches - seg });
+  }
+  return out;
+}
+
+/**
+ * A smooth tube along the samples with a per-sample radius and colour (parallel-transport
+ * frames, so it never twists). One mesh, one draw call, smooth shading.
+ */
+function tubeAlong(
+  samples: SplineSample[],
+  radiusAt: (s: SplineSample) => number,
+  colorAt: (s: SplineSample) => THREE.Color,
+  material: THREE.Material,
+): THREE.Mesh {
+  const n = samples.length;
+  const positions = new Float32Array(n * TUBE_SIDES * 3);
+  const normals = new Float32Array(n * TUBE_SIDES * 3);
+  const colors = new Float32Array(n * TUBE_SIDES * 3);
+  const tangent = new THREE.Vector3();
+  const prevT = new THREE.Vector3();
+  const normal = new THREE.Vector3();
+  const binormal = new THREE.Vector3();
+  const dir = new THREE.Vector3();
+  const q = new THREE.Quaternion();
+  for (let k = 0; k < n; k++) {
+    tangent.subVectors(samples[Math.min(n - 1, k + 1)].p, samples[Math.max(0, k - 1)].p).normalize();
+    if (k === 0) {
+      // any vector not parallel to the first tangent seeds the frame
+      const ref = Math.abs(tangent.y) < 0.9 ? new THREE.Vector3(0, 1, 0) : new THREE.Vector3(1, 0, 0);
+      normal.crossVectors(tangent, ref).normalize();
+    } else {
+      normal.applyQuaternion(q.setFromUnitVectors(prevT, tangent));
+    }
+    binormal.crossVectors(tangent, normal).normalize();
+    prevT.copy(tangent);
+    const r = radiusAt(samples[k]);
+    const c = colorAt(samples[k]);
+    for (let j = 0; j < TUBE_SIDES; j++) {
+      const a = (j / TUBE_SIDES) * Math.PI * 2;
+      dir.copy(normal).multiplyScalar(Math.cos(a)).addScaledVector(binormal, Math.sin(a));
+      const o = (k * TUBE_SIDES + j) * 3;
+      positions[o] = samples[k].p.x + dir.x * r;
+      positions[o + 1] = samples[k].p.y + dir.y * r;
+      positions[o + 2] = samples[k].p.z + dir.z * r;
+      normals[o] = dir.x;
+      normals[o + 1] = dir.y;
+      normals[o + 2] = dir.z;
+      colors[o] = c.r;
+      colors[o + 1] = c.g;
+      colors[o + 2] = c.b;
+    }
+  }
+  const index: number[] = [];
+  for (let k = 0; k < n - 1; k++) {
+    for (let j = 0; j < TUBE_SIDES; j++) {
+      const a = k * TUBE_SIDES + j;
+      const b = k * TUBE_SIDES + ((j + 1) % TUBE_SIDES);
+      const c = (k + 1) * TUBE_SIDES + j;
+      const d = (k + 1) * TUBE_SIDES + ((j + 1) % TUBE_SIDES);
+      index.push(a, c, b, b, c, d);
+    }
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+  geo.setAttribute("normal", new THREE.BufferAttribute(normals, 3));
+  geo.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+  geo.setIndex(index);
+  return new THREE.Mesh(geo, material);
+}
+
 function niceTicks(lo: number, hi: number): number[] {
   const span = hi - lo;
   if (span <= 0) return [lo];
@@ -614,18 +705,21 @@ export default function PaperCube({
       const span = Math.max(1, yearMax - yearMin);
       const nmax = Math.max(1, ...trajectory.map((p) => p.n));
       const pts = trajectory.map((p) => {
-        const [x, z] = pointXZ(p);
+        const [x, z] = pointXZ(p.smooth);
         return new THREE.Vector3(x, Math.min(HEIGHT, Math.max(0, ((p.year - yearMin) / span) * HEIGHT)), z);
       });
       const cols = trajectory.map(
         (p) =>
           new THREE.Color(
-            cA.r * p.sensing + cB.r * p.communication + cC.r * p.computing,
-            cA.g * p.sensing + cB.g * p.communication + cC.g * p.computing,
-            cA.b * p.sensing + cB.b * p.communication + cC.b * p.computing,
+            cA.r * p.smooth.sensing + cB.r * p.smooth.communication + cC.r * p.smooth.computing,
+            cA.g * p.smooth.sensing + cB.g * p.smooth.communication + cC.g * p.smooth.computing,
+            cA.b * p.smooth.sensing + cB.b * p.smooth.communication + cC.b * p.smooth.computing,
           ),
       );
-      const rad = (p: YearPoint) => 0.17 + 0.36 * Math.sqrt(p.n / nmax);
+      // Long careers pack many years into the same height: shrink nodes and path together so
+      // neighbouring years stay separate and the curve between them stays visible.
+      const dense = Math.min(1, Math.max(0.3, ((HEIGHT / span) * 1.1) / 0.53));
+      const rad = (p: YearPoint) => (0.17 + 0.36 * Math.sqrt(p.n / nmax)) * dense;
 
       // year nodes (+ ink outline shells)
       const sphere = new THREE.SphereGeometry(1, 24, 16);
@@ -651,27 +745,35 @@ export default function PaperCube({
       s.traj.add(outline, nodes);
       s.nodes = nodes;
 
-      // path: thickness follows the papers behind each stretch; gaps in the record read fainter
-      for (let i = 0; i < trajectory.length - 1; i++) {
-        const a = trajectory[i];
-        const b = trajectory[i + 1];
-        const w = Math.sqrt((a.n + b.n) / 2 / nmax);
-        const gap = b.year - a.year > 1;
-        const mat = new THREE.MeshToonMaterial({
-          gradientMap: s.ramp,
-          color: cols[i].clone().lerp(cols[i + 1], 0.5),
-          transparent: gap,
-          opacity: gap ? 0.5 : 1,
-        });
-        s.traj.add(bar(pts[i], pts[i + 1], 0.035 + 0.14 * w, mat));
-      }
+      // path: a spline through the year nodes. Thickness blends between the nodes' paper counts,
+      // colour blends between their domain mixes; stretches that bridge a gap in the record
+      // are washed toward paper so they read as "no data in between".
+      if (trajectory.length > 1) {
+        const samples = splineSamples(pts);
+        const paper = new THREE.Color(0xfbfbf9);
+        const ease = (u: number) => u * u * (3 - 2 * u);
+        const thick = (i: number) => (0.03 + 0.12 * Math.sqrt(trajectory[i].n / nmax)) * dense;
+        const tmp = new THREE.Color();
+        const tube = tubeAlong(
+          samples,
+          (sm) => thick(sm.seg) + (thick(sm.seg + 1) - thick(sm.seg)) * ease(sm.u),
+          (sm) => {
+            tmp.copy(cols[sm.seg]).lerp(cols[sm.seg + 1], ease(sm.u));
+            if (trajectory[sm.seg + 1].year - trajectory[sm.seg].year > 1) tmp.lerp(paper, 0.5);
+            return tmp;
+          },
+          new THREE.MeshToonMaterial({ gradientMap: s.ramp, vertexColors: true }),
+        );
+        s.traj.add(tube);
 
-      // the same path flattened onto the floor: a faint ink trace of where the author has moved
-      const floorPath = new THREE.Line(
-        new THREE.BufferGeometry().setFromPoints(pts.map((v) => new THREE.Vector3(v.x, 0.02, v.z))),
-        new THREE.LineBasicMaterial({ color: INK, transparent: true, opacity: 0.3 }),
-      );
-      s.traj.add(floorPath);
+        // the same curve flattened onto the floor: a faint ink trace of where the author has moved
+        s.traj.add(
+          new THREE.Line(
+            new THREE.BufferGeometry().setFromPoints(samples.map((sm) => new THREE.Vector3(sm.p.x, 0.02, sm.p.z))),
+            new THREE.LineBasicMaterial({ color: INK, transparent: true, opacity: 0.3 }),
+          ),
+        );
+      }
     }
     s.syncView();
     s.render();
