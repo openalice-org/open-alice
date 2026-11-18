@@ -1,0 +1,5 @@
+.paper-cube {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}

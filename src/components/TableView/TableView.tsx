@@ -5,6 +5,7 @@ import { DOMAIN_LABELS } from "../../lib/geoAggregate";
 import { matchesPersonSearch } from "../../lib/people";
 import { dominantDomainOf, type DomainKey } from "../../lib/ternary";
 import "./TableView.css";
+import { RichTitle } from "../RichTitle/RichTitle";
 
 interface TableViewProps {
   people: Person[]; // pre-filtered by App to the current scope (Nordics/country/university)
@@ -68,7 +69,7 @@ function YearlySparkline({ yearly }: { yearly: NonNullable<Person["yearly"]> }) 
   );
 }
 
-function PersonDetail({ person }: { person: Person }) {
+export function PersonDetail({ person, onExplore }: { person: Person; onExplore?: () => void }) {
   const dom = dominantDomainOf(person);
   const titles = person.example_titles ?? [];
   const hasYearly = person.yearly && Object.keys(person.yearly).length >= 2;
@@ -98,6 +99,12 @@ function PersonDetail({ person }: { person: Person }) {
           </b>
         </div>
 
+        {onExplore && (
+          <button type="button" className="detail-explore-btn" onClick={onExplore}>
+            See details
+          </button>
+        )}
+
         <div className="detail-section-label">Our reading</div>
         {person.topic && <div className="detail-topic">{person.topic}</div>}
         <div className="detail-line">
@@ -126,7 +133,9 @@ function PersonDetail({ person }: { person: Person }) {
         {titles.length ? (
           <ul className="detail-works-list">
             {titles.map((t) => (
-              <li key={t}>{t}</li>
+              <li key={t}>
+                <RichTitle text={t} />
+              </li>
             ))}
           </ul>
         ) : (
@@ -254,7 +263,7 @@ export default function TableView({ people }: TableViewProps) {
                       <td colSpan={COLUMNS.length}>
                         <div className={"detail-collapse" + (expanded ? " expanded" : "")}>
                           <div className="detail-collapse-inner">
-                            <PersonDetail person={p} />
+                            <PersonDetail person={p} onExplore={() => dispatch({ type: "OPEN_EXPLORER", id: p.id })} />
                           </div>
                         </div>
                       </td>

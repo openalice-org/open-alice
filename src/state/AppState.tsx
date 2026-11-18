@@ -15,6 +15,7 @@ export interface AppState {
   search: string;
   searchOpen: boolean;
   pinnedPersonId: string | null;
+  explorerPersonId: string | null; // person whose "See details" modal (profile + 3D paper explorer) is open
 }
 
 // The cog popout's mode-specific display config (glassesMode/aggMode/
@@ -110,6 +111,7 @@ function baseInitialState(): AppState {
     search: "",
     searchOpen: false,
     pinnedPersonId: null,
+    explorerPersonId: null,
   };
 }
 
@@ -129,7 +131,8 @@ type Action =
   | { type: "SET_TIME_WINDOW"; window: TimeWindow }
   | { type: "SET_SEARCH"; query: string }
   | { type: "SET_SEARCH_OPEN"; open: boolean }
-  | { type: "SET_PINNED"; id: string | null };
+  | { type: "SET_PINNED"; id: string | null }
+  | { type: "OPEN_EXPLORER"; id: string | null };
 
 // Views are keyed off mapMode alone now (List/Geo/Disciplines/Axes/Domains
 // are all lens options) — so a scope change has to carry mapMode along to
@@ -246,6 +249,8 @@ function reducer(state: AppState, action: Action): AppState {
       return { ...state, searchOpen: action.open, search: action.open ? state.search : "" };
     case "SET_PINNED":
       return { ...state, pinnedPersonId: action.id };
+    case "OPEN_EXPLORER":
+      return { ...state, explorerPersonId: action.id };
     default:
       return state;
   }

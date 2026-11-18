@@ -1,0 +1,207 @@
+/* Modal: lightly dimmed backdrop + a floating, margined sheet (never edge to edge). */
+.person-explorer {
+  position: fixed;
+  inset: 0;
+  z-index: 100; /* above the app chrome (glasses, settings, footer) */
+  display: grid;
+  place-items: center;
+  padding: clamp(16px, 4vw, 48px);
+  background: rgba(24, 24, 22, 0.28);
+  backdrop-filter: blur(2px);
+  animation: pe-fade 160ms ease-out;
+}
+
+.pe-modal {
+  display: flex;
+  width: min(1320px, 100%);
+  height: min(840px, 100%);
+  overflow: hidden;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  box-shadow: 0 24px 60px rgba(24, 24, 22, 0.22), 0 2px 6px rgba(24, 24, 22, 0.1);
+  animation: pe-rise 200ms ease-out;
+}
+
+@keyframes pe-fade {
+  from { opacity: 0; }
+}
+@keyframes pe-rise {
+  from { transform: translateY(8px); opacity: 0; }
+}
+
+.pe-left {
+  flex: 0 0 min(430px, 40%);
+  overflow-y: auto;
+  border-right: 1px solid var(--line);
+}
+
+.pe-left .detail-panel {
+  flex-direction: column;
+  gap: 18px;
+  border-top: 0;
+}
+
+/* the close button sits in the modal's top-left corner, clear of the cog */
+.pe-modal {
+  position: relative;
+}
+
+.pe-close {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 4;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--line-soft);
+  cursor: pointer;
+}
+
+.pe-head {
+  padding: 60px 24px 0; /* leaves room for the close button above the name */
+}
+
+.pe-name {
+  font-family: var(--serif);
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 1.12;
+}
+
+.pe-inst {
+  margin-top: 3px;
+  color: var(--ink-dim);
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 14px;
+}
+
+.pe-right {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.pe-stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  background: radial-gradient(ellipse at 50% 42%, #ffffff 0%, var(--paper) 55%, var(--paper-deep) 130%);
+}
+
+.pe-msg {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--ink-faint);
+  pointer-events: none;
+}
+
+.pe-count {
+  position: absolute;
+  left: 18px;
+  bottom: 14px;
+  font-family: var(--sans);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  pointer-events: none;
+}
+
+.pe-count span {
+  color: var(--ink-faint);
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+
+.pe-card {
+  position: absolute;
+  right: 130px;
+  bottom: 18px;
+  width: min(340px, calc(100% - 160px));
+  padding: 14px 16px 13px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  box-shadow: 0 10px 30px rgba(24, 24, 22, 0.14);
+  font-size: 12px;
+  animation: pe-rise 160ms ease-out;
+}
+
+.pe-card-title {
+  font-family: var(--serif);
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.25;
+  padding-right: 18px;
+}
+
+.pe-card-meta {
+  margin-top: 6px;
+  color: var(--ink-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.pe-card-sub {
+  margin-top: 8px;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 13px;
+  line-height: 1.3;
+  color: var(--ink-dim);
+}
+
+.pe-card-links {
+  display: flex;
+  gap: 16px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.pe-card-links a {
+  color: var(--thinker);
+  text-decoration: none;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.pe-card-links a:hover {
+  text-decoration: underline;
+}
+
+.pe-card-x {
+  position: absolute;
+  top: 7px;
+  right: 9px;
+  border: 0;
+  background: none;
+  font-size: 15px;
+  color: var(--ink-faint);
+  cursor: pointer;
+}
+
+.pe-card-x:hover {
+  color: var(--ink);
+}
+
+@media (max-width: 900px) {
+  .pe-modal {
+    flex-direction: column;
+  }
+  .pe-left {
+    flex: 0 0 38%;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+}

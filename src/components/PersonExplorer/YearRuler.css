@@ -1,0 +1,175 @@
+.year-ruler {
+  position: absolute;
+  top: 76px; /* below the cog */
+  right: 18px;
+  bottom: 48px;
+  width: 92px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  user-select: none;
+  touch-action: none;
+}
+
+.yr-readout {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 15px;
+  text-align: center;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.yr-track {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  margin: 22px 0;
+  cursor: pointer;
+}
+
+.yr-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  background: var(--line);
+}
+
+/* papers-per-year histogram, growing leftwards from the track */
+.yr-bar {
+  position: absolute;
+  right: 50%;
+  margin-right: 3px;
+  max-height: 9px;
+  transform: translateY(-50%);
+  background: var(--ink-faint);
+  opacity: 0.32;
+  border-radius: 1px 0 0 1px;
+  pointer-events: none;
+}
+
+.yr-bar.in {
+  opacity: 0.75;
+  background: var(--ink);
+}
+
+.yr-tick {
+  position: absolute;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.yr-tick i {
+  width: 5px;
+  height: 1px;
+  background: var(--ink-faint);
+}
+
+.yr-tick span {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 11px;
+  color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+/* the selected window */
+.yr-band {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: rgba(24, 24, 22, 0.06);
+  border-left: 1px solid var(--line);
+  border-right: 1px solid var(--line);
+  cursor: grab;
+}
+
+.yr-band::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(50% - 1px);
+  width: 3px;
+  background: var(--ink);
+  pointer-events: none;
+}
+
+.yr-band:active {
+  cursor: grabbing;
+}
+
+.yr-handle {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 22px;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  cursor: ns-resize;
+  outline: none;
+}
+
+.yr-handle b {
+  position: absolute;
+  left: calc(50% - 11px);
+  width: 22px;
+  height: 3px;
+  background: var(--ink);
+  border-radius: 2px;
+  box-shadow: 0 0 0 4px var(--paper);
+}
+
+.yr-handle span {
+  position: absolute;
+  left: calc(50% + 16px);
+  padding: 1px 6px;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 12px;
+  line-height: 1.3;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.yr-handle:hover b,
+.yr-handle:focus-visible b {
+  height: 4px;
+  background: var(--thinker);
+}
+
+.yr-reset {
+  align-self: center;
+  padding: 4px 12px;
+  font-family: var(--sans);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, opacity 120ms ease;
+}
+
+.yr-reset:hover {
+  background: var(--glass);
+  border-color: var(--ink-dim);
+}
+
+.yr-reset.idle {
+  opacity: 0.45;
+}
