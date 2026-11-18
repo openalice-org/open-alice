@@ -159,9 +159,11 @@ const PHASE_MS: Record<Exclude<AnimPhase, "idle">, number> = {
   hideUnis: 300,
   explode: 450,
 };
-// Time-window preset swap: how long leaving circles stay mounted. Matches
-// the 0.6s cx/cy flight on .point (ScatterView.css) plus a small margin.
-const WINDOW_SWAP_MS = 650;
+// Time-window preset swap, staged so each movement can be read on its own:
+// 1) leaving dots fade out, 2) the rest glide to their new spots, 3) joining
+// dots grow in. Keep these in step with the .staged rules in ScatterView.css;
+// the total is how long leaving circles stay mounted.
+const WINDOW_SWAP_MS = 1750;
 const CONVERGE_EASE = "cx 450ms ease, cy 450ms ease";
 const EXPLODE_EASE = "cx 450ms ease, cy 450ms ease, opacity 0.18s ease";
 const REVEAL_EASE = "opacity 350ms ease";
@@ -230,17 +232,28 @@ export default function ScatterView({ dataset, people, patentLinks, collaboratio
     scope: string;
     leaving: Person[];
     entering: Set<string>;
-  }>({ people, window: state.timeWindow, scope: state.scope, leaving: [], entering: new Set() });
+    /** True for the whole staged sequence, even when nobody enters or leaves. */
+    active: boolean;
+  }>({ people, window: state.timeWindow, scope: state.scope, leaving: [], entering: new Set(), active: false });
   if (windowSwap.people !== people) {
-    const animate = windowSwap.scope === state.scope && windowSwap.window !== state.timeWindow;
+    const sameScope = windowSwap.scope === state.scope;
+    const animate = sameScope && windowSwap.window !== state.timeWindow;
+    // Same window and scope, new people array (e.g. the windowed shares just
+    // arrived): carry on with whatever sequence is already running.
+    const carryOn = sameScope && !animate;
     const nextIds = new Set(people.map((p) => p.id));
     const prevIds = new Set(windowSwap.people.map((p) => p.id));
     setWindowSwap({
       people,
       window: state.timeWindow,
       scope: state.scope,
-      leaving: animate ? windowSwap.people.filter((p) => !nextIds.has(p.id)) : [],
-      entering: animate ? new Set(people.filter((p) => !prevIds.has(p.id)).map((p) => p.id)) : new Set(),
+      leaving: animate ? windowSwap.people.filter((p) => !nextIds.has(p.id)) : carryOn ? windowSwap.leaving : [],
+      entering: animate
+        ? new Set(people.filter((p) => !prevIds.has(p.id)).map((p) => p.id))
+        : carryOn
+          ? windowSwap.entering
+          : new Set(),
+      active: animate ? true : carryOn ? windowSwap.active : false,
     });
     // A hovered circle that starts leaving goes pointer-events:none, which
     // browsers don't reliably report as a mouseleave — clear it by hand.
@@ -251,13 +264,14 @@ export default function ScatterView({ dataset, people, patentLinks, collaboratio
   }
   const leavingPeople = windowSwap.leaving;
   const enteringIds = windowSwap.entering;
+  const swapActive = windowSwap.active;
   useEffect(() => {
-    if (leavingPeople.length === 0 && enteringIds.size === 0) return;
+    if (!swapActive) return;
     const t = window.setTimeout(() => {
-      setWindowSwap((s) => (s.leaving === leavingPeople ? { ...s, leaving: [], entering: new Set() } : s));
+      setWindowSwap((s) => (s.leaving === leavingPeople ? { ...s, leaving: [], entering: new Set(), active: false } : s));
     }, WINDOW_SWAP_MS);
     return () => window.clearTimeout(t);
-  }, [leavingPeople, enteringIds]);
+  }, [swapActive, leavingPeople, enteringIds]);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -934,6 +948,18 @@ export default function ScatterView({ dataset, people, patentLinks, collaboratio
   // outright) but narrows it to holders — everyone else fades out, same as
   // the vanilla app's non-holder fade.
   const pointPeople = patentsActive ? holders : people;
+  // Leaving dots must keep their place in the DOM: React moves a keyed node that
+  // changes position, and moving an SVG node cancels its running CSS transition,
+  // so a leaving dot appended at the end would vanish instead of fading. Merge
+  // them back in dataset order (the order `people` already has).
+  const datasetOrder = useMemo(() => new Map(dataset.people.map((p, i) => [p.id, i])), [dataset.people]);
+  const pointLayer = useMemo(
+    () =>
+      patentsActive || leavingPeople.length === 0
+        ? pointPeople
+        : [...pointPeople, ...leavingPeople].sort((a, b) => (datasetOrder.get(a.id) ?? 0) - (datasetOrder.get(b.id) ?? 0)),
+    [patentsActive, pointPeople, leavingPeople, datasetOrder],
+  );
   const hexRevealsPoints = !isGeoScope(state.scope);
   const hexFade = !hexActive ? 0 : hexRevealsPoints ? hexFadeOpacity(transform.k) : 1;
 
@@ -1074,7 +1100,7 @@ export default function ScatterView({ dataset, people, patentLinks, collaboratio
               per-person rendering, only with each circle's starting position
               forced to the clicked bubble's centre for one frame. */}
           {showPoints &&
-            (patentsActive ? pointPeople : [...pointPeople, ...leavingPeople]).map((p) => {
+            pointLayer.map((p) => {
               const leaving = leavingPeople.includes(p);
               const { cx, cy } = projectOf(p);
               const exploding = anim.phase === "explode" && anim.burstOrigin != null;
@@ -1122,6 +1148,7 @@ export default function ScatterView({ dataset, people, patentLinks, collaboratio
                   className={
                     "point" +
                     (p.id === state.pinnedPersonId ? " pinned" : "") +
+                    (swapActive ? " staged" : "") +
                     (leaving ? " leaving" : "") +
                     (enteringIds.has(p.id) ? " entering" : "")
                   }

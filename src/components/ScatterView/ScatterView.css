@@ -30,6 +30,31 @@
   }
 }
 
+/* Staged time-window swap (ScatterView.tsx sets .staged for the whole
+   sequence). 0-0.4s: leaving dots fade and shrink in place. 0.4-1.15s: the
+   rest glide (and recolor) to their new spots. 1.15-1.65s: joiners grow in.
+   Leaving dots carry the same delayed glide; by then they are invisible. */
+.point.staged {
+  transition:
+    opacity 0.18s ease,
+    cx 0.75s cubic-bezier(0.4, 0, 0.2, 1) 0.4s,
+    cy 0.75s cubic-bezier(0.4, 0, 0.2, 1) 0.4s,
+    fill 0.75s ease 0.4s,
+    fill-opacity 0.75s ease 0.4s;
+}
+
+.point.staged.leaving {
+  transition:
+    opacity 0.35s ease,
+    r 0.4s ease,
+    cx 0.75s cubic-bezier(0.4, 0, 0.2, 1) 0.4s,
+    cy 0.75s cubic-bezier(0.4, 0, 0.2, 1) 0.4s;
+}
+
+.point.staged.entering {
+  animation: point-enter 0.5s ease-out 1.15s backwards;
+}
+
 .point.pinned {
   stroke: var(--ink);
   stroke-width: 1.5;

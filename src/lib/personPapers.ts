@@ -20,7 +20,7 @@ export interface PersonPaper {
   doi: string;
 }
 
-type Row = [number, number, number, number, number, number, number, string, string];
+export type Row = [number, number, number, number, number, number, number, string, string];
 type Shard = Record<string, Row[]>;
 
 const shardCache = new Map<number, Promise<Shard>>();
@@ -43,6 +43,37 @@ function loadShard(shard: number): Promise<Shard> {
     shardCache.set(shard, p);
   }
   return p;
+}
+
+/** Per-person raw rows for everyone, merged across all shards (~23 MB; fetched once, then cached). */
+let allRows: Promise<Map<string, Row[]>> | null = null;
+export function loadAllPersonRows(): Promise<Map<string, Row[]>> {
+  if (!allRows) {
+    allRows = Promise.all(Array.from({ length: PERSON_PAPER_SHARDS }, (_, i) => loadShard(i))).then((shards) => {
+      const m = new Map<string, Row[]>();
+      for (const sh of shards) for (const [id, rows] of Object.entries(sh)) m.set(id, rows);
+      return m;
+    });
+    allRows.catch(() => (allRows = null)); // a failed attempt may be retried
+  }
+  return allRows;
+}
+
+/** Mean domain split of the rows published in or after `fromYear`, or null when there are none. */
+export function sharesSince(rows: Row[], fromYear: number): { s: number; cm: number; cp: number } | null {
+  let n = 0;
+  let s = 0;
+  let cm = 0;
+  let cp = 0;
+  for (const r of rows) {
+    if (r[1] < fromYear) continue;
+    n++;
+    s += r[4];
+    cm += r[5];
+    cp += r[6];
+  }
+  const sum = s + cm + cp;
+  return n && sum > 0 ? { s: s / sum, cm: cm / sum, cp: cp / sum } : null;
 }
 
 export async function fetchPersonPapers(personId: string): Promise<PersonPaper[]> {
