@@ -41,6 +41,7 @@ const R_MIN = 0.09;
 const R_MAX = 0.42;
 const GHOST_SCALE = 0.5; // paper dots shrink to this fraction behind a trajectory
 const GHOST_ALPHA = 0.28;
+const DOT_ALPHA = 0.5; // fixed see-through level for paper dots, independent of camera angle
 const OUTLINE = 1.07; // hairline outline shell scale relative to the dot
 const INK = 0x181816;
 const OUTLINE_INK = 0x3a3a35;
@@ -321,7 +322,6 @@ interface Scene3D {
   halo: THREE.Sprite;
   render: () => void;
   /** Materials that fade as the camera rises toward a top-down view (set by the dots effect). */
-  fadeMats: THREE.Material[];
   /** Crossfade the year chips between faces, and fade the dots, for the current camera angle. */
   syncView: () => void;
 }
@@ -428,12 +428,6 @@ export default function PaperCube({
         (sp.material as THREE.SpriteMaterial).opacity = weights[i];
         sp.position.set(f.mx + f.nx * 0.95, o.userData.tickY as number, f.mz + f.nz * 0.95);
       }
-      // seen from above, stacked years overlap: let the dots go see-through
-      const alpha = 1 - 0.5 * smoothstep(0.55, 0.95, dy / dist);
-      for (const m of s3.current?.fadeMats ?? []) {
-        m.opacity = alpha;
-        m.depthWrite = alpha > 0.98;
-      }
     };
     controls.addEventListener("change", () => {
       syncView();
@@ -498,7 +492,7 @@ export default function PaperCube({
     el.addEventListener("pointermove", onMove);
 
     const ramp = toonRamp();
-    s3.current = { renderer, scene, camera, controls, chrome, dots, ramp, points: null, nodes: null, traj, halo, render, fadeMats: [], syncView };
+    s3.current = { renderer, scene, camera, controls, chrome, dots, ramp, points: null, nodes: null, traj, halo, render, syncView };
     resize();
     return () => {
       ro.disconnect();
@@ -628,7 +622,6 @@ export default function PaperCube({
       disposeObject(child);
     }
     s.points = null;
-    s.fadeMats = [];
 
     // Trajectory mode: papers become faint, smaller context dots (or vanish entirely).
     const ghosting = mode === "trajectory";
@@ -636,13 +629,13 @@ export default function PaperCube({
       const sphere = new THREE.SphereGeometry(1, 20, 14);
       const front = new THREE.InstancedMesh(
         sphere,
-        new THREE.MeshToonMaterial({ gradientMap: s.ramp, transparent: true, opacity: ghosting ? GHOST_ALPHA : 1 }),
+        new THREE.MeshToonMaterial({ gradientMap: s.ramp, transparent: true, depthWrite: false, opacity: ghosting ? GHOST_ALPHA : DOT_ALPHA }),
         papers.length,
       );
       // ink outline: an inverted-hull shell, slightly larger, back faces only
       const outline = new THREE.InstancedMesh(
         sphere.clone(),
-        new THREE.MeshBasicMaterial({ color: OUTLINE_INK, side: THREE.BackSide, transparent: true, opacity: ghosting ? GHOST_ALPHA : 1 }),
+        new THREE.MeshBasicMaterial({ color: OUTLINE_INK, side: THREE.BackSide, transparent: true, opacity: GHOST_ALPHA }),
         papers.length,
       );
       // soft contact shadows on the floor, to read depth at a glance
@@ -682,10 +675,10 @@ export default function PaperCube({
       front.computeBoundingSphere();
       shadow.renderOrder = -1;
       if (!ghosting) s.dots.add(shadow);
-      s.dots.add(outline, front);
+      // the dark outline shell only on ghosts; behind a translucent full-strength dot it would read as gray
+      if (ghosting) s.dots.add(outline);
+      s.dots.add(front);
       s.points = front;
-      // seen from above, only the full-strength dots go see-through (ghosts already are)
-      if (!ghosting) s.fadeMats = [front.material as THREE.Material, outline.material as THREE.Material];
     }
     s.syncView();
     s.render();
