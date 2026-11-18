@@ -7,6 +7,7 @@ import ExplorerControls from "./ExplorerControls";
 import PaperCube, { type CubeMode, type PaperSizeMetric, type ViewId } from "../PaperCube/PaperCube";
 import "../PaperCube/PaperCube.css";
 import "./PersonExplorer.css";
+import { RichTitle } from "../RichTitle/RichTitle";
 
 interface PersonExplorerProps {
   person: Person;
@@ -145,7 +146,7 @@ export default function PersonExplorer({ person, detail, onClose }: PersonExplor
                 <button type="button" className="pe-card-x" onClick={() => setSelected(null)} aria-label="Dismiss">
                   ✕
                 </button>
-                <div className="pe-card-title">{sel.title || "(untitled)"}</div>
+                <div className="pe-card-title">{sel.title ? <RichTitle text={sel.title} /> : "(untitled)"}</div>
                 <div className="pe-card-meta">
                   {sel.year} · {plural(sel.citations, "citation")} · {plural(sel.authors, "author")}
                 </div>
@@ -179,7 +180,7 @@ export default function PersonExplorer({ person, detail, onClose }: PersonExplor
                   {pct(selYear.computing)}
                   {weightBy === "citations" ? " (weighted by citations)" : ""}
                 </div>
-                <div className="pe-card-sub">Most cited: {selYear.top.title || "(untitled)"}</div>
+                <div className="pe-card-sub">Most cited: {selYear.top.title ? <RichTitle text={selYear.top.title} /> : "(untitled)"}</div>
                 <div className="pe-card-links">
                   {selYear.top.doi && (
                     <a href={doiUrl(selYear.top.doi)} target="_blank" rel="noopener noreferrer">

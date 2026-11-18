@@ -5,6 +5,7 @@ import { DOMAIN_LABELS } from "../../lib/geoAggregate";
 import { matchesPersonSearch } from "../../lib/people";
 import { dominantDomainOf, type DomainKey } from "../../lib/ternary";
 import "./TableView.css";
+import { RichTitle } from "../RichTitle/RichTitle";
 
 interface TableViewProps {
   people: Person[]; // pre-filtered by App to the current scope (Nordics/country/university)
@@ -132,7 +133,9 @@ export function PersonDetail({ person, onExplore }: { person: Person; onExplore?
         {titles.length ? (
           <ul className="detail-works-list">
             {titles.map((t) => (
-              <li key={t}>{t}</li>
+              <li key={t}>
+                <RichTitle text={t} />
+              </li>
             ))}
           </ul>
         ) : (
