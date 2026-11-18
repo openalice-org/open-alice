@@ -2,6 +2,8 @@ import { useState } from "react";
 import type { Collaborations, Person, PatentLinks } from "../../types";
 import PatentsDialog from "../PatentsDialog/PatentsDialog";
 import { useAppState } from "../../state/AppState";
+import openAlexLogo from "../../assets/openalex-logo.png";
+import epoLogo from "../../assets/epo-logo.png";
 import "./Tooltip.css";
 
 interface TooltipProps {
@@ -60,8 +62,6 @@ export default function Tooltip({
   const topCoauthors = dedupeByName(
     (collab?.top_coauthors ?? []).filter((other) => other.id !== person.id && other.name !== person.name),
   ).slice(0, 4);
-  const topInstitutions = collab?.top_institutions?.slice(0, 3) ?? [];
-  const hasCollab = topCoauthors.length > 0 || topInstitutions.length > 0;
 
   return (
     <div
@@ -111,7 +111,7 @@ export default function Tooltip({
         </b>
       </div>
       {person.topic && <div className="pill">{person.topic}</div>}
-      {hasCollab && (
+      {topCoauthors.length > 0 && (
         <div className="collab-section">
           <div className="collab-heading">Top collaborators (quantum)</div>
           {topCoauthors.length > 0 && (
@@ -121,34 +121,20 @@ export default function Tooltip({
                   <button
                     key={c.id}
                     type="button"
-                    className="collab-chip collab-chip-btn"
+                    className="collab-chip collab-chip-person collab-chip-btn"
                     onClick={() => onPinPerson(c.id)}
                   >
                     {c.name} <span className="collab-count">{c.papers}</span>
                   </button>
                 ) : (
-                  <span key={c.id} className="collab-chip">
+                  <span key={c.id} className="collab-chip collab-chip-person">
                     {c.name} <span className="collab-count">{c.papers}</span>
                   </span>
                 ),
               )}
             </div>
           )}
-          {topInstitutions.length > 0 && (
-            <div className="collab-row">
-              {topInstitutions.map((inst) => (
-                <span key={inst.name} className="collab-chip">
-                  {inst.name} <span className="collab-count">{inst.papers}</span>
-                </span>
-              ))}
-            </div>
-          )}
         </div>
-      )}
-      {person.total_patents > 0 && (
-        <button className="tip-link tip-link-btn" type="button" onClick={() => setPatentsOpen(true)}>
-          Author patents ↗
-        </button>
       )}
       <button
         className="tip-details-btn"
@@ -157,11 +143,31 @@ export default function Tooltip({
       >
         See details
       </button>
-      {person.id && (
-        <a className="tip-link" href={person.id} target="_blank" rel="noopener noreferrer">
-          OpenAlex ↗
-        </a>
-      )}
+      <div className="tip-sources">
+        {person.id && (
+          <a
+            className="tip-source"
+            href={person.id}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="View on OpenAlex"
+            aria-label="View on OpenAlex"
+          >
+            <img src={openAlexLogo} alt="" />
+          </a>
+        )}
+        {person.total_patents > 0 && (
+          <button
+            className="tip-source tip-source-epo"
+            type="button"
+            onClick={() => setPatentsOpen(true)}
+            title={`Author patents (${person.total_patents}) via EPO`}
+            aria-label={`Author patents (${person.total_patents})`}
+          >
+            <img src={epoLogo} alt="" />
+          </button>
+        )}
+      </div>
       {patentsOpen && (
         <PatentsDialog
           person={person}

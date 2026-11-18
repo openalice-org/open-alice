@@ -117,22 +117,43 @@
   align-items: center;
   gap: 3px;
   font-size: 11px;
-  padding: 2px 7px;
-  border-radius: 999px;
-  background: var(--line-soft);
+  padding: 3px 8px;
+  border-radius: 0;
+  border: 1px solid var(--line);
+  background: #fff;
   color: var(--ink-dim);
+}
+
+/* coauthors: editorial italic serif names */
+.collab-chip-person {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 13px;
+  line-height: 1.2;
+  color: var(--ink);
+}
+
+.collab-chip-person .collab-count {
+  font-family: var(--sans);
+  font-style: normal;
+  font-size: 11px;
 }
 
 .collab-chip-btn,
 button.collab-chip {
   appearance: none;
-  border: 0;
   cursor: pointer;
-  font-family: inherit;
+}
+
+/* buttons don't inherit text styling by default; keep chips identical whether pinned-clickable or not */
+button.collab-chip-person {
+  font-family: var(--serif);
+  font-style: italic;
 }
 
 .collab-chip-btn:hover {
   color: var(--ink);
+  border-color: var(--ink-dim);
 }
 
 .collab-count {
@@ -173,4 +194,50 @@ button.collab-chip {
 .tooltip .tip-details-btn:hover {
   background: var(--ink);
   color: var(--paper);
+}
+
+/* source links: logo buttons (OpenAlex profile, EPO patents) */
+.tooltip .tip-sources {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.tooltip .tip-source {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.tooltip .tip-source:hover {
+  opacity: 1;
+  transform: translateY(-1px);
+}
+
+.tooltip .tip-source img {
+  display: block;
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  transition: filter 0.15s ease;
+}
+
+/* EPO: gray at rest, brand color on hover/focus */
+.tooltip .tip-source-epo img {
+  filter: grayscale(1);
+}
+
+.tooltip .tip-source-epo:hover img,
+.tooltip .tip-source-epo:focus-visible img {
+  filter: none;
 }
