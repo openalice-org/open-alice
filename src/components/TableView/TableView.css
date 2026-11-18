@@ -246,14 +246,6 @@
   font-variant-numeric: tabular-nums;
 }
 
-.detail-sparkline-row {
-  align-items: center;
-}
-
-.yearly-sparkline {
-  flex: none;
-}
-
 .detail-works-list {
   margin: 0;
   padding: 0;
@@ -285,9 +277,12 @@
   color: var(--ink-faint);
 }
 
+/* same button as the tooltip's "See details" (Tooltip.css .tip-details-btn) */
 .detail-explore-btn {
-  margin: 4px 0 6px;
-  padding: 6px 14px;
+  display: block;
+  width: 100%;
+  margin: 12px 0 0;
+  padding: 7px 10px;
   font-family: var(--sans);
   font-size: 10.5px;
   font-weight: 500;

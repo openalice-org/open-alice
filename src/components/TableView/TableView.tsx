@@ -4,6 +4,7 @@ import type { Person } from "../../types";
 import { DOMAIN_LABELS } from "../../lib/geoAggregate";
 import { matchesPersonSearch } from "../../lib/people";
 import { dominantDomainOf, type DomainKey } from "../../lib/ternary";
+import YearlyChart from "../YearlyChart/YearlyChart";
 import "./TableView.css";
 import { RichTitle } from "../RichTitle/RichTitle";
 
@@ -34,39 +35,6 @@ const PAGE_SIZE = 100;
 
 function shareOf(p: Person, k: DomainKey): number {
   return (k === "sensing" ? p.sensing_share : k === "communication" ? p.communication_share : p.computing_share) ?? 0;
-}
-
-const SPARK_W = 220;
-const SPARK_H = 40;
-
-/** Minimal inline sparkline of quantum papers-per-year (line) with a
- * per-point native tooltip carrying that year's papers + citations. Renders
- * nothing when `yearly` is absent/empty — data built before that field
- * existed just skips the chart rather than showing an empty one. */
-function YearlySparkline({ yearly }: { yearly: NonNullable<Person["yearly"]> }) {
-  const years = Object.keys(yearly)
-    .map(Number)
-    .sort((a, b) => a - b);
-  if (years.length < 2) return null;
-
-  const maxPapers = Math.max(1, ...years.map((y) => yearly[y].papers));
-  const xStep = SPARK_W / (years.length - 1);
-  const yOf = (papers: number) => SPARK_H - 4 - (papers / maxPapers) * (SPARK_H - 8);
-  const points = years.map((y, i) => ({ x: i * xStep, y: yOf(yearly[y].papers), year: y, ...yearly[y] }));
-  const path = points.map((p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
-
-  return (
-    <svg width={SPARK_W} height={SPARK_H} className="yearly-sparkline" role="img" aria-label="Quantum papers per year">
-      <path d={path} fill="none" stroke="var(--ink-dim)" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
-      {points.map((p) => (
-        <circle key={p.year} cx={p.x} cy={p.y} r={2.5} fill="var(--ink)">
-          <title>
-            {p.year}: {p.papers} paper{p.papers === 1 ? "" : "s"}, {p.citations} citation{p.citations === 1 ? "" : "s"}
-          </title>
-        </circle>
-      ))}
-    </svg>
-  );
 }
 
 export function PersonDetail({ person, onExplore }: { person: Person; onExplore?: () => void }) {
@@ -120,10 +88,7 @@ export function PersonDetail({ person, onExplore }: { person: Person; onExplore?
           <b>{dom ? `${DOMAIN_LABELS[dom]} ${Math.round(shareOf(person, dom) * 100)}%` : "—"}</b>
         </div>
         {hasYearly && (
-          <div className="detail-line detail-sparkline-row">
-            <span>Papers/year</span>
-            <YearlySparkline yearly={person.yearly!} />
-          </div>
+          <YearlyChart yearly={person.yearly!} />
         )}
       </div>
       <div className="detail-col">

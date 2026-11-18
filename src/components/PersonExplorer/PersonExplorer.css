@@ -18,7 +18,7 @@
   overflow: hidden;
   background: var(--paper);
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: 14px; /* matches the list view panel */
   box-shadow: 0 24px 60px rgba(24, 24, 22, 0.22), 0 2px 6px rgba(24, 24, 22, 0.1);
   animation: pe-rise 200ms ease-out;
 }
