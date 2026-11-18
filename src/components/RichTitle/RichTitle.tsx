@@ -1,4 +1,6 @@
 import { Fragment, type ReactNode } from "react";
+import { splitMath } from "../../lib/mathText";
+import MathSpan from "./MathSpan";
 
 /**
  * Paper titles from OpenAlex/Crossref carry inline markup (<sub>, <i>, MathML...).
@@ -62,7 +64,15 @@ function parse(src: string): Node {
 }
 
 function render(node: Node, key = 0): ReactNode {
-  const kids = node.children.map((c, i) => (typeof c === "string" ? <Fragment key={i}>{c}</Fragment> : render(c, i)));
+  const kids = node.children.map((c, i) =>
+    typeof c === "string" ? (
+      <Fragment key={i}>
+        {splitMath(c).map((seg, j) => (seg.math ? <MathSpan key={j} tex={seg.text} /> : <Fragment key={j}>{seg.text}</Fragment>))}
+      </Fragment>
+    ) : (
+      render(c, i)
+    ),
+  );
   switch (node.tag && ALLOWED[node.tag]) {
     case "sub":
       return <sub key={key}>{kids}</sub>;
@@ -84,6 +94,6 @@ function render(node: Node, key = 0): ReactNode {
 }
 
 export function RichTitle({ text }: { text: string }) {
-  if (!text.includes("<") && !text.includes("&")) return <>{text}</>;
+  if (!/[<&$\\]/.test(text)) return <>{text}</>;
   return <>{render(parse(text))}</>;
 }

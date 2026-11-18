@@ -1,0 +1,9 @@
+/* KaTeX defaults to 1.21em, which towers over running title text. */
+.math .katex {
+  font-size: 1em;
+  white-space: nowrap;
+}
+
+.math-raw {
+  font-style: italic;
+}
