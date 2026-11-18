@@ -8,6 +8,7 @@ import PaperCube, { type CubeMode, type PaperSizeMetric, type ViewId } from "../
 import "../PaperCube/PaperCube.css";
 import "./PersonExplorer.css";
 import { RichTitle } from "../RichTitle/RichTitle";
+import { YearWindowContext, type YearWindow } from "../YearlyChart/YearWindowContext";
 
 interface PersonExplorerProps {
   person: Person;
@@ -71,6 +72,10 @@ export default function PersonExplorer({ person, detail, onClose }: PersonExplor
   const filtered = !!bounds && (lo !== bounds[0] || hi !== bounds[1]);
   const visible = useMemo(() => (papers ?? []).filter((p) => p.year >= lo && p.year <= hi), [papers, lo, hi]);
   const trajectory = useMemo(() => yearlyTrajectory(visible, weightBy), [visible, weightBy]);
+  const setWindow = (r: [number, number]) => (bounds && r[0] === bounds[0] && r[1] === bounds[1] ? setRange(null) : setRange(r));
+  const yearWindow: YearWindow | null = bounds
+    ? { min: bounds[0], max: bounds[1], lo, hi, filtered, onChange: setWindow, onReset: () => setRange(null) }
+    : null;
   // A one-year window would collapse the Z axis; keep at least a 1-year span.
   const axisMax = hi === lo ? hi + 1 : hi;
   const sel = selected == null ? null : (visible.find((p) => p.wid === selected) ?? null);
@@ -87,7 +92,7 @@ export default function PersonExplorer({ person, detail, onClose }: PersonExplor
             <div className="pe-name">{person.name}</div>
             <div className="pe-inst">{person.institution}</div>
           </div>
-          {detail}
+          <YearWindowContext.Provider value={yearWindow}>{detail}</YearWindowContext.Provider>
         </div>
 
         <div className="pe-right">

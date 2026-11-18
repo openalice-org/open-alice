@@ -27,7 +27,7 @@ export interface Person {
    * year as a string (e.g. "2021"). Optional and possibly absent/empty —
    * added after the initial schema, so data built before this field existed
    * won't have it. */
-  yearly?: Record<string, { papers: number; citations: number }>;
+  yearly?: Record<string, { papers: number; citations: number; new_coauthors?: number }>;
   /** This person's own SE-inventor/uni-applicant filtered patents (the same
    * set `total_patents` counts) — from SPRINT 13's build_author_patents.py.
    * Absent (not just empty) for datasets built before this field existed;
