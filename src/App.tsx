@@ -10,9 +10,13 @@ import GeoView from "./components/GeoView/GeoView";
 import TaxonomyView from "./components/TaxonomyView/TaxonomyView";
 import TableView, { PersonDetail } from "./components/TableView/TableView";
 import "./App.css";
+import { useWindowedShares } from "./hooks/useWindowedShares";
+import type { Person } from "./types";
 
 // three.js is heavy; only fetch it when someone opens a person's details.
 const PersonExplorer = lazy(() => import("./components/PersonExplorer/PersonExplorer"));
+
+const NO_PEOPLE: Person[] = [];
 
 function AppInner() {
   const { dataset, paperCounts, patentLinks, collaborations, loading, error } = useDataset();
@@ -20,16 +24,19 @@ function AppInner() {
 
   const universityCountries = useMemo(() => (dataset ? universityCountryMap(dataset.people) : new Map<string, string>()), [dataset]);
 
+  // everyone, with domain shares recomputed for the active time window
+  const windowedPeople = useWindowedShares(dataset?.people ?? NO_PEOPLE, state.timeWindow);
+
   const scopedPeople = useMemo(() => {
     if (!dataset) return [];
-    return peopleForScope(dataset.people, state.scope, universityCountries);
-  }, [dataset, state.scope, universityCountries]);
+    return peopleForScope(windowedPeople, state.scope, universityCountries);
+  }, [dataset, windowedPeople, state.scope, universityCountries]);
 
   const visiblePeople = useMemo(() => filterByTimeWindow(scopedPeople, state.timeWindow), [scopedPeople, state.timeWindow]);
 
   const timeFilteredPeople = useMemo(
-    () => (dataset ? filterByTimeWindow(dataset.people, state.timeWindow) : []),
-    [dataset, state.timeWindow],
+    () => (dataset ? filterByTimeWindow(windowedPeople, state.timeWindow) : []),
+    [dataset, windowedPeople, state.timeWindow],
   );
 
   const windowedPaperCounts = useMemo(
