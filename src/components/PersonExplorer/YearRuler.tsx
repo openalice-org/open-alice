@@ -105,7 +105,13 @@ export default function YearRuler({ min, max, lo, hi, counts, filtered, onChange
             <div
               key={y}
               className={"yr-bar" + (y >= lo && y <= hi ? " in" : "")}
-              style={{ top: `${pct(y)}%`, height: `calc(${slotH}% - 1px)`, width: `${4 + (n / peak) * 20}px` }}
+              style={{
+                top: `${pct(y)}%`,
+                height: `calc(${slotH}% - 1px)`,
+                width: `${4 + (n / peak) * 20}px`,
+                // same bottom-to-top order and pace as the papers appearing in the 3D view
+                animationDelay: `${((y - min) / span) * 750}ms`,
+              }}
               title={`${y}: ${n} paper${n === 1 ? "" : "s"}`}
             />
           );

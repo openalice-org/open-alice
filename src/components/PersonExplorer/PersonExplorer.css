@@ -123,6 +123,77 @@
   letter-spacing: 0.02em;
 }
 
+/* the "?" beside the count line, with its tooltip (Trajectory mode) */
+.pe-help {
+  position: absolute;
+  left: 18px;
+  bottom: 38px;
+}
+
+.pe-help-btn {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--ink-dim);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  cursor: help;
+}
+
+.pe-help-btn:hover,
+.pe-help-btn:focus-visible {
+  color: var(--ink);
+  border-color: var(--ink-dim);
+  outline: none;
+}
+
+.pe-help-tip {
+  position: absolute;
+  left: 0;
+  bottom: 28px;
+  width: min(320px, calc(100vw - 80px));
+  padding: 12px 14px 4px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  box-shadow: 0 10px 30px rgba(24, 24, 22, 0.14);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(4px);
+  transition: opacity 140ms ease, transform 140ms ease, visibility 140ms;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.pe-help-tip b {
+  display: block;
+  margin-bottom: 6px;
+  font-family: var(--sans);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.pe-help-tip p {
+  margin: 0 0 8px;
+}
+
+.pe-help:hover .pe-help-tip,
+.pe-help:focus-within .pe-help-tip {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+
 .pe-card {
   position: absolute;
   right: 130px;

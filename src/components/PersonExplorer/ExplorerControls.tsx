@@ -1,21 +1,20 @@
 import { useEffect, useRef, useState } from "react";
 import { Popout } from "../Rail/Rail";
-import type { CubeMode, PaperSizeMetric, ViewId } from "../PaperCube/PaperCube";
-import type { TrajectoryWeight } from "../../lib/trajectory";
-import ViewPresets from "./ViewPresets";
+import type { CubeMode, CubeSpace, PaperSizeMetric } from "../PaperCube/PaperCube";
 import "./ExplorerControls.css";
 
 interface ExplorerControlsProps {
   mode: CubeMode;
   onMode: (m: CubeMode) => void;
+  space: CubeSpace;
+  onSpace: (s: CubeSpace) => void;
+  /** False when this person's shard has no UMAP positions (the Topics space is then unavailable). */
+  umapAvailable: boolean;
   sizeBy: PaperSizeMetric;
   onSizeBy: (s: PaperSizeMetric) => void;
-  weightBy: TrajectoryWeight;
-  onWeightBy: (w: TrajectoryWeight) => void;
   ghost: boolean;
   onGhost: (g: boolean) => void;
-  activeView: ViewId | null;
-  onPickView: (id: ViewId) => void;
+  onResetView: () => void;
 }
 
 const MODES: { key: CubeMode; label: string; icon: string }[] = [
@@ -23,15 +22,15 @@ const MODES: { key: CubeMode; label: string; icon: string }[] = [
   { key: "trajectory", label: "Trajectory", icon: "ph-path" },
 ];
 
+const SPACES: { key: CubeSpace; label: string; hint: string }[] = [
+  { key: "triangle", label: "Domains", hint: "Position by Sensing / Communication / Computing mix" },
+  { key: "umap", label: "Topics", hint: "Position by topic similarity (UMAP of paper embeddings)" },
+];
+
 const SIZE: { key: PaperSizeMetric; label: string }[] = [
   { key: "citations", label: "Citations" },
   { key: "coauthors", label: "Coauthors" },
   { key: "constant", label: "Equal" },
-];
-
-const WEIGHT: { key: TrajectoryWeight; label: string }[] = [
-  { key: "papers", label: "Papers" },
-  { key: "citations", label: "Citations" },
 ];
 
 /**
@@ -62,7 +61,7 @@ function usePresence(open: boolean, exitMs = 200) {
  * options plus the camera views. (Popouts are portaled, same as the Rail's.)
  */
 export default function ExplorerControls(props: ExplorerControlsProps) {
-  const { mode, onMode, activeView, onPickView } = props;
+  const { mode, onMode, onResetView } = props;
   const [open, setOpen] = useState<"lens" | "config" | null>(null);
   const lensRef = useRef<HTMLDivElement>(null);
   const cfgRef = useRef<HTMLDivElement>(null);
@@ -139,15 +138,24 @@ export default function ExplorerControls(props: ExplorerControlsProps) {
               align="center"
               className={"config-buttons pe-pop pe-pop-cfg" + (cfgPresence.shown ? " in" : "")}
             >
-              {mode === "papers" ? (
+              <span className="config-label">Space</span>
+              {SPACES.map((o) => (
+                <button
+                  key={o.key}
+                  type="button"
+                  title={o.key === "umap" && !props.umapAvailable ? "No topic positions in this data build" : o.hint}
+                  disabled={o.key === "umap" && !props.umapAvailable}
+                  className={"config-btn" + (o.key === props.space ? " active" : "")}
+                  onClick={() => props.onSpace(o.key)}
+                >
+                  {o.label}
+                </button>
+              ))}
+              <span className="config-sep">|</span>
+              <span className="config-label">Size by</span>
+              {SIZE.map((o) => btn(o.key === props.sizeBy, o.label, () => props.onSizeBy(o.key)))}
+              {mode === "trajectory" && (
                 <>
-                  <span className="config-label">Size by</span>
-                  {SIZE.map((o) => btn(o.key === props.sizeBy, o.label, () => props.onSizeBy(o.key)))}
-                </>
-              ) : (
-                <>
-                  <span className="config-label">Weight by</span>
-                  {WEIGHT.map((o) => btn(o.key === props.weightBy, o.label, () => props.onWeightBy(o.key)))}
                   <span className="config-sep">|</span>
                   <span className="config-label">Papers</span>
                   {btn(props.ghost, "Show", () => props.onGhost(true))}
@@ -155,9 +163,7 @@ export default function ExplorerControls(props: ExplorerControlsProps) {
                 </>
               )}
               <span className="config-sep">|</span>
-              <ViewPresets active={activeView} onPick={onPickView} />
-              <span className="config-sep">|</span>
-              <button type="button" className="config-btn" onClick={() => onPickView("home")}>
+              <button type="button" className="config-btn" onClick={onResetView}>
                 Reset view
               </button>
             </Popout>

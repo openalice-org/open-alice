@@ -18,9 +18,13 @@ export interface PersonPaper {
   title: string;
   /** Bare DOI (no https://doi.org/ prefix); empty when OpenAlex has none. */
   doi: string;
+  /** Position on the global UMAP of work embeddings, each 0..1; null for shards built without it. */
+  ux: number | null;
+  uy: number | null;
 }
 
-export type Row = [number, number, number, number, number, number, number, string, string];
+// ux/uy are per-mille ints (0..1000, -1 = none) and absent from shards built before the UMAP view.
+export type Row = [number, number, number, number, number, number, number, string, string, number?, number?];
 type Shard = Record<string, Row[]>;
 
 const shardCache = new Map<number, Promise<Shard>>();
@@ -78,7 +82,7 @@ export function sharesSince(rows: Row[], fromYear: number): { s: number; cm: num
 
 export async function fetchPersonPapers(personId: string): Promise<PersonPaper[]> {
   const shard = await loadShard(shardOf(personId));
-  return (shard[personId] ?? []).map(([wid, year, citations, authors, s, cm, cp, title, doi]) => ({
+  return (shard[personId] ?? []).map(([wid, year, citations, authors, s, cm, cp, title, doi, ux, uy]) => ({
     wid,
     year,
     citations,
@@ -88,8 +92,13 @@ export async function fetchPersonPapers(personId: string): Promise<PersonPaper[]
     computing: cp / 1000,
     title,
     doi,
+    ux: ux != null && ux >= 0 ? ux / 1000 : null,
+    uy: uy != null && uy >= 0 ? uy / 1000 : null,
   }));
 }
+
+/** True when the paper has a UMAP position (the Topics view can place it). */
+export const hasUmap = (p: PersonPaper): p is PersonPaper & { ux: number; uy: number } => p.ux != null && p.uy != null;
 
 export const openAlexWorkUrl = (wid: number) => `https://openalex.org/W${wid}`;
 export const doiUrl = (doi: string) => `https://doi.org/${encodeURI(doi)}`;

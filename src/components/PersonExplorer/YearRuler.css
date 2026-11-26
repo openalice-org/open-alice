@@ -51,6 +51,27 @@
   pointer-events: none;
 }
 
+/* on first show, each bar sweeps in from its far end toward the track, oldest year (bottom) first */
+.yr-bar {
+  transform-origin: left center;
+  animation: yr-bar-in 420ms cubic-bezier(0.22, 0.8, 0.3, 1) both;
+}
+
+@keyframes yr-bar-in {
+  from {
+    transform: translateY(-50%) scaleX(0);
+  }
+  to {
+    transform: translateY(-50%) scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .yr-bar {
+    animation: none;
+  }
+}
+
 .yr-bar.in {
   opacity: 0.75;
   background: var(--ink);
