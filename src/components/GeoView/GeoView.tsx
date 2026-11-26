@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { geoMercator, geoPath as d3GeoPath, geoCentroid } from "d3-geo";
 import { scaleSqrt, scalePow } from "d3-scale";
 import { mean, sum } from "d3-array";
 import { pie as d3Pie, arc as d3Arc } from "d3-shape";
 import { useAppState } from "../../state/AppState";
 import type { DomainShares, GeoSizeMetric, Person, PaperCounts } from "../../types";
-import { COUNTRY_LABELS, COUNTRY_ORDER, labelForScope, universityCountryMap } from "../../lib/institutions";
+import { COUNTRY_LABELS, COUNTRY_ORDER, NORDICS_SCOPE, labelForScope, universityCountryMap } from "../../lib/institutions";
 import { UNI_GEO } from "../../lib/uniGeo";
 import { CITY_COUNTRY, CITY_FAN, CITY_UNIS } from "../../lib/cityGeo";
 import { DOMAIN_LABELS, DOMAIN_ORDER, DOMAIN_SHADES, aggregateGeo, type GeoAggregate } from "../../lib/geoAggregate";
@@ -91,6 +91,21 @@ const VIEW_W = 1000;
 const VIEW_H = 700;
 const MARGIN_X = 90;
 const MARGIN_Y = 60;
+// Zooming between the Nordics and a country: how long the whole choreography takes. It is handed to the
+// stylesheet as --geo-ms, so GeoView.css follows it.
+const GEO_ZOOM_MS = 1200;
+
+/** A Mercator fit as plain numbers: screen = translate + scale * unitProjection(point). */
+interface ViewXform {
+  k: number;
+  tx: number;
+  ty: number;
+}
+interface SceneSnapshot {
+  key: string;
+  scene: ReactNode;
+  view: ViewXform;
+}
 
 const pie = d3Pie<number>().sort(null);
 
@@ -254,6 +269,7 @@ function CityNode({
   domainScale,
   domainRank,
   labelsOnly,
+  split,
 }: {
   city: CityGroup;
   // The one university currently under the mouse (drives the floating
@@ -276,6 +292,9 @@ function CityNode({
   // Labels are drawn in a separate pass above every glyph, so a later
   // bubble never paints over an earlier label.
   labelsOnly?: boolean;
+  // Offset from this city to the centre of its country, where the country's own circle sits. The
+  // zoom transition slides the city out of (or back into) that point.
+  split?: [number, number];
 }) {
   const n = city.members.length;
   const radiusOf = (m: (typeof city.members)[number]) =>
@@ -302,6 +321,7 @@ function CityNode({
 
   return (
     <g className="geo-city" transform={`translate(${city.x},${city.y})`}>
+      <g className="geo-split" style={split ? ({ "--dx": `${split[0]}px`, "--dy": `${split[1]}px` } as CSSProperties) : undefined}>
       {n > 1 && (
         <>
           <g className="geo-leaders">
@@ -334,6 +354,7 @@ function CityNode({
           </g>
         );
       })}
+      </g>
     </g>
   );
 }
@@ -370,6 +391,10 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
   }, [countryScope]);
 
   const path = useMemo(() => d3GeoPath(projection), [projection]);
+  const countryCentre = useMemo(
+    () => (countryScope ? projection(geoCentroid(NORDICS_GEO[countryScope] as never)) : null),
+    [countryScope, projection],
+  );
 
   const countryNodes = useMemo(() => {
     const byCountry = new Map<string, Person[]>();
@@ -601,15 +626,18 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
   // single unit's own mix on hover, in the panel or on the map.
   const panelR = 44;
 
-  return (
-    <div className={"geo-view" + (panelAgg ? " has-panel" : "")}>
-      <svg viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} className="geo-svg">
+  // ---- cross-zoom between the Nordics and a country --------------------------------------------------
+  // The projection is refitted per scope, so the scenes differ only by a scale and a shift. On a scope
+  // change the previous scene is kept for a moment: it zooms to where it lands in the new fit while
+  // fading out, and the new scene zooms in from where it would have been while fading in.
+  const scene = (
+    <>
         <g className="geo-land">
           {!countryScope
             ? COUNTRY_ORDER.map((cc) => (
-                <path key={cc} className="geo-outline" d={path(NORDICS_GEO[cc] as never) ?? undefined} />
+                <path key={cc} className="geo-outline" data-cc={cc} d={path(NORDICS_GEO[cc] as never) ?? undefined} />
               ))
-            : <path className="geo-outline" d={path(NORDICS_GEO[countryScope] as never) ?? undefined} />}
+            : <path className="geo-outline" data-cc={countryScope} d={path(NORDICS_GEO[countryScope] as never) ?? undefined} />}
         </g>
 
         {!countryScope ? (
@@ -625,6 +653,7 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
                 <g
                   key={c.cc}
                   className="geo-node"
+                  data-cc={c.cc}
                   transform={`translate(${c.x},${c.y})`}
                   onMouseEnter={(e) => setHover({ x: e.clientX, y: e.clientY, title: label, agg: c.agg })}
                   onMouseLeave={() => setHover(null)}
@@ -636,7 +665,10 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
                     dispatch({ type: "SET_SCOPE", scope: "country:" + c.cc });
                   }}
                 >
-                  <GeoGlyph r={c.r} displayR={displayR} agg={c.agg} showPie={showPie} circleFill={circleFill} />
+                  {/* inner wrapper: the zoom transition animates this, not the positioned .geo-node */}
+                  <g className="geo-node-body">
+                    <GeoGlyph r={c.r} displayR={displayR} agg={c.agg} showPie={showPie} circleFill={circleFill} />
+                  </g>
                 </g>
               );
             })}
@@ -658,6 +690,7 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
               <CityNode
                 key={city.city}
                 city={city}
+                split={countryCentre ? [countryCentre[0] - city.x, countryCentre[1] - city.y] : undefined}
                 hoveredName={hover?.title ?? null}
                 onHoverMember={(e, node) => setHover({ x: e.clientX, y: e.clientY, title: node.name, agg: node.agg })}
                 onLeaveMember={() => setHover(null)}
@@ -685,7 +718,98 @@ export default function GeoView({ people, paperCounts }: GeoViewProps) {
             </g>
           </>
         )}
+    </>
+  );
+  const sceneKey = countryScope ?? "all";
+  const view = useMemo<ViewXform>(() => {
+    const [tx, ty] = projection.translate();
+    return { k: projection.scale(), tx, ty };
+  }, [projection]);
+  const lastScene = useRef<SceneSnapshot | null>(null);
+  const zoomTimer = useRef(0);
+  // dir: "in" = Nordics -> a country, "out" = a country -> Nordics, "swap" = anything else (a plain cross-zoom).
+  const [transition, setTransition] = useState<{ from: SceneSnapshot; dir: "in" | "out" | "swap"; cc: string | null } | null>(null);
+  // On a scope change `lastScene` still holds the previous scene (the recording effect below runs after).
+  useLayoutEffect(() => {
+    const prev = lastScene.current;
+    if (!prev || prev.key === sceneKey) return;
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    const fromCountry = prev.key === "all" ? null : prev.key;
+    const dir = !fromCountry && countryScope ? "in" : fromCountry && !countryScope ? "out" : "swap";
+    setTransition({ from: prev, dir, cc: dir === "in" ? countryScope : dir === "out" ? fromCountry : null });
+    window.clearTimeout(zoomTimer.current);
+    zoomTimer.current = window.setTimeout(() => setTransition(null), GEO_ZOOM_MS + 60);
+  }, [sceneKey]);
+  useLayoutEffect(() => {
+    lastScene.current = { key: sceneKey, scene, view };
+  });
+  useEffect(() => () => window.clearTimeout(zoomTimer.current), []);
+  // new scene -> where it sits in the old fit (its starting pose); old scene -> where it sits in the new fit
+  const zoomVars = (s: number, tx: number, ty: number): CSSProperties =>
+    ({ "--s": s, "--bx": `${tx}px`, "--by": `${ty}px` }) as CSSProperties;
+  const inStyle = transition
+    ? zoomVars(transition.from.view.k / view.k, transition.from.view.tx - (transition.from.view.k / view.k) * view.tx, transition.from.view.ty - (transition.from.view.k / view.k) * view.ty)
+    : undefined;
+  const outStyle = transition
+    ? zoomVars(view.k / transition.from.view.k, view.tx - (view.k / transition.from.view.k) * transition.from.view.tx, view.ty - (view.k / transition.from.view.k) * transition.from.view.ty)
+    : undefined;
+
+  // Drilling in, the leaving Nordics scene is drawn ON TOP, so the country's circle stays visible above the
+  // new map's land until it splits; the other way round, the arriving Nordics scene is on top.
+  // The country's own outline is drawn by the zooming scene only: the leaving Nordics scene skips it when
+  // drilling in, and the arriving one waits when drilling out.
+  const leavingLayer = transition && (
+    <g className="geo-scene geo-scene-out" data-skip={transition.dir === "in" ? (transition.cc ?? undefined) : undefined} style={outStyle}>
+      {transition.from.scene}
+    </g>
+  );
+  const currentLayer = (
+    <g
+      className={"geo-scene" + (transition ? " geo-scene-in" : "")}
+      data-skip={transition?.dir === "out" ? (transition.cc ?? undefined) : undefined}
+      style={inStyle}
+    >
+      {scene}
+    </g>
+  );
+
+  return (
+    <div className={"geo-view" + (panelAgg ? " has-panel" : "")}>
+      <svg
+        viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
+        className="geo-svg"
+        data-dir={transition?.dir}
+        style={{ "--geo-ms": `${GEO_ZOOM_MS}ms` } as CSSProperties}
+      >
+        {transition?.dir === "in" ? (
+          <>
+            {currentLayer}
+            {leavingLayer}
+          </>
+        ) : (
+          <>
+            {leavingLayer}
+            {currentLayer}
+          </>
+        )}
       </svg>
+
+      {countryScope && (
+        // in the sea beside the country: a way back to the whole region without the bottom navigation
+        <button
+          type="button"
+          className="geo-back"
+          onClick={() => {
+            setHover(null);
+            dispatch({ type: "SET_SCOPE", scope: NORDICS_SCOPE });
+          }}
+        >
+          <span className="geo-back-arrow" aria-hidden="true">
+            ←
+          </span>{" "}
+          Back to all Nordics
+        </button>
+      )}
 
       {panelAgg && (
         <div className="geo-aid-panel glass-panel">
