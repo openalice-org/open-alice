@@ -31,6 +31,7 @@
   fill: var(--paper-deep);
   stroke: rgba(68, 68, 63, 0.8);
   stroke-width: 1.4;
+  vector-effect: non-scaling-stroke; /* keep the coastline weight while a scene zooms */
   stroke-linejoin: round;
   pointer-events: none;
 }
@@ -317,4 +318,271 @@
   font-size: 10.5px;
   line-height: 1.4;
   color: var(--ink-faint);
+}
+
+/* Drilling into a country (or back out) is staged, half and half. The two scenes sit in a zoom (--s, --bx, --by
+   are set inline: the scale and shift between the two map fits) and every piece moves in its own way, per
+   direction (data-dir on the svg):
+     in   (Nordics -> country): 1st half the camera zooms to the country while the other countries fade;
+                                2nd half its circle splits into the universities, which fan out.
+     out  (country -> Nordics): 1st half the universities merge into the country's circle;
+                                2nd half the camera zooms out while the other countries fade back in.
+     swap (anything else):      a plain cross-zoom.
+   The duration is --geo-ms, set from GEO_ZOOM_MS in GeoView.tsx. */
+.geo-scene-in {
+  animation: geo-scene-in var(--geo-ms, 1200ms) cubic-bezier(0.65, 0, 0.35, 1) both;
+}
+
+.geo-scene-out {
+  pointer-events: none;
+  animation: geo-scene-out var(--geo-ms, 1200ms) cubic-bezier(0.65, 0, 0.35, 1) both;
+}
+
+/* nothing is hoverable or clickable while a transition runs (nodes move under a resting cursor otherwise) */
+.geo-svg[data-dir] .geo-scene-in,
+.geo-svg[data-dir] .geo-scene-in * {
+  pointer-events: none !important;
+}
+
+.geo-svg[data-dir="in"] .geo-scene-in {
+  animation-name: geo-zoom-in;
+}
+.geo-svg[data-dir="in"] .geo-scene-out {
+  animation-name: geo-zoom-away;
+}
+.geo-svg[data-dir="out"] .geo-scene-in {
+  animation-name: geo-zoom-in-late;
+}
+.geo-svg[data-dir="out"] .geo-scene-out {
+  animation-name: geo-zoom-out-late;
+}
+
+/* the country being drilled into keeps ONE outline: the zooming scene draws it, the other waits */
+.geo-scene[data-skip="SE"] .geo-outline[data-cc="SE"],
+.geo-scene[data-skip="NO"] .geo-outline[data-cc="NO"],
+.geo-scene[data-skip="DK"] .geo-outline[data-cc="DK"],
+.geo-scene[data-skip="IS"] .geo-outline[data-cc="IS"],
+.geo-scene[data-skip="FI"] .geo-outline[data-cc="FI"],
+.geo-scene[data-skip="EE"] .geo-outline[data-cc="EE"],
+.geo-scene[data-skip="LV"] .geo-outline[data-cc="LV"],
+.geo-scene[data-skip="LT"] .geo-outline[data-cc="LT"] {
+  display: none;
+}
+
+/* ---- in: the other countries (outlines, circles, names) fade out while the camera zooms ---- */
+.geo-svg[data-dir="in"] .geo-scene-out :is(.geo-outline, .geo-node-body, .geo-labels) {
+  animation: geo-fade-out calc(var(--geo-ms, 1200ms) * 0.45) ease both;
+}
+/* ...but the country's own circle stays whole through the zoom, then gives way as it splits */
+.geo-svg[data-dir="in"] .geo-scene-out[data-skip="SE"] .geo-node[data-cc="SE"] .geo-node-body,
+.geo-svg[data-dir="in"] .geo-scene-out[data-skip="NO"] .geo-node[data-cc="NO"] .geo-node-body,
+.geo-svg[data-dir="in"] .geo-scene-out[data-skip="DK"] .geo-node[data-cc="DK"] .geo-node-body,
+.geo-svg[data-dir="in"] .geo-scene-out[data-skip="IS"] .geo-node[data-cc="IS"] .geo-node-body,
+.geo-svg[data-dir="in"] .geo-scene-out[data-skip="FI"] .geo-node[data-cc="FI"] .geo-node-body,
+.geo-svg[data-dir="in"] .geo-scene-out[data-skip="EE"] .geo-node[data-cc="EE"] .geo-node-body,
+.geo-svg[data-dir="in"] .geo-scene-out[data-skip="LV"] .geo-node[data-cc="LV"] .geo-node-body,
+.geo-svg[data-dir="in"] .geo-scene-out[data-skip="LT"] .geo-node[data-cc="LT"] .geo-node-body {
+  animation: geo-circle-split var(--geo-ms, 1200ms) ease both;
+}
+/* the universities wait for the zoom, then slide out of the country's centre; their names come last */
+.geo-svg[data-dir="in"] .geo-scene-in .geo-split {
+  animation: geo-split-out calc(var(--geo-ms, 1200ms) * 0.5) cubic-bezier(0.2, 0.7, 0.2, 1) calc(var(--geo-ms, 1200ms) * 0.5) both;
+}
+.geo-svg[data-dir="in"] .geo-scene-in .geo-labels {
+  animation: geo-fade-in calc(var(--geo-ms, 1200ms) * 0.25) ease calc(var(--geo-ms, 1200ms) * 0.78) both;
+}
+
+/* ---- out: the universities merge into the country's centre (names leave first)... ---- */
+.geo-svg[data-dir="out"] .geo-scene-out .geo-split {
+  animation: geo-split-in calc(var(--geo-ms, 1200ms) * 0.5) cubic-bezier(0.6, 0, 0.8, 0.3) both;
+}
+.geo-svg[data-dir="out"] .geo-scene-out .geo-labels {
+  animation: geo-fade-out calc(var(--geo-ms, 1200ms) * 0.2) ease both;
+}
+/* ...the country's circle forms where they met, then the camera zooms out and the others fade back in */
+.geo-svg[data-dir="out"] .geo-scene-in[data-skip="SE"] .geo-node[data-cc="SE"] .geo-node-body,
+.geo-svg[data-dir="out"] .geo-scene-in[data-skip="NO"] .geo-node[data-cc="NO"] .geo-node-body,
+.geo-svg[data-dir="out"] .geo-scene-in[data-skip="DK"] .geo-node[data-cc="DK"] .geo-node-body,
+.geo-svg[data-dir="out"] .geo-scene-in[data-skip="IS"] .geo-node[data-cc="IS"] .geo-node-body,
+.geo-svg[data-dir="out"] .geo-scene-in[data-skip="FI"] .geo-node[data-cc="FI"] .geo-node-body,
+.geo-svg[data-dir="out"] .geo-scene-in[data-skip="EE"] .geo-node[data-cc="EE"] .geo-node-body,
+.geo-svg[data-dir="out"] .geo-scene-in[data-skip="LV"] .geo-node[data-cc="LV"] .geo-node-body,
+.geo-svg[data-dir="out"] .geo-scene-in[data-skip="LT"] .geo-node[data-cc="LT"] .geo-node-body {
+  animation: geo-circle-appear calc(var(--geo-ms, 1200ms) * 0.25) ease-out calc(var(--geo-ms, 1200ms) * 0.3) both;
+}
+.geo-svg[data-dir="out"] .geo-scene-in :is(.geo-outline, .geo-node-body, .geo-labels) {
+  animation: geo-fade-in calc(var(--geo-ms, 1200ms) * 0.45) ease calc(var(--geo-ms, 1200ms) * 0.5) both;
+}
+
+@keyframes geo-scene-in {
+  from {
+    transform: translate(var(--bx), var(--by)) scale(var(--s));
+    opacity: 0;
+  }
+  to {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes geo-scene-out {
+  from {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: translate(var(--bx), var(--by)) scale(var(--s));
+    opacity: 0;
+  }
+}
+
+/* the camera moves during one half of the time and holds still for the other */
+@keyframes geo-zoom-in {
+  from {
+    transform: translate(var(--bx), var(--by)) scale(var(--s));
+  }
+  50%,
+  to {
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+@keyframes geo-zoom-away {
+  from {
+    transform: translate(0, 0) scale(1);
+  }
+  50%,
+  to {
+    transform: translate(var(--bx), var(--by)) scale(var(--s));
+  }
+}
+
+@keyframes geo-zoom-in-late {
+  from,
+  50% {
+    transform: translate(var(--bx), var(--by)) scale(var(--s));
+  }
+  to {
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+@keyframes geo-zoom-out-late {
+  from,
+  50% {
+    transform: translate(0, 0) scale(1);
+  }
+  to {
+    transform: translate(var(--bx), var(--by)) scale(var(--s));
+  }
+}
+
+@keyframes geo-circle-split {
+  0%,
+  48% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  64%,
+  100% {
+    transform: scale(0.2);
+    opacity: 0;
+  }
+}
+
+@keyframes geo-circle-appear {
+  from {
+    transform: scale(0.2);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes geo-split-out {
+  from {
+    transform: translate(var(--dx, 0px), var(--dy, 0px)) scale(0.3);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  to {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes geo-split-in {
+  from {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  75% {
+    opacity: 1;
+  }
+  to {
+    transform: translate(var(--dx, 0px), var(--dy, 0px)) scale(0.3);
+    opacity: 0;
+  }
+}
+
+@keyframes geo-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes geo-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+/* "Back to all Nordics": big serif text in the sea beside the country (the left margin) */
+.geo-back {
+  position: absolute;
+  left: clamp(24px, 5vw, 72px);
+  top: clamp(72px, 12vh, 130px);
+  max-width: min(260px, 22vw);
+  padding: 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(20px, 2.2vw, 30px);
+  line-height: 1.12;
+  text-align: left;
+  color: var(--ink);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  animation: geo-fade-in 420ms ease calc(var(--geo-ms, 1200ms) * 0.7) both;
+}
+
+.geo-back:hover,
+.geo-back:focus-visible {
+  text-decoration: underline;
+  text-decoration-color: var(--ink-faint);
+  text-underline-offset: 6px;
+  outline: none;
+}
+
+.geo-back-arrow {
+  display: inline-block;
+  transition: transform 160ms ease;
+}
+
+.geo-back:hover .geo-back-arrow,
+.geo-back:focus-visible .geo-back-arrow {
+  transform: translateX(-5px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .geo-back {
+    animation: none;
+  }
 }

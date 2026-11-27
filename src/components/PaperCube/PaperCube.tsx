@@ -1,8 +1,8 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import type { PersonPaper } from "../../lib/personPapers";
-import type { YearPoint } from "../../lib/trajectory";
+import { hasUmap, type PersonPaper } from "../../lib/personPapers";
+import { buildRoots } from "../../lib/roots";
 import { DOMAIN_COLORS, DOMAIN_COLORS_VIVID } from "../../lib/ternary";
 
 export type PaperSizeMetric = "constant" | "citations" | "coauthors";
@@ -10,9 +10,15 @@ export type PaperSizeMetric = "constant" | "citations" | "coauthors";
 /** Every paper as a dot, or one node per year joined into a path. */
 export type CubeMode = "papers" | "trajectory";
 
-/** Camera presets: the default 3/4 view, straight down, or square-on to one prism face
- * (AB = Sensing/Communication, BC = Communication/Computing, CA = Computing/Sensing). */
-export type ViewId = "home" | "top" | "AB" | "BC" | "CA";
+/** What the floor plane means: the domain triangle, or a UMAP of paper embeddings (topics). */
+export type CubeSpace = "triangle" | "umap";
+
+/** Topics space framing, chosen per person so their papers fill the stage. */
+export interface UmapFrame {
+  cx: number;
+  cy: number;
+  scale: number;
+}
 
 interface PaperCubeProps {
   papers: PersonPaper[]; // already year-filtered by the parent
@@ -22,16 +28,15 @@ interface PaperCubeProps {
   selectedWid: number | null;
   onSelect: (wid: number | null) => void;
   mode: CubeMode;
+  space: CubeSpace;
+  /** Topics space: which UMAP point (0..1) sits on the vertical axis, and how many world units a UMAP unit spans. */
+  frame: UmapFrame;
   /** Trajectory mode: keep the individual papers visible as faint context. */
   ghost: boolean;
-  /** One weighted-average point per year (only drawn in trajectory mode). */
-  trajectory: YearPoint[];
-  selectedYear: number | null;
-  onSelectYear: (year: number | null) => void;
-  /** Requested camera preset; bump `n` to re-apply the same preset (n=0 applies instantly on mount). */
-  view: { id: ViewId; n: number };
-  /** Fired when the user grabs the camera, so the parent can drop the active-preset highlight. */
-  onOrbit: () => void;
+  /** Trajectory mode: the papers the roots grow through (already year-filtered), oldest first. */
+  highlights: PersonPaper[];
+  /** Bump `n` to send the camera to the default view (n=0 applies instantly on mount). */
+  view: { n: number };
 }
 
 // World units. The ternary triangle is SIDE wide; time runs up the Y axis over HEIGHT.
@@ -39,12 +44,20 @@ const SIDE = 10;
 const HEIGHT = 10;
 const R_MIN = 0.09;
 const R_MAX = 0.42;
-const GHOST_SCALE = 0.5; // paper dots shrink to this fraction behind a trajectory
+const GHOST_SCALE = 0.5; // paper icons shrink to this fraction behind the roots
 const GHOST_ALPHA = 0.28;
-const DOT_ALPHA = 0.5; // fixed see-through level for paper dots, independent of camera angle
-const OUTLINE = 1.07; // hairline outline shell scale relative to the dot
+const HIGHLIGHT_SCALE = 1.3; // highlight pages are a little bigger than the ghosts behind them
+const HIGHLIGHT_TINT = 0.8; // and lean harder toward their domain colour
+const GROW_SECONDS = 2.2; // the roots take this long to climb the whole axis
+const ROOT_R_MIN = 0.02; // twig and trunk radii (world units)
+const ROOT_R_MAX = 0.1;
+const ROOT_STEPS = 22; // samples along each branch
+const ICON_HEIGHT = 1.9; // paper icon height as a multiple of the old dot radius
+const ICON_ASPECT = 0.64; // paper icon width / height
+const ICON_ALPHA = 0.85; // overlapping pages show through each other a little
+const PAPER_GREY = new THREE.Color(0xbfc0be); // the lab view's flat grey page
+const PAPER_TINT = 0.35; // how far a page leans toward its domain colour (0 = plain grey, 1 = full colour)
 const INK = 0x181816;
-const OUTLINE_INK = 0x3a3a35;
 const SERIF = "'EB Garamond', Georgia, 'Times New Roman', serif";
 
 // Saturated "toon" versions of the domain colours.
@@ -62,12 +75,6 @@ const CORNERS: { A: XZ; B: XZ; C: XZ } = {
   B: [-SIDE / 2, RAD / 2],
   C: [SIDE / 2, RAD / 2],
 };
-const FACE_EDGES: [keyof typeof CORNERS, keyof typeof CORNERS][] = [
-  ["A", "B"],
-  ["B", "C"],
-  ["C", "A"],
-];
-
 function pointXZ(p: { sensing: number; communication: number; computing: number }): XZ {
   const { A, B, C } = CORNERS;
   return [
@@ -76,26 +83,64 @@ function pointXZ(p: { sensing: number; communication: number; computing: number 
   ];
 }
 
+// UMAP space has no box: papers float around a vertical time axis through the frame's centre.
+// Papers far from the cloud are pulled in softly (never past MAX_R) so a stray paper can't fly off the stage.
+const CORE_R = 3.2;
+const MAX_R = 4.6;
+function umapXZ(p: { ux: number; uy: number }, f: UmapFrame): XZ {
+  const x = (p.ux - f.cx) * f.scale;
+  const z = (p.uy - f.cy) * f.scale;
+  const r = Math.hypot(x, z);
+  if (r <= CORE_R) return [x, z];
+  const k = (CORE_R + (MAX_R - CORE_R) * Math.tanh((r - CORE_R) / (MAX_R - CORE_R))) / r;
+  return [x * k, z * k];
+}
+const GROUND_RADIUS = 6.5; // the soft ground gradient under the Topics cloud
+
+/** Footprint of the triangle prism, in order around its edge. */
+const TRIANGLE: XZ[] = [CORNERS.A, CORNERS.B, CORNERS.C];
+
+interface Face {
+  mx: number;
+  mz: number;
+  nx: number;
+  nz: number;
+}
+
+/** One entry per side face: its midpoint and outward normal (the footprint is centred on the origin). */
+function facesOf(space: CubeSpace): Face[] {
+  if (space === "umap") return []; // no faces: the year labels sit on the axis instead
+  return TRIANGLE.map((p, i) => {
+    const q = TRIANGLE[(i + 1) % TRIANGLE.length];
+    const mx = (p[0] + q[0]) / 2;
+    const mz = (p[1] + q[1]) / 2;
+    const len = Math.hypot(mx, mz) || 1;
+    return { mx, mz, nx: mx / len, nz: mz / len };
+  });
+}
+
+function paperXZ(space: CubeSpace, p: PersonPaper, f: UmapFrame): XZ {
+  return space === "umap" && hasUmap(p) ? umapXZ(p, f) : pointXZ(p);
+}
+
+/** Where a paper sits: its space position on the floor plane, and its year up the axis (with a small
+ * deterministic jitter so same-year papers do not stack in one column). */
+function paperPoint(space: CubeSpace, p: PersonPaper, f: UmapFrame, yearMin: number, yearMax: number): [number, number, number] {
+  const [x, z] = paperXZ(space, p, f);
+  const span = Math.max(1, yearMax - yearMin);
+  const jitter = ((p.wid % 997) / 997 - 0.5) * (HEIGHT / span) * 0.6;
+  const y = Math.min(HEIGHT, Math.max(0, ((p.year - yearMin) / span) * HEIGHT + jitter));
+  return [x, y, z];
+}
+
 const smoothstep = (a: number, b: number, x: number) => {
   const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
   return t * t * (3 - 2 * t);
 };
 
 const TARGET = new THREE.Vector3(0, HEIGHT / 2, 0);
-// Preset views use a narrow field of view from far back, which reads as near-orthographic.
-const NARROW_FOV = 8;
-const NARROW_DIST = 125;
-
-function presetFor(id: ViewId): { offset: THREE.Vector3; fov: number } {
-  // a touch further back than a tight fit, so corner labels and the year chips have room
-  if (id === "home") return { offset: new THREE.Vector3(19, 7.5, 21.5), fov: 40 };
-  if (id === "top") return { offset: new THREE.Vector3(0, 128, 0.01), fov: NARROW_FOV };
-  const [p, q] = FACE_EDGES[id === "AB" ? 0 : id === "BC" ? 1 : 2];
-  const mx = (CORNERS[p][0] + CORNERS[q][0]) / 2;
-  const mz = (CORNERS[p][1] + CORNERS[q][1]) / 2;
-  const len = Math.hypot(mx, mz) || 1;
-  return { offset: new THREE.Vector3((mx / len) * NARROW_DIST, 0, (mz / len) * NARROW_DIST), fov: NARROW_FOV };
-}
+// a touch further back than a tight fit, so corner labels and the year chips have room
+const HOME = { offset: new THREE.Vector3(19, 7.5, 21.5), fov: 40 };
 
 /** Editorial label: letterspaced serif caps, no box. Optional paper halo keeps it legible over dots. */
 function labelSprite(text: string, color: string, scale = 1, italic = false): THREE.Sprite {
@@ -192,7 +237,6 @@ function sizeValue(p: PersonPaper, metric: PaperSizeMetric): number {
   return 1;
 }
 
-const SPLINE_STEPS = 18; // samples per year-to-year stretch
 const TUBE_SIDES = 10;
 
 interface SplineSample {
@@ -202,24 +246,24 @@ interface SplineSample {
   u: number;
 }
 
-/** Sample a centripetal Catmull-Rom spline that passes exactly through every node. */
-function splineSamples(nodes: THREE.Vector3[]): SplineSample[] {
-  if (nodes.length < 2) return [];
-  const curve = new THREE.CatmullRomCurve3(nodes, false, "centripetal");
-  const stretches = nodes.length - 1;
-  const total = stretches * SPLINE_STEPS;
-  const out: SplineSample[] = [];
-  for (let k = 0; k <= total; k++) {
-    const t = k / total;
-    const seg = Math.min(stretches - 1, Math.floor(t * stretches));
-    out.push({ p: curve.getPoint(t), seg, u: t * stretches - seg });
-  }
-  return out;
+/** Toon material for the root tubes: the surface is `position + offset * uK`, where `uK` follows the zoom
+ * (see zoomK), so the lines keep the same thickness on screen when you zoom. */
+function rootMaterial(ramp: THREE.DataTexture, uK: { value: number }): THREE.MeshToonMaterial {
+  const m = new THREE.MeshToonMaterial({ gradientMap: ramp, vertexColors: true });
+  m.onBeforeCompile = (shader) => {
+    shader.uniforms.uK = uK;
+    shader.vertexShader = shader.vertexShader
+      .replace('#include <common>', '#include <common>\nattribute vec3 offset;\nuniform float uK;')
+      .replace('#include <begin_vertex>', 'vec3 transformed = vec3( position ) + offset * uK;');
+  };
+  m.customProgramCacheKey = () => "root-tube";
+  return m;
 }
 
 /**
  * A smooth tube along the samples with a per-sample radius and colour (parallel-transport
- * frames, so it never twists). One mesh, one draw call, smooth shading.
+ * frames, so it never twists). One mesh, one draw call, smooth shading. The surface is the centre
+ * line plus the `offset` attribute, so it needs `rootMaterial` (which applies the zoom scale).
  */
 function tubeAlong(
   samples: SplineSample[],
@@ -228,7 +272,8 @@ function tubeAlong(
   material: THREE.Material,
 ): THREE.Mesh {
   const n = samples.length;
-  const positions = new Float32Array(n * TUBE_SIDES * 3);
+  const positions = new Float32Array(n * TUBE_SIDES * 3); // the centre line, repeated for each side
+  const offsets = new Float32Array(n * TUBE_SIDES * 3); // from the centre line out to the surface (scaled by zoom in the shader)
   const normals = new Float32Array(n * TUBE_SIDES * 3);
   const colors = new Float32Array(n * TUBE_SIDES * 3);
   const tangent = new THREE.Vector3();
@@ -254,9 +299,12 @@ function tubeAlong(
       const a = (j / TUBE_SIDES) * Math.PI * 2;
       dir.copy(normal).multiplyScalar(Math.cos(a)).addScaledVector(binormal, Math.sin(a));
       const o = (k * TUBE_SIDES + j) * 3;
-      positions[o] = samples[k].p.x + dir.x * r;
-      positions[o + 1] = samples[k].p.y + dir.y * r;
-      positions[o + 2] = samples[k].p.z + dir.z * r;
+      positions[o] = samples[k].p.x;
+      positions[o + 1] = samples[k].p.y;
+      positions[o + 2] = samples[k].p.z;
+      offsets[o] = dir.x * r;
+      offsets[o + 1] = dir.y * r;
+      offsets[o + 2] = dir.z * r;
       normals[o] = dir.x;
       normals[o + 1] = dir.y;
       normals[o + 2] = dir.z;
@@ -277,6 +325,7 @@ function tubeAlong(
   }
   const geo = new THREE.BufferGeometry();
   geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+  geo.setAttribute("offset", new THREE.BufferAttribute(offsets, 3));
   geo.setAttribute("normal", new THREE.BufferAttribute(normals, 3));
   geo.setAttribute("color", new THREE.BufferAttribute(colors, 3));
   geo.setIndex(index);
@@ -292,6 +341,76 @@ function niceTicks(lo: number, hi: number): number[] {
   for (let y = first; y <= hi; y += step) ticks.push(y);
   if (!ticks.includes(lo) && ticks[0] - lo >= step / 2) ticks.unshift(lo);
   return ticks.length ? ticks : [lo, hi];
+}
+
+/** A plain page with a small folded corner (the Simplified look of the lab view). White, so the
+ * instance colour sets the page colour; the fold is a slightly darker shade of it. */
+function paperTexture(): THREE.CanvasTexture {
+  const c = document.createElement("canvas");
+  c.width = 96;
+  c.height = 150; // 0.64 aspect, like the lab icons
+  const ctx = c.getContext("2d")!;
+  const [l, t, r, b, fold] = [5, 5, 91, 145, 28];
+  ctx.lineJoin = "round";
+  ctx.beginPath();
+  ctx.moveTo(l, t);
+  ctx.lineTo(r - fold, t);
+  ctx.lineTo(r, t + fold);
+  ctx.lineTo(r, b);
+  ctx.lineTo(l, b);
+  ctx.closePath();
+  ctx.fillStyle = "#ffffff";
+  ctx.fill();
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = "rgba(90,90,88,0.45)";
+  ctx.stroke();
+  // folded corner
+  ctx.beginPath();
+  ctx.moveTo(r - fold, t);
+  ctx.lineTo(r - fold, t + fold);
+  ctx.lineTo(r, t + fold);
+  ctx.closePath();
+  ctx.fillStyle = "#e0e0de";
+  ctx.fill();
+  ctx.stroke();
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 4;
+  return tex;
+}
+
+/** Per-paper icon placement, kept so the icons can be re-aimed at the camera whenever it moves. */
+interface IconData {
+  pos: Float32Array; // x, y, z per icon
+  w: Float32Array;
+  h: Float32Array;
+  /** 0..1 grow-in factor per icon (1 = full size); animations drive it. */
+  k: Float32Array;
+}
+
+// Icons keep the same on-screen size whatever the zoom: their world size is scaled by the camera's
+// distance to the target (and its field of view), normalised to the default 3/4 view (distance ~28.7, fov 40).
+const ICON_REF_SCALE = 28.7 * Math.tan(THREE.MathUtils.degToRad(40) / 2);
+
+/** 1 at the default view; grows as the camera moves away or widens its field of view. Multiplying a
+ * world size by this keeps it the same size on screen whatever the zoom. */
+function zoomK(camera: THREE.PerspectiveCamera, target: THREE.Vector3): number {
+  return (camera.position.distanceTo(target) * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2)) / ICON_REF_SCALE;
+}
+
+function placeIcons(mesh: THREE.InstancedMesh, d: IconData, camera: THREE.PerspectiveCamera, target: THREE.Vector3) {
+  const k = zoomK(camera, target);
+  const m = new THREE.Matrix4();
+  const p = new THREE.Vector3();
+  const sc = new THREE.Vector3();
+  for (let i = 0; i < d.w.length; i++) {
+    p.set(d.pos[3 * i], d.pos[3 * i + 1], d.pos[3 * i + 2]);
+    sc.set(d.w[i] * k * d.k[i], d.h[i] * k * d.k[i], 1);
+    m.compose(p, camera.quaternion, sc);
+    mesh.setMatrixAt(i, m);
+  }
+  mesh.instanceMatrix.needsUpdate = true;
+  mesh.computeBoundingSphere(); // icon size changed, so culling and picking need fresh bounds
 }
 
 function disposeObject(root: THREE.Object3D) {
@@ -316,7 +435,10 @@ interface Scene3D {
   ramp: THREE.DataTexture;
   /** The pickable (front) instanced mesh inside `dots`. */
   points: THREE.InstancedMesh | null;
-  /** Trajectory year nodes (pickable) and the group holding nodes + path. */
+  /** Where each paper icon goes (null when none are drawn). */
+  icons: IconData | null;
+  paperTex: THREE.CanvasTexture;
+  /** Trajectory highlight icons (pickable) and the group holding them + the roots. */
   nodes: THREE.InstancedMesh | null;
   traj: THREE.Group;
   halo: THREE.Sprite;
@@ -324,6 +446,268 @@ interface Scene3D {
   /** Materials that fade as the camera rises toward a top-down view (set by the dots effect). */
   /** Crossfade the year chips between faces, and fade the dots, for the current camera angle. */
   syncView: () => void;
+  /** Switch which footprint the year chips are arranged around (call before the chrome is rebuilt). */
+  setSpace: (space: CubeSpace) => void;
+  /** Which space the axes/frame currently drawn belong to, and how opaque they are (fades during a morph). */
+  chromeSpace: CubeSpace;
+  chromeAlpha: number;
+  /** Which space the paper icons were last laid out for, and where they ended up (by work id). */
+  dotsSpace: CubeSpace;
+  posByWid: Map<number, [number, number, number]>;
+  /** False until the papers have appeared once (that first appearance is animated). */
+  introDone: boolean;
+  years: [number, number];
+  anim: Anim | null;
+  /** Trajectory mode: the highlight icons (also `nodes`, the pickable mesh), the root growth in progress,
+   * and a function that replays the growth. `trajMode` is the mode the trajectory was last built for. */
+  hIcons: IconData | null;
+  /** Zoom scale applied to the root tubes' thickness (a shader uniform). */
+  rootK: { value: number };
+  growth: Growth | null;
+  regrow: (() => void) | null;
+  trajMode: CubeMode;
+}
+
+// ---- animations ------------------------------------------------------------------------------------
+// Papers appear, and move between spaces, in time order: oldest (bottom) first, newest (top) last.
+const STAGGER = 0.75; // s between the bottom and the top paper starting
+const PAPER_DUR = 0.55; // s each paper takes
+const FADE_OUT = 0.25; // s the old axes take to disappear once the papers have settled
+const FADE_IN = 0.35; // s the new axes take to appear
+
+interface Anim {
+  kind: "intro" | "morph";
+  t0: number;
+  from: Float32Array;
+  to: Float32Array;
+  /** Morph: 1 for papers that had no position in the old space (they grow in place instead). */
+  popIn: Uint8Array;
+  /** Seconds each paper waits before it starts (by height). */
+  delay: Float32Array;
+  /** When the last paper lands. */
+  tPapers: number;
+  space: CubeSpace;
+  swapped: boolean;
+  shadow: THREE.InstancedMesh | null;
+}
+
+const unit = (x: number) => Math.min(1, Math.max(0, x));
+const easeInOut = (p: number) => (p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2);
+const easeOutBack = (p: number) => 1 + 2.70158 * Math.pow(p - 1, 3) + 1.70158 * Math.pow(p - 1, 2);
+
+/** Apply `s.chromeAlpha` to everything in the chrome (the triangle's year chips follow it in syncView). */
+function applyChromeAlpha(s: Scene3D) {
+  s.chrome.traverse((o) => {
+    if (o.userData.face !== undefined) return;
+    const mat = (o as THREE.Mesh).material as THREE.Material | THREE.Material[] | undefined;
+    for (const m of Array.isArray(mat) ? mat : mat ? [mat] : []) {
+      if (m.userData.baseOpacity === undefined) {
+        m.userData.baseOpacity = m.opacity;
+        m.userData.baseTransparent = m.transparent;
+      }
+      m.transparent = s.chromeAlpha < 1 || m.userData.baseTransparent;
+      m.opacity = m.userData.baseOpacity * s.chromeAlpha;
+    }
+  });
+}
+
+/** Land everything: final positions and sizes, axes fully shown, trajectory back, shadows in. */
+function finishAnim(s: Scene3D) {
+  const a = s.anim;
+  if (!a) return;
+  if (s.icons) {
+    s.icons.pos.set(a.to);
+    s.icons.k.fill(1);
+  }
+  if (s.chromeSpace !== a.space) buildChrome(s, a.space, s.years[0], s.years[1]);
+  s.chromeAlpha = 1;
+  applyChromeAlpha(s);
+  s.traj.visible = true;
+  if (a.shadow) s.dots.add(a.shadow);
+  s.anim = null;
+  if (a.kind === "morph") s.regrow?.(); // the roots grow again in the new space
+}
+
+/** Advance the running animation to `now`. Returns true while it still has work to do. */
+function stepAnim(s: Scene3D, now: number): boolean {
+  const a = s.anim;
+  const d = s.icons;
+  if (!a || !d) {
+    finishAnim(s);
+    return false;
+  }
+  const t = (now - a.t0) / 1000;
+  let landed = true;
+  for (let i = 0; i < d.w.length; i++) {
+    const p = unit((t - a.delay[i]) / PAPER_DUR);
+    if (p < 1) landed = false;
+    if (a.kind === "morph") {
+      const e = easeInOut(p);
+      for (let c = 0; c < 3; c++) d.pos[3 * i + c] = a.from[3 * i + c] + (a.to[3 * i + c] - a.from[3 * i + c]) * e;
+      d.k[i] = a.popIn[i] ? easeOutBack(p) : 1;
+    } else {
+      d.k[i] = easeOutBack(p);
+    }
+  }
+  if (!landed) return true;
+  if (a.kind === "intro") {
+    finishAnim(s);
+    return false;
+  }
+  // morph, papers landed: the old axes fade out, then the new ones fade in
+  const tc = t - a.tPapers;
+  if (tc < FADE_OUT) {
+    s.chromeAlpha = 1 - unit(tc / FADE_OUT);
+  } else {
+    if (!a.swapped) {
+      s.chromeAlpha = 0;
+      buildChrome(s, a.space, s.years[0], s.years[1]);
+      a.swapped = true;
+    }
+    s.chromeAlpha = unit((tc - FADE_OUT) / FADE_IN);
+  }
+  applyChromeAlpha(s);
+  if (tc >= FADE_OUT + FADE_IN) {
+    finishAnim(s);
+    return false;
+  }
+  return true;
+}
+
+// ---- roots growth ---------------------------------------------------------------------------------
+interface Growth {
+  t0: number;
+  /** One tube per branch: how many segments it has, and the height span it grows across. */
+  edges: { geo: THREE.BufferGeometry; segs: number; yp: number; dy: number }[];
+  /** Height of each highlight page, which pops in when the growing tip reaches it. */
+  ys: Float32Array;
+}
+
+/** Show the roots up to height `h` (Infinity = all of it): branches draw out from their parent,
+ * highlight pages pop in as the tip passes them. */
+function setGrowth(s: Scene3D, h: number) {
+  const g = s.growth;
+  if (!g) return;
+  for (const e of g.edges) e.geo.setDrawRange(0, Math.floor(unit((h - e.yp) / e.dy) * e.segs) * TUBE_SIDES * 6);
+  if (s.hIcons) for (let i = 0; i < g.ys.length; i++) s.hIcons.k[i] = easeOutBack(unit((h - g.ys[i] + 0.1) / 0.7));
+}
+
+function stepGrowth(s: Scene3D, now: number): boolean {
+  const g = s.growth;
+  if (!g) return false;
+  const t = (now - g.t0) / 1000;
+  if (t >= GROW_SECONDS) {
+    setGrowth(s, Infinity);
+    s.growth = null;
+    return false;
+  }
+  // the tip starts just below the first paper (the root) and climbs to the top of the axis
+  let y0 = HEIGHT;
+  for (const y of g.ys) y0 = Math.min(y0, y);
+  const h0 = y0 - 0.2;
+  setGrowth(s, h0 + (t / GROW_SECONDS) * (HEIGHT + 1 - h0));
+  return true;
+}
+
+/** (Re)build the axes and frame for one space: the domain prism, or the Topics axis with its ground. */
+function buildChrome(s: Scene3D, space: CubeSpace, yearMin: number, yearMax: number) {
+  const { chrome } = s;
+  for (const child of [...chrome.children]) {
+    chrome.remove(child);
+    disposeObject(child);
+  }
+  s.setSpace(space);
+  const V = (p: [number, number], y: number) => new THREE.Vector3(p[0], y, p[1]);
+  const inkMat = new THREE.MeshBasicMaterial({ color: 0x44443f });
+  const faintMat = new THREE.LineBasicMaterial({ color: INK, transparent: true, opacity: 0.22 });
+  const span = Math.max(1, yearMax - yearMin);
+
+  if (space === "umap") {
+    // No box: a soft ground gradient fading out from the axis, and one vertical time axis through the
+    // centre, with a small cross and a year chip per tick.
+    const gc = document.createElement("canvas");
+    gc.width = gc.height = 256;
+    const gctx = gc.getContext("2d")!;
+    const grad = gctx.createRadialGradient(128, 128, 0, 128, 128, 128);
+    grad.addColorStop(0, "rgba(24,24,22,0.16)");
+    grad.addColorStop(0.55, "rgba(24,24,22,0.06)");
+    grad.addColorStop(1, "rgba(24,24,22,0)");
+    gctx.fillStyle = grad;
+    gctx.fillRect(0, 0, 256, 256);
+    const ground = new THREE.Mesh(
+      new THREE.CircleGeometry(GROUND_RADIUS, 48).rotateX(-Math.PI / 2),
+      new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(gc), transparent: true, depthWrite: false }),
+    );
+    ground.position.y = 0.005;
+    chrome.add(ground);
+    chrome.add(bar(V([0, 0], 0), V([0, 0], HEIGHT), 0.02, inkMat));
+    const arm = 0.45;
+    for (const yr of niceTicks(yearMin, yearMax)) {
+      const y = ((yr - yearMin) / span) * HEIGHT;
+      chrome.add(
+        new THREE.LineSegments(
+          new THREE.BufferGeometry().setFromPoints([V([-arm, 0], y), V([arm, 0], y), V([0, -arm], y), V([0, arm], y)]),
+          faintMat,
+        ),
+      );
+      const lbl = chipSprite(String(yr));
+      lbl.position.set(0.9, y, 0); // no userData.face: syncView leaves it alone, so it stays visible from every angle
+      chrome.add(lbl);
+    }
+    s.chromeSpace = space;
+    applyChromeAlpha(s);
+    return;
+  }
+
+  const corners = TRIANGLE;
+  const n = corners.length;
+  // floor: each corner glows in its domain colour (it doubles as the legend)
+  const floor = new THREE.BufferGeometry();
+  const pastel = (col: THREE.Color) => col.clone().lerp(new THREE.Color(0xfbfbf9), 0.72);
+  const tris = corners.map((k) => V(k, 0));
+  const fcols = [pastel(cA), pastel(cB), pastel(cC)];
+  floor.setAttribute("position", new THREE.Float32BufferAttribute(tris.flatMap((v) => [v.x, v.y, v.z]), 3));
+  floor.setAttribute("color", new THREE.Float32BufferAttribute(fcols.flatMap((col) => [col.r, col.g, col.b]), 3));
+  const floorMesh = new THREE.Mesh(
+    floor,
+    new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.DoubleSide, transparent: true, opacity: 0.8 }),
+  );
+  floorMesh.position.y = -0.01;
+  chrome.add(floorMesh);
+
+  // chunky frame: bottom + top triangles and a vertical post at each corner
+  for (const y of [0, HEIGHT]) {
+    for (let i = 0; i < n; i++) chrome.add(bar(V(corners[i], y), V(corners[(i + 1) % n], y), y === 0 ? 0.03 : 0.018, inkMat));
+  }
+  for (const k of corners) chrome.add(bar(V(k, 0), V(k, HEIGHT), 0.014, inkMat));
+
+  // year ticks: a faint triangle at each, plus a white year chip on each face (crossfaded in syncView)
+  for (const yr of niceTicks(yearMin, yearMax)) {
+    const y = ((yr - yearMin) / span) * HEIGHT;
+    if (y > 0.05 && y < HEIGHT - 0.05) {
+      chrome.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(corners.map((k) => V(k, y))), faintMat));
+    }
+    for (let face = 0; face < n; face++) {
+      const lbl = chipSprite(String(yr));
+      lbl.userData.tickY = y;
+      lbl.userData.face = face;
+      chrome.add(lbl);
+    }
+  }
+
+  const names: [string, [number, number], string][] = [
+    ["Sensing", corners[0], DOMAIN_COLORS.sensing],
+    ["Communication", corners[1], DOMAIN_COLORS.communication],
+    ["Computing", corners[2], DOMAIN_COLORS.computing],
+  ];
+  for (const [text, p, col] of names) {
+    const lbl = labelSprite(text, col, 0.95);
+    const out = Math.hypot(p[0], p[1]) || 1;
+    lbl.position.set(p[0] + (p[0] / out) * 1.7, HEIGHT + 0.9, p[1] + (p[1] / out) * 1.7);
+    chrome.add(lbl);
+  }
+  s.chromeSpace = space;
+  applyChromeAlpha(s);
 }
 
 export default function PaperCube({
@@ -334,28 +718,25 @@ export default function PaperCube({
   selectedWid,
   onSelect,
   mode,
+  space,
+  frame,
   ghost,
-  trajectory,
-  selectedYear,
-  onSelectYear,
+  highlights,
   view,
-  onOrbit,
 }: PaperCubeProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const s3 = useRef<Scene3D | null>(null);
   const papersRef = useRef<PersonPaper[]>([]);
   const onSelectRef = useRef(onSelect);
-  const trajRef = useRef<YearPoint[]>([]);
+  const highlightsRef = useRef<PersonPaper[]>([]);
+  const growRaf = useRef(0); // the roots growing
   const modeRef = useRef(mode);
-  const onSelectYearRef = useRef(onSelectYear);
-  const onOrbitRef = useRef(onOrbit);
   const animRaf = useRef(0);
+  const dotsRaf = useRef(0); // the paper intro / space-morph animation
   useEffect(() => {
     onSelectRef.current = onSelect;
-    onSelectYearRef.current = onSelectYear;
-    onOrbitRef.current = onOrbit;
     modeRef.current = mode;
-  }, [onSelect, onSelectYear, onOrbit, mode]);
+  }, [onSelect, mode]);
 
   // ---- one-time scene setup ------------------------------------------------
   useEffect(() => {
@@ -407,13 +788,15 @@ export default function PaperCube({
       });
     };
     // Year chips: one set per side face, crossfaded by how squarely each face points at the camera.
-    const faces = FACE_EDGES.map(([p, q]) => {
-      const mx = (CORNERS[p][0] + CORNERS[q][0]) / 2;
-      const mz = (CORNERS[p][1] + CORNERS[q][1]) / 2;
-      const len = Math.hypot(mx, mz) || 1;
-      return { mx, mz, nx: mx / len, nz: mz / len }; // centroid is the origin, so the midpoint direction is the outward normal
-    });
+    let faces = facesOf("triangle");
+    const setSpace = (sp: CubeSpace) => {
+      faces = facesOf(sp);
+    };
     const syncView = () => {
+      const sc = s3.current;
+      if (sc?.points && sc.icons) placeIcons(sc.points, sc.icons, camera, controls.target);
+      if (sc?.nodes && sc.hIcons) placeIcons(sc.nodes, sc.hIcons, camera, controls.target);
+      if (sc) sc.rootK.value = zoomK(camera, controls.target);
       const dx = camera.position.x - controls.target.x;
       const dy = camera.position.y - controls.target.y;
       const dz = camera.position.z - controls.target.z;
@@ -424,8 +807,9 @@ export default function PaperCube({
         if (i === undefined) continue;
         const f = faces[i];
         const sp = o as THREE.Sprite;
-        sp.visible = weights[i] > 0.01;
-        (sp.material as THREE.SpriteMaterial).opacity = weights[i];
+        const w = weights[i] * (s3.current?.chromeAlpha ?? 1);
+        sp.visible = w > 0.01;
+        (sp.material as THREE.SpriteMaterial).opacity = w;
         sp.position.set(f.mx + f.nx * 0.95, o.userData.tickY as number, f.mz + f.nz * 0.95);
       }
     };
@@ -435,7 +819,6 @@ export default function PaperCube({
     });
     controls.addEventListener("start", () => {
       cancelAnimationFrame(animRaf.current);
-      onOrbitRef.current();
     });
 
     const resize = () => {
@@ -475,8 +858,8 @@ export default function PaperCube({
       if (!mesh) return;
       ray.setFromCamera(ndc(e), camera);
       const idx = ray.intersectObject(mesh, false)[0]?.instanceId;
-      if (trajectoryMode) onSelectYearRef.current(idx != null ? (trajRef.current[idx]?.year ?? null) : null);
-      else onSelectRef.current(idx != null ? (papersRef.current[idx]?.wid ?? null) : null);
+      const list = trajectoryMode ? highlightsRef.current : papersRef.current;
+      onSelectRef.current(idx != null ? (list[idx]?.wid ?? null) : null);
     };
     const onMove = (e: PointerEvent) => {
       if (down) return;
@@ -492,7 +875,13 @@ export default function PaperCube({
     el.addEventListener("pointermove", onMove);
 
     const ramp = toonRamp();
-    s3.current = { renderer, scene, camera, controls, chrome, dots, ramp, points: null, nodes: null, traj, halo, render, syncView };
+    const paperTex = paperTexture();
+    s3.current = {
+      renderer, scene, camera, controls, chrome, dots, ramp, paperTex, icons: null, points: null, nodes: null, traj, halo,
+      render, syncView, setSpace,
+      chromeSpace: "triangle", chromeAlpha: 1, dotsSpace: "triangle", posByWid: new Map(), introDone: false,
+      years: [0, 1], anim: null, hIcons: null, rootK: { value: 1 }, growth: null, regrow: null, trajMode: "papers",
+    };
     resize();
     return () => {
       ro.disconnect();
@@ -502,8 +891,11 @@ export default function PaperCube({
       controls.dispose();
       cancelAnimationFrame(raf);
       cancelAnimationFrame(animRaf.current);
+      cancelAnimationFrame(dotsRaf.current);
+      cancelAnimationFrame(growRaf.current);
       disposeObject(scene);
       ramp.dispose();
+      paperTex.dispose();
       renderer.dispose();
       host.removeChild(el);
       s3.current = null;
@@ -514,7 +906,7 @@ export default function PaperCube({
   useEffect(() => {
     const s = s3.current;
     if (!s) return;
-    const goal = presetFor(view.id);
+    const goal = HOME;
     const { camera, controls } = s;
     const duration = view.n === 0 ? 0 : 700;
     const t0 = performance.now();
@@ -545,69 +937,12 @@ export default function PaperCube({
     step(t0);
   }, [view]);
 
-  // ---- axes / triangle chrome: depends only on the year range ---------------
+  // ---- axes / frame: rebuilt when the year range changes (space switches are driven by the papers effect) ----
   useEffect(() => {
     const s = s3.current;
     if (!s) return;
-    const { chrome } = s;
-    for (const child of [...chrome.children]) {
-      chrome.remove(child);
-      disposeObject(child);
-    }
-    const { A: a, B: b, C: c } = CORNERS;
-    const V = (p: [number, number], y: number) => new THREE.Vector3(p[0], y, p[1]);
-    const inkMat = new THREE.MeshBasicMaterial({ color: 0x44443f });
-    const faintMat = new THREE.LineBasicMaterial({ color: INK, transparent: true, opacity: 0.22 });
-
-    // tinted ternary floor: each corner glows in its domain colour (acts as the legend)
-    const floor = new THREE.BufferGeometry();
-    const pos = [V(a, 0), V(b, 0), V(c, 0)].flatMap((v) => [v.x, v.y, v.z]);
-    floor.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
-    const pastel = (col: THREE.Color) => col.clone().lerp(new THREE.Color(0xfbfbf9), 0.72);
-    const fc = [pastel(cA), pastel(cB), pastel(cC)].flatMap((col) => [col.r, col.g, col.b]);
-    floor.setAttribute("color", new THREE.Float32BufferAttribute(fc, 3));
-    const floorMesh = new THREE.Mesh(
-      floor,
-      new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.DoubleSide, transparent: true, opacity: 0.8 }),
-    );
-    floorMesh.position.y = -0.01;
-    chrome.add(floorMesh);
-
-    // chunky frame: bottom + top triangles and three vertical posts
-    const corners = [a, b, c];
-    for (const y of [0, HEIGHT]) {
-      for (let i = 0; i < 3; i++) chrome.add(bar(V(corners[i], y), V(corners[(i + 1) % 3], y), y === 0 ? 0.03 : 0.018, inkMat));
-    }
-    for (const k of corners) chrome.add(bar(V(k, 0), V(k, HEIGHT), 0.014, inkMat));
-
-    // year ticks: a faint triangle at each, plus a white year chip on each face (crossfaded in syncView)
-    const span = Math.max(1, yearMax - yearMin);
-    for (const yr of niceTicks(yearMin, yearMax)) {
-      const y = ((yr - yearMin) / span) * HEIGHT;
-      if (y > 0.05 && y < HEIGHT - 0.05) {
-        chrome.add(
-          new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints([V(a, y), V(b, y), V(c, y)]), faintMat),
-        );
-      }
-      for (let face = 0; face < 3; face++) {
-        const lbl = chipSprite(String(yr));
-        lbl.userData.tickY = y;
-        lbl.userData.face = face;
-        chrome.add(lbl);
-      }
-    }
-
-    const names: [string, [number, number], string][] = [
-      ["Sensing", a, DOMAIN_COLORS.sensing],
-      ["Communication", b, DOMAIN_COLORS.communication],
-      ["Computing", c, DOMAIN_COLORS.computing],
-    ];
-    for (const [text, p, col] of names) {
-      const lbl = labelSprite(text, col, 0.95);
-      const out = Math.hypot(p[0], p[1]) || 1;
-      lbl.position.set(p[0] + (p[0] / out) * 1.7, HEIGHT + 0.9, p[1] + (p[1] / out) * 1.7);
-      chrome.add(lbl);
-    }
+    s.years = [yearMin, yearMax];
+    buildChrome(s, s.chromeSpace, yearMin, yearMax);
     s.syncView();
     s.render();
   }, [yearMin, yearMax]);
@@ -617,50 +952,68 @@ export default function PaperCube({
     const s = s3.current;
     if (!s) return;
     papersRef.current = papers;
+    // A new build supersedes a running animation: settle the axes and the trajectory first.
+    cancelAnimationFrame(dotsRaf.current);
+    if (s.anim) {
+      s.anim = null;
+      s.chromeAlpha = 1;
+      applyChromeAlpha(s);
+      s.traj.visible = true;
+    }
+    s.years = [yearMin, yearMax];
     for (const child of [...s.dots.children]) {
       s.dots.remove(child);
       disposeObject(child);
     }
     s.points = null;
+    s.icons = null;
+    const prevPos = s.posByWid;
+    s.posByWid = new Map();
+    let anim: Anim | null = null;
 
-    // Trajectory mode: papers become faint, smaller context dots (or vanish entirely).
+    // Trajectory mode: papers become faint, smaller context icons (or vanish entirely).
     const ghosting = mode === "trajectory";
     if (papers.length && !(ghosting && !ghost)) {
-      const sphere = new THREE.SphereGeometry(1, 20, 14);
+      // Each paper is a flat page icon that always faces the camera (re-aimed in syncView).
       const front = new THREE.InstancedMesh(
-        sphere,
-        new THREE.MeshToonMaterial({ gradientMap: s.ramp, transparent: true, depthWrite: false, opacity: ghosting ? GHOST_ALPHA : DOT_ALPHA }),
+        new THREE.PlaneGeometry(1, 1),
+        new THREE.MeshBasicMaterial({
+          map: s.paperTex,
+          alphaTest: 0.02,
+          transparent: true,
+          opacity: ghosting ? GHOST_ALPHA : ICON_ALPHA,
+          depthWrite: false,
+          side: THREE.DoubleSide,
+        }),
         papers.length,
       );
-      // ink outline: an inverted-hull shell, slightly larger, back faces only
-      const outline = new THREE.InstancedMesh(
-        sphere.clone(),
-        new THREE.MeshBasicMaterial({ color: OUTLINE_INK, side: THREE.BackSide, transparent: true, opacity: GHOST_ALPHA }),
-        papers.length,
-      );
-      // soft contact shadows on the floor, to read depth at a glance
+      // soft contact shadows on the floor, to read depth at a glance (Domains only)
       const shadow = new THREE.InstancedMesh(
         new THREE.CircleGeometry(1, 20).rotateX(-Math.PI / 2),
         new THREE.MeshBasicMaterial({ color: INK, transparent: true, opacity: 0.07, depthWrite: false }),
         papers.length,
       );
+      shadow.renderOrder = -1;
+      const wantShadow = !ghosting && space !== "umap";
 
-      const span = Math.max(1, yearMax - yearMin);
       let vmax = 0;
       for (const p of papers) vmax = Math.max(vmax, sizeValue(p, sizeBy));
+      const icons: IconData = {
+        pos: new Float32Array(papers.length * 3),
+        w: new Float32Array(papers.length),
+        h: new Float32Array(papers.length),
+        k: new Float32Array(papers.length).fill(1),
+      };
       const m4 = new THREE.Matrix4();
       const col = new THREE.Color();
       papers.forEach((p, i) => {
-        const [x, z] = pointXZ(p);
-        // spread same-year papers slightly in height so they don't z-stack into one column
-        const jitter = ((p.wid % 997) / 997 - 0.5) * (HEIGHT / span) * 0.6;
-        const y = Math.min(HEIGHT, Math.max(0, ((p.year - yearMin) / span) * HEIGHT + jitter));
+        const [x, y, z] = paperPoint(space, p, frame, yearMin, yearMax);
         const t = sizeBy === "constant" || vmax === 0 ? 0.5 : Math.sqrt(sizeValue(p, sizeBy) / vmax);
         const r = (R_MIN + (R_MAX - R_MIN) * t) * (ghosting ? GHOST_SCALE : 1);
-        m4.makeScale(r, r, r).setPosition(x, y, z);
-        front.setMatrixAt(i, m4);
-        m4.makeScale(r * OUTLINE, r * OUTLINE, r * OUTLINE).setPosition(x, y, z);
-        outline.setMatrixAt(i, m4);
+        icons.pos.set([x, y, z], 3 * i);
+        s.posByWid.set(p.wid, [x, y, z]);
+        icons.h[i] = r * ICON_HEIGHT;
+        icons.w[i] = r * ICON_HEIGHT * ICON_ASPECT;
         m4.makeScale(r * 1.1, 1, r * 1.1).setPosition(x, 0.015, z);
         shadow.setMatrixAt(i, m4);
         col.setRGB(
@@ -668,109 +1021,178 @@ export default function PaperCube({
           cA.g * p.sensing + cB.g * p.communication + cC.g * p.computing,
           cA.b * p.sensing + cB.b * p.communication + cC.b * p.computing,
         );
-        front.setColorAt(i, col);
+        front.setColorAt(i, col.lerp(PAPER_GREY, 1 - PAPER_TINT));
       });
-      for (const m of [front, outline, shadow]) m.instanceMatrix.needsUpdate = true;
+      shadow.instanceMatrix.needsUpdate = true;
       if (front.instanceColor) front.instanceColor.needsUpdate = true;
-      front.computeBoundingSphere();
-      shadow.renderOrder = -1;
-      if (!ghosting) s.dots.add(shadow);
-      // the dark outline shell only on ghosts; behind a translucent full-strength dot it would read as gray
-      if (ghosting) s.dots.add(outline);
+
+      // First appearance: grow in, oldest first. Space switch: glide from the old layout, oldest first.
+      const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+      const kind = reduce ? null : !s.introDone ? "intro" : space !== s.dotsSpace ? "morph" : null;
+      s.introDone = true;
+      if (kind) {
+        const n = papers.length;
+        const to = icons.pos.slice();
+        const from = to.slice();
+        const popIn = new Uint8Array(n);
+        const delay = new Float32Array(n);
+        let maxDelay = 0;
+        for (let i = 0; i < n; i++) {
+          delay[i] = (to[3 * i + 1] / HEIGHT) * STAGGER;
+          maxDelay = Math.max(maxDelay, delay[i]);
+        }
+        if (kind === "morph") {
+          papers.forEach((p, i) => {
+            const q = prevPos.get(p.wid);
+            if (q) from.set(q, 3 * i);
+            else popIn[i] = 1;
+          });
+          icons.pos.set(from);
+        }
+        for (let i = 0; i < n; i++) icons.k[i] = kind === "intro" || popIn[i] ? 0 : 1;
+        anim = { kind, t0: performance.now(), from, to, popIn, delay, tPapers: maxDelay + PAPER_DUR, space, swapped: false, shadow: wantShadow ? shadow : null };
+      } else if (wantShadow) {
+        s.dots.add(shadow);
+      }
+      placeIcons(front, icons, s.camera, s.controls.target);
       s.dots.add(front);
       s.points = front;
+      s.icons = icons;
+    }
+    s.dotsSpace = space;
+
+    if (anim) {
+      s.anim = anim;
+      if (anim.kind === "morph") s.traj.visible = false; // the year path reappears once everything has landed
+      else if (s.chromeSpace !== space) buildChrome(s, space, yearMin, yearMax);
+      const loop = (now: number) => {
+        if (s3.current !== s || !s.anim) return;
+        const running = stepAnim(s, now);
+        s.syncView();
+        s.render();
+        if (running) dotsRaf.current = requestAnimationFrame(loop);
+      };
+      dotsRaf.current = requestAnimationFrame(loop);
+    } else if (s.chromeSpace !== space) {
+      buildChrome(s, space, yearMin, yearMax);
     }
     s.syncView();
     s.render();
-  }, [papers, yearMin, yearMax, sizeBy, mode, ghost]);
+  }, [papers, yearMin, yearMax, sizeBy, mode, ghost, space, frame]);
 
-  // ---- trajectory: one node per year at the weighted-average position, joined by a path ----
+  // ---- trajectory: roots that grow up the axis through the person's highlight papers ----
   useEffect(() => {
     const s = s3.current;
     if (!s) return;
-    trajRef.current = trajectory;
+    highlightsRef.current = highlights;
+    cancelAnimationFrame(growRaf.current);
+    s.growth = null;
+    s.regrow = null;
     for (const child of [...s.traj.children]) {
       s.traj.remove(child);
       disposeObject(child);
     }
     s.nodes = null;
-    if (mode === "trajectory" && trajectory.length) {
-      const span = Math.max(1, yearMax - yearMin);
-      const nmax = Math.max(1, ...trajectory.map((p) => p.n));
-      const pts = trajectory.map((p) => {
-        const [x, z] = pointXZ(p.smooth);
-        return new THREE.Vector3(x, Math.min(HEIGHT, Math.max(0, ((p.year - yearMin) / span) * HEIGHT)), z);
-      });
-      const cols = trajectory.map(
-        (p) =>
-          new THREE.Color(
-            cA.r * p.smooth.sensing + cB.r * p.smooth.communication + cC.r * p.smooth.computing,
-            cA.g * p.smooth.sensing + cB.g * p.smooth.communication + cC.g * p.smooth.computing,
-            cA.b * p.smooth.sensing + cB.b * p.smooth.communication + cC.b * p.smooth.computing,
-          ),
-      );
-      // Long careers pack many years into the same height: shrink nodes and path together so
-      // neighbouring years stay separate and the curve between them stays visible.
-      const dense = Math.min(1, Math.max(0.3, ((HEIGHT / span) * 1.1) / 0.53));
-      const rad = (p: YearPoint) => (0.17 + 0.36 * Math.sqrt(p.n / nmax)) * dense;
+    s.hIcons = null;
+    const entering = s.trajMode !== "trajectory";
+    s.trajMode = mode;
+    if (mode === "trajectory" && highlights.length) {
+      const n = highlights.length;
+      const pts = highlights.map((p) => paperPoint(space, p, frame, yearMin, yearMax));
 
-      // year nodes (+ ink outline shells)
-      const sphere = new THREE.SphereGeometry(1, 24, 16);
-      const nodes = new THREE.InstancedMesh(sphere, new THREE.MeshToonMaterial({ gradientMap: s.ramp }), trajectory.length);
-      const outline = new THREE.InstancedMesh(
-        sphere.clone(),
-        new THREE.MeshBasicMaterial({ color: OUTLINE_INK, side: THREE.BackSide }),
-        trajectory.length,
+      // the highlight pages: full strength, a little larger than the ghosts behind them
+      const front = new THREE.InstancedMesh(
+        new THREE.PlaneGeometry(1, 1),
+        new THREE.MeshBasicMaterial({ map: s.paperTex, alphaTest: 0.02, transparent: true, depthWrite: false, side: THREE.DoubleSide }),
+        n,
       );
-      const m4 = new THREE.Matrix4();
-      trajectory.forEach((p, i) => {
-        const r = rad(p);
-        m4.makeScale(r, r, r).setPosition(pts[i]);
-        nodes.setMatrixAt(i, m4);
-        m4.makeScale(r * OUTLINE, r * OUTLINE, r * OUTLINE).setPosition(pts[i]);
-        outline.setMatrixAt(i, m4);
-        nodes.setColorAt(i, cols[i]);
-      });
-      nodes.instanceMatrix.needsUpdate = true;
-      outline.instanceMatrix.needsUpdate = true;
-      if (nodes.instanceColor) nodes.instanceColor.needsUpdate = true;
-      nodes.computeBoundingSphere();
-      s.traj.add(outline, nodes);
-      s.nodes = nodes;
-
-      // path: a spline through the year nodes. Thickness blends between the nodes' paper counts,
-      // colour blends between their domain mixes; stretches that bridge a gap in the record
-      // are washed toward paper so they read as "no data in between".
-      if (trajectory.length > 1) {
-        const samples = splineSamples(pts);
-        const paper = new THREE.Color(0xfbfbf9);
-        const ease = (u: number) => u * u * (3 - 2 * u);
-        const thick = (i: number) => (0.03 + 0.12 * Math.sqrt(trajectory[i].n / nmax)) * dense;
-        const tmp = new THREE.Color();
-        const tube = tubeAlong(
-          samples,
-          (sm) => thick(sm.seg) + (thick(sm.seg + 1) - thick(sm.seg)) * ease(sm.u),
-          (sm) => {
-            tmp.copy(cols[sm.seg]).lerp(cols[sm.seg + 1], ease(sm.u));
-            if (trajectory[sm.seg + 1].year - trajectory[sm.seg].year > 1) tmp.lerp(paper, 0.5);
-            return tmp;
-          },
-          new THREE.MeshToonMaterial({ gradientMap: s.ramp, vertexColors: true }),
+      front.renderOrder = 2;
+      let vmax = 0;
+      for (const p of highlights) vmax = Math.max(vmax, sizeValue(p, sizeBy));
+      const icons: IconData = {
+        pos: new Float32Array(n * 3),
+        w: new Float32Array(n),
+        h: new Float32Array(n),
+        k: new Float32Array(n).fill(1),
+      };
+      const col = new THREE.Color();
+      const ink = new THREE.Color(INK);
+      const edgeCols: THREE.Color[] = [];
+      highlights.forEach((p, i) => {
+        const t = sizeBy === "constant" || vmax === 0 ? 0.5 : Math.sqrt(sizeValue(p, sizeBy) / vmax);
+        const r = (R_MIN + (R_MAX - R_MIN) * t) * HIGHLIGHT_SCALE;
+        icons.pos.set(pts[i], 3 * i);
+        icons.h[i] = r * ICON_HEIGHT;
+        icons.w[i] = r * ICON_HEIGHT * ICON_ASPECT;
+        col.setRGB(
+          cA.r * p.sensing + cB.r * p.communication + cC.r * p.computing,
+          cA.g * p.sensing + cB.g * p.communication + cC.g * p.computing,
+          cA.b * p.sensing + cB.b * p.communication + cC.b * p.computing,
         );
+        edgeCols.push(col.clone().lerp(ink, 0.3)); // a branch wears the colour of the paper it ends on
+        front.setColorAt(i, col.lerp(PAPER_GREY, 1 - HIGHLIGHT_TINT));
+      });
+      if (front.instanceColor) front.instanceColor.needsUpdate = true;
+
+      // the roots: the first highlight is the root, and every other one hangs off the nearest earlier
+      // one, by a curve that leaves its parent heading up and arrives at the paper heading up
+      const { parent, size } = buildRoots(highlights.map((p, i) => ({ x: pts[i][0], y: pts[i][1], z: pts[i][2], year: p.year })));
+      const radius = (sz: number) => ROOT_R_MIN + (ROOT_R_MAX - ROOT_R_MIN) * Math.sqrt(sz / n);
+      const mat = rootMaterial(s.ramp, s.rootK);
+      const edges: Growth["edges"] = [];
+      for (let i = 0; i < n; i++) {
+        if (parent[i] < 0) continue; // the root paper has no branch above it
+        const from = new THREE.Vector3(...pts[parent[i]]);
+        const to = new THREE.Vector3(...pts[i]);
+        const dy = Math.max(to.y - from.y, 0.5);
+        const curve = new THREE.CubicBezierCurve3(
+          from,
+          from.clone().add(new THREE.Vector3(0, 0.55 * dy, 0)),
+          to.clone().sub(new THREE.Vector3(0, 0.45 * dy, 0)),
+          to,
+        );
+        const samples: SplineSample[] = Array.from({ length: ROOT_STEPS + 1 }, (_, k) => ({
+          p: curve.getPoint(k / ROOT_STEPS),
+          seg: 0,
+          u: k / ROOT_STEPS,
+        }));
+        const r0 = radius(size[parent[i]]);
+        const r1 = radius(size[i]);
+        const tube = tubeAlong(samples, (sm) => r0 + (r1 - r0) * sm.u, () => edgeCols[i], mat);
+        tube.frustumCulled = false; // its bounds are the centre line, not the surface
         s.traj.add(tube);
-
-        // the same curve flattened onto the floor: a faint ink trace of where the author has moved
-        s.traj.add(
-          new THREE.Line(
-            new THREE.BufferGeometry().setFromPoints(samples.map((sm) => new THREE.Vector3(sm.p.x, 0.02, sm.p.z))),
-            new THREE.LineBasicMaterial({ color: INK, transparent: true, opacity: 0.3 }),
-          ),
-        );
+        edges.push({ geo: tube.geometry, segs: ROOT_STEPS, yp: from.y, dy });
       }
+
+      placeIcons(front, icons, s.camera, s.controls.target);
+      s.traj.add(front);
+      s.nodes = front;
+      s.hIcons = icons;
+
+      const ys = Float32Array.from(pts, (q) => q[1]);
+      const startGrowth = () => {
+        cancelAnimationFrame(growRaf.current);
+        s.growth = { t0: performance.now(), edges, ys };
+        setGrowth(s, -1); // nothing yet: the roots start from the first paper
+        s.syncView();
+        s.render();
+        const loop = (now: number) => {
+          if (s3.current !== s || !s.growth) return;
+          const running = stepGrowth(s, now);
+          s.syncView();
+          s.render();
+          if (running) growRaf.current = requestAnimationFrame(loop);
+        };
+        growRaf.current = requestAnimationFrame(loop);
+      };
+      s.regrow = startGrowth;
+      const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+      // Grow when the mode is entered; after a space switch the morph hands over via `regrow`.
+      if (entering && !reduce && s.anim?.kind !== "morph") startGrowth();
     }
     s.syncView();
     s.render();
-  }, [trajectory, mode, yearMin, yearMax]);
+  }, [highlights, mode, sizeBy, yearMin, yearMax, space, frame]);
 
   // ---- selection marker --------------------------------------------------------
   useEffect(() => {
@@ -778,13 +1200,8 @@ export default function PaperCube({
     if (!s) return;
     const trajectoryMode = mode === "trajectory";
     const mesh = trajectoryMode ? s.nodes : s.points;
-    const i = trajectoryMode
-      ? selectedYear == null
-        ? -1
-        : trajRef.current.findIndex((p) => p.year === selectedYear)
-      : selectedWid == null
-        ? -1
-        : papersRef.current.findIndex((p) => p.wid === selectedWid);
+    const list = trajectoryMode ? highlightsRef.current : papersRef.current;
+    const i = selectedWid == null ? -1 : list.findIndex((p) => p.wid === selectedWid);
     if (i < 0 || !mesh) {
       s.halo.visible = false;
     } else {
@@ -794,11 +1211,11 @@ export default function PaperCube({
       const scl = new THREE.Vector3();
       m.decompose(pos, new THREE.Quaternion(), scl);
       s.halo.position.copy(pos);
-      s.halo.scale.setScalar(scl.x * 2.9);
+      s.halo.scale.setScalar(scl.y * 1.35); // paper icons are tall quads: scale.y is the height
       s.halo.visible = true;
     }
     s.render();
-  }, [selectedWid, selectedYear, mode, trajectory, papers, yearMin, yearMax, sizeBy, ghost]);
+  }, [selectedWid, mode, highlights, papers, yearMin, yearMax, sizeBy, ghost, space, frame]);
 
   return <div className="paper-cube" ref={hostRef} />;
 }
